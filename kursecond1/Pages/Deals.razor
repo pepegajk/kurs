@@ -1,0 +1,244 @@
+@page "/deals"
+@inject ApiService ApiService
+@inject UserSettingsService SettingsService
+
+<PageTitle>Сделки - AutoMarket</PageTitle>
+
+<div class="page-header">
+    <h1><span class="bi bi-clipboard-check-fill"></span> Сделки</h1>
+    <button class="btn btn-primary" @onclick="ExportToCSV">
+        <span class="bi bi-download"></span> Экспорт CSV
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка сделок...</p>
+    </div>
+}
+else
+{
+    <div class="filters-panel">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <select class="form-select" @onchange="OnFilterStatusChanged">
+                    <option value="">Все статусы</option>
+                    <option value="Pending" selected="@(filterStatus == "Pending")">В ожидании</option>
+                    <option value="Completed" selected="@(filterStatus == "Completed")">Завершено</option>
+                    <option value="Cancelled" selected="@(filterStatus == "Cancelled")">Отменено</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" class="form-control" value="@filterDateFrom?.ToString("yyyy-MM-dd")" @onchange="OnFilterDateFromChanged" />
+            </div>
+            <div class="col-md-3">
+                <input type="date" class="form-control" value="@filterDateTo?.ToString("yyyy-MM-dd")" @onchange="OnFilterDateToChanged" />
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100" @onclick="ClearFilters">
+                    Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Автомобиль</th>
+                    <th>Продавец</th>
+                    <th>Покупатель</th>
+                    <th>Цена</th>
+                    <th>Комиссия</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                    <th>Дата завершения</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var deal in filteredDeals)
+                {
+                    <tr>
+                        <td>@deal.Id</td>
+                        <td>@deal.CarInfo</td>
+                        <td>@deal.SellerName</td>
+                        <td>@deal.BuyerName</td>
+                        <td>@SettingsService.FormatPrice(deal.Price)</td>
+                        <td>
+                            @if (deal.CommissionAmount.HasValue)
+                            {
+                                @SettingsService.FormatPrice(deal.CommissionAmount.Value)
+                                @if (deal.CommissionPercent.HasValue)
+                                {
+                                    <small>(@deal.CommissionPercent.Value%)</small>
+                                }
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @GetStatusBadgeClass(deal.Status)">
+                                @GetStatusText(deal.Status)
+                            </span>
+                        </td>
+                        <td>@SettingsService.FormatDate(deal.CreatedAt)</td>
+                        <td>
+                            @if (deal.CompletedAt.HasValue)
+                            {
+                                @SettingsService.FormatDate(deal.CompletedAt.Value)
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (filteredDeals.Count == 0)
+    {
+        <div class="alert alert-info text-center my-4">
+            <span class="bi bi-info-circle"></span> Сделки не найдены.
+        </div>
+    }
+
+    <div class="stats-bar mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Найдено:</strong> @filteredDeals.Count из @deals.Count
+            </div>
+            <div class="col-md-3">
+                <strong>Завершено:</strong> @filteredDeals.Count(d => d.Status == "Completed")
+            </div>
+            <div class="col-md-3">
+                <strong>В ожидании:</strong> @filteredDeals.Count(d => d.Status == "Pending")
+            </div>
+            <div class="col-md-3">
+                <strong>Общая сумма:</strong> @SettingsService.FormatPrice(filteredDeals.Sum(d => d.Price))
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<DealDto> deals = new();
+    private List<DealDto> filteredDeals = new();
+    private bool isLoading = true;
+    
+    private string filterStatus = "";
+    private DateTime? filterDateFrom;
+    private DateTime? filterDateTo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDeals();
+    }
+
+    private async Task LoadDeals()
+    {
+        isLoading = true;
+        deals = await ApiService.GetDealsAsync();
+        filteredDeals = deals;
+        isLoading = false;
+    }
+
+    private void OnFilterStatusChanged(ChangeEventArgs e)
+    {
+        filterStatus = e.Value?.ToString() ?? "";
+        FilterDeals();
+    }
+
+    private void OnFilterDateFromChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            filterDateFrom = date;
+        }
+        else
+        {
+            filterDateFrom = null;
+        }
+        FilterDeals();
+    }
+
+    private void OnFilterDateToChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            filterDateTo = date;
+        }
+        else
+        {
+            filterDateTo = null;
+        }
+        FilterDeals();
+    }
+
+    private void FilterDeals()
+    {
+        filteredDeals = deals.Where(d =>
+            (string.IsNullOrEmpty(filterStatus) || d.Status == filterStatus) &&
+            (!filterDateFrom.HasValue || d.CreatedAt.Date >= filterDateFrom.Value.Date) &&
+            (!filterDateTo.HasValue || d.CreatedAt.Date <= filterDateTo.Value.Date)
+        ).ToList();
+    }
+
+    private void ClearFilters()
+    {
+        filterStatus = "";
+        filterDateFrom = null;
+        filterDateTo = null;
+        FilterDeals();
+    }
+
+    [Inject] private ExportService ExportService { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+
+    private async Task ExportToCSV()
+    {
+        try
+        {
+            var csvData = ExportService.ExportDealsToCsv(filteredDeals);
+            var fileName = $"deals_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            await JS.InvokeVoidAsync("downloadFile", fileName, Convert.ToBase64String(csvData), "text/csv");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Export error: {ex.Message}");
+        }
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-warning",
+            "Completed" => "bg-success",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" => "В ожидании",
+            "Completed" => "Завершено",
+            "Cancelled" => "Отменено",
+            _ => status
+        };
+    }
+}
+

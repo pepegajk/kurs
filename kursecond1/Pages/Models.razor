@@ -1,0 +1,161 @@
+@page "/models"
+@page "/brands/{BrandId:int}/models"
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Модели - AutoMarket</PageTitle>
+
+<div class="page-header">
+    <h1><span class="bi bi-grid-fill"></span> Модели автомобилей</h1>
+    @if (BrandId.HasValue)
+    {
+        <button class="btn btn-secondary" @onclick="@(() => Navigation.NavigateTo("/models"))">
+            <span class="bi bi-arrow-left"></span> Все модели
+        </button>
+    }
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка моделей...</p>
+    </div>
+}
+else
+{
+    <div class="filters-panel">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" placeholder="🔍 Поиск по названию модели..." 
+                       @bind="searchQuery" @bind:event="oninput" @onkeyup="FilterModels" />
+            </div>
+            @if (!BrandId.HasValue)
+            {
+                <div class="col-md-4">
+                    <select class="form-select" @onchange="OnFilterBrandChanged">
+                        <option value="0">Все бренды</option>
+                        @foreach (var brand in brands)
+                        {
+                            <option value="@brand.Id" selected="@(filterBrandId == brand.Id)">@brand.Name</option>
+                        }
+                    </select>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="models-grid">
+        @foreach (var model in filteredModels)
+        {
+            <div class="model-card">
+                <div class="model-card-header">
+                    <h3>@model.BrandName</h3>
+                </div>
+                <div class="model-card-body">
+                    <h4>@model.Name</h4>
+                    @if (!string.IsNullOrEmpty(model.Description))
+                    {
+                        <p class="model-description">@model.Description</p>
+                    }
+                    <div class="model-years">
+                        @if (model.YearFrom.HasValue || model.YearTo.HasValue)
+                        {
+                            <span class="bi bi-calendar-range"></span>
+                            <span>
+                                @(model.YearFrom?.ToString() ?? "?") - @(model.YearTo?.ToString() ?? "н.в.")
+                            </span>
+                        }
+                    </div>
+                    <div class="model-status">
+                        @if (model.IsActive)
+                        {
+                            <span class="badge bg-success">Активна</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Неактивна</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (filteredModels.Count == 0)
+    {
+        <div class="alert alert-info text-center my-4">
+            <span class="bi bi-info-circle"></span> Модели не найдены.
+        </div>
+    }
+
+    <div class="stats-bar mt-4">
+        <span>Найдено: <strong>@filteredModels.Count</strong> из @models.Count моделей</span>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? BrandId { get; set; }
+
+    private List<ModelDto> models = new();
+    private List<ModelDto> filteredModels = new();
+    private List<BrandDto> brands = new();
+    private bool isLoading = true;
+    
+    private string searchQuery = "";
+    private int filterBrandId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        
+        if (BrandId.HasValue)
+        {
+            models = await ApiService.GetModelsByBrandAsync(BrandId.Value);
+        }
+        else
+        {
+            models = await ApiService.GetModelsAsync();
+            brands = await ApiService.GetBrandsAsync();
+        }
+        
+        filteredModels = models;
+        isLoading = false;
+    }
+
+    private void OnFilterBrandChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var brandId))
+        {
+            filterBrandId = brandId;
+        }
+        else
+        {
+            filterBrandId = 0;
+        }
+        FilterModels();
+    }
+
+    private void FilterModels()
+    {
+        filteredModels = models.Where(m =>
+            (string.IsNullOrEmpty(searchQuery) ||
+             m.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) &&
+            (filterBrandId == 0 || m.BrandId == filterBrandId)
+        ).ToList();
+    }
+}
+

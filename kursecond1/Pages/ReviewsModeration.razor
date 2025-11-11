@@ -1,0 +1,222 @@
+@page "/reviews-moderation"
+@inject AuthService AuthService
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Модерация отзывов - AutoMarket</PageTitle>
+
+@if (!AuthService.IsAdmin)
+{
+    <div class="alert alert-danger">
+        <span class="bi bi-exclamation-triangle"></span> У вас нет доступа к этой странице
+    </div>
+    return;
+}
+
+<div class="page-header">
+    <h1><span class="bi bi-check-circle"></span> Модерация отзывов</h1>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка отзывов...</p>
+    </div>
+}
+else if (pendingReviews.Count == 0)
+{
+    <div class="alert alert-info text-center">
+        <span class="bi bi-info-circle"></span> Нет отзывов на модерацию
+    </div>
+}
+else
+{
+    <div class="reviews-list">
+        @foreach (var review in pendingReviews)
+        {
+            <div class="review-card">
+                <div class="review-header">
+                    <div>
+                        <strong>Отзыв #@review.Id</strong>
+                        <span class="badge bg-warning ms-2">На модерации</span>
+                    </div>
+                    <div class="review-rating">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="bi @(i <= review.Rating ? "bi-star-fill text-warning" : "bi-star")"></span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="review-body">
+                    <p><strong>Комментарий:</strong></p>
+                    <p>@review.Comment</p>
+                    
+                    <div class="review-meta">
+                        <small class="text-muted">
+                            <span class="bi bi-calendar"></span> @review.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </small>
+                    </div>
+                </div>
+
+                <div class="review-actions">
+                    <button class="btn btn-success" @onclick="() => ApproveReview(review.Id)">
+                        <span class="bi bi-check-lg"></span> Одобрить
+                    </button>
+                    <button class="btn btn-danger" @onclick="() => RejectReview(review.Id)">
+                        <span class="bi bi-x-lg"></span> Отклонить
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .reviews-list {
+        display: grid;
+        gap: 20px;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #ffc107;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .review-rating {
+        font-size: 1.2rem;
+    }
+
+    .review-body {
+        margin-bottom: 15px;
+    }
+
+    .review-meta {
+        margin-top: 10px;
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .review-actions button {
+        flex: 1;
+    }
+</style>
+
+@code {
+    private List<ReviewDto> pendingReviews = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!AuthService.IsAdmin)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        await LoadPendingReviews();
+    }
+
+    private async Task LoadPendingReviews()
+    {
+        isLoading = true;
+        try
+        {
+            var response = await ApiService.GetAsync<List<ReviewDto>>("api/reviews/pending");
+            if (response != null)
+            {
+                pendingReviews = response;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading pending reviews: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", "Ошибка при загрузке отзывов");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ApproveReview(int reviewId)
+    {
+        try
+        {
+            var response = await ApiService.PostAsync<object>($"api/reviews/{reviewId}/approve", null);
+            if (response)
+            {
+                pendingReviews.RemoveAll(r => r.Id == reviewId);
+                await JS.InvokeVoidAsync("alert", "Отзыв одобрен!");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Ошибка при одобрении отзыва");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error approving review: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", "Ошибка при одобрении отзыва");
+        }
+    }
+
+    private async Task RejectReview(int reviewId)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Вы уверены, что хотите отклонить этот отзыв?"))
+        {
+            try
+            {
+                var response = await ApiService.PostAsync<object>($"api/reviews/{reviewId}/reject", null);
+                if (response)
+                {
+                    pendingReviews.RemoveAll(r => r.Id == reviewId);
+                    await JS.InvokeVoidAsync("alert", "Отзыв отклонен!");
+                }
+                else
+                {
+                    await JS.InvokeVoidAsync("alert", "Ошибка при отклонении отзыва");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error rejecting review: {ex.Message}");
+                await JS.InvokeVoidAsync("alert", "Ошибка при отклонении отзыва");
+            }
+        }
+    }
+}
+
+// Временный DTO (нужно добавить в Models)
+public class ReviewDto
+{
+    public int Id { get; set; }
+    public int DealId { get; set; }
+    public string? AuthorId { get; set; }
+    public int Rating { get; set; }
+    public string? Comment { get; set; }
+    public bool IsApproved { get; set; }
+    public string? ModeratedBy { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+}
+

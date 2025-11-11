@@ -1,0 +1,139 @@
+﻿@inject AuthService AuthService
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">🚗 AutoMarket</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Главная
+            </NavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="cars">
+                <span class="bi bi-car-front-fill" aria-hidden="true"></span> Автомобили
+            </NavLink>
+        </div>
+
+        @if (AuthService.IsAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="brands">
+                    <span class="bi bi-award-fill" aria-hidden="true"></span> Бренды
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="models">
+                    <span class="bi bi-grid-fill" aria-hidden="true"></span> Модели
+                </NavLink>
+            </div>
+        }
+
+        @if (AuthService.IsManager)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="deals">
+                    <span class="bi bi-clipboard-check-fill" aria-hidden="true"></span> Сделки
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="statistics">
+                    <span class="bi bi-graph-up" aria-hidden="true"></span> Статистика
+                </NavLink>
+            </div>
+        }
+
+        @if (AuthService.IsAdmin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="reviews-moderation">
+                    <span class="bi bi-check-circle" aria-hidden="true"></span> Модерация отзывов
+                </NavLink>
+            </div>
+        }
+
+        @if (AuthService.IsAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="settings">
+                    <span class="bi bi-gear-fill" aria-hidden="true"></span> Настройки
+                </NavLink>
+            </div>
+
+            <hr class="text-white my-2" />
+
+            <div class="nav-item px-3">
+                <div class="nav-link user-info">
+                    <span class="bi bi-person-circle"></span>
+                    <div class="ms-2">
+                        <div class="fw-bold">@AuthService.CurrentUser?.FirstName @AuthService.CurrentUser?.LastName</div>
+                        <small class="text-muted">@GetRoleDisplay()</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link text-start w-100" @onclick="HandleLogout">
+                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Выход
+                </button>
+            </div>
+        }
+        else
+        {
+            <hr class="text-white my-2" />
+            
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Вход
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="register">
+                    <span class="bi bi-person-plus" aria-hidden="true"></span> Регистрация
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override void OnInitialized()
+    {
+        AuthService.OnAuthStateChanged += StateHasChanged;
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+    }
+
+    private string GetRoleDisplay()
+    {
+        if (AuthService.IsAdmin) return "Администратор";
+        if (AuthService.IsManager) return "Менеджер";
+        if (AuthService.IsUser) return "Пользователь";
+        return "Гость";
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= StateHasChanged;
+    }
+}

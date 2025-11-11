@@ -1,0 +1,499 @@
+﻿@page "/"
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+@inject HotkeyService HotkeyService
+
+<PageTitle>AutoMarket - Платформа продажи автомобилей</PageTitle>
+
+<!-- Hero Section -->
+<section class="hero-section text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">Найдите автомобиль своей мечты</h1>
+                <p class="lead mb-4">Более @totalCars автомобилей от проверенных дилеров по всей России</p>
+                <a href="/cars" class="btn btn-light btn-lg">
+                    <i class="bi bi-search"></i> Смотреть каталог
+                </a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-car-front-fill" style="font-size: 12rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Статистика -->
+<section class="stats-section py-4 mb-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+                    <h3>@totalCars</h3>
+                    <p>Автомобилей</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+                    <h3>@totalBrands</h3>
+                    <p>Брендов</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info">
+                        <i class="bi bi-clipboard-check-fill"></i>
+                    </div>
+                    <h3>@totalDeals</h3>
+                    <p>Сделок</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <h3>4.8/5</h3>
+                    <p>Рейтинг</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- О платформе -->
+<section class="about-section py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="mb-4">О нашей платформе</h2>
+                <p class="lead">AutoMarket — это современная платформа для покупки и продажи автомобилей, объединяющая покупателей и проверенных дилеров.</p>
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Только проверенные дилеры</strong> - все продавцы проходят верификацию
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Безопасные сделки</strong> - защита покупателя на каждом этапе
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Прозрачные цены</strong> - никаких скрытых комиссий
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Широкий выбор</strong> - большой каталог автомобилей
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="quick-actions">
+                    <h4 class="mb-3">Быстрый доступ</h4>
+                    <div class="action-cards-grid">
+                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/cars"))">
+                            <i class="bi bi-car-front-fill"></i>
+                            <span>Автомобили</span>
+                            <small>Ctrl+C</small>
+                        </div>
+                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/brands"))">
+                            <i class="bi bi-award-fill"></i>
+                            <span>Бренды</span>
+                            <small>Ctrl+B</small>
+                        </div>
+                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/deals"))">
+                            <i class="bi bi-clipboard-check-fill"></i>
+                            <span>Сделки</span>
+                            <small>Ctrl+D</small>
+                        </div>
+                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/statistics"))">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Статистика</span>
+                            <small>Ctrl+S</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Популярные автомобили -->
+<section class="popular-section py-5 mb-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Популярные предложения</h2>
+            <a href="/cars" class="btn btn-outline-primary">
+                Смотреть все <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
+        @if (isLoading)
+        {
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2 text-muted">Загрузка автомобилей...</p>
+            </div>
+        }
+        else if (featuredCars.Any())
+        {
+            <div class="row g-4">
+                @foreach (var car in featuredCars)
+                {
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 shadow-sm car-card-home" @onclick="@(() => Navigation.NavigateTo($"/cars/{car.Id}"))">
+                            <div class="card-img-placeholder">
+                                <i class="bi bi-car-front-fill"></i>
+                            </div>
+                            
+                            @if (car.IsFeatured)
+                            {
+                                <span class="badge bg-warning position-absolute top-0 end-0 m-2">
+                                    <i class="bi bi-star-fill"></i> VIP
+                                </span>
+                            }
+                            
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold">@car.BrandName @car.ModelName</h6>
+                                <p class="text-muted small mb-2">
+                                    <i class="bi bi-calendar"></i> @car.Year г • 
+                                    <i class="bi bi-speedometer2"></i> @car.Mileage.ToString("N0") км
+                                </p>
+                                <h5 class="text-primary mb-2">@car.Price.ToString("N0") ₽</h5>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span><i class="bi bi-fuel-pump"></i> @car.FuelType</span>
+                                    <span><i class="bi bi-geo-alt"></i> @car.Location</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Загрузите данные из API для отображения автомобилей
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Преимущества -->
+<section class="features-section py-5 mb-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Почему выбирают AutoMarket</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-shield-check feature-icon text-primary"></i>
+                    <h4 class="mt-3">Безопасность сделок</h4>
+                    <p class="text-muted">Проверка всех документов и юридическая чистота автомобилей. Гарантия возврата денег.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-speedometer2 feature-icon text-success"></i>
+                    <h4 class="mt-3">Быстрый подбор</h4>
+                    <p class="text-muted">Умные фильтры и поиск помогут найти идеальный автомобиль за несколько минут.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <i class="bi bi-headset feature-icon text-info"></i>
+                    <h4 class="mt-3">Поддержка 24/7</h4>
+                    <p class="text-muted">Наши менеджеры всегда готовы помочь вам в выборе и оформлении сделки.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Горячие клавиши -->
+<section class="hotkeys-section py-5">
+    <div class="container">
+        <div class="hotkeys-info-card">
+            <h3 class="text-center mb-4">⌨️ Горячие клавиши для быстрой навигации</h3>
+            <div class="hotkeys-grid">
+                <div class="hotkey-item">
+                    <kbd>Ctrl+H</kbd>
+                    <span>Главная</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+C</kbd>
+                    <span>Автомобили</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+B</kbd>
+                    <span>Бренды</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+M</kbd>
+                    <span>Модели</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+D</kbd>
+                    <span>Сделки</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+S</kbd>
+                    <span>Статистика</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+E</kbd>
+                    <span>Настройки</span>
+                </div>
+                <div class="hotkey-item">
+                    <kbd>Ctrl+/</kbd>
+                    <span>Помощь</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+    }
+
+    .stat-icon i {
+        font-size: 2rem;
+    }
+
+    .stat-card h3 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+        color: #333;
+    }
+
+    .stat-card p {
+        color: #666;
+        margin: 0;
+    }
+
+    .action-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .action-card-mini {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid #e2e8f0;
+    }
+
+    .action-card-mini:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-card-mini i {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-card-mini span {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .action-card-mini small {
+        display: block;
+        background: var(--bg-tertiary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .car-card-home {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .car-card-home:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .card-img-placeholder {
+        height: 180px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 4rem;
+        opacity: 0.8;
+    }
+
+    .feature-card {
+        background: white;
+        transition: transform 0.3s;
+        border-radius: 12px;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .feature-icon {
+        font-size: 3.5rem;
+    }
+
+    .hotkeys-info-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .hotkeys-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .hotkey-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+    }
+
+    .hotkey-item kbd {
+        background: var(--bg-tertiary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-family: var(--font-mono);
+        font-size: 0.875rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .hotkey-item span {
+        font-weight: 500;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+
+        .stat-card h3 {
+            font-size: 1.5rem;
+        }
+
+        .action-cards-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hotkeys-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    private int totalCars = 0;
+    private int totalBrands = 0;
+    private int totalDeals = 0;
+    private List<CarDto> featuredCars = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStats();
+        await RegisterHotkeys();
+    }
+
+    private async Task LoadStats()
+    {
+        isLoading = true;
+        try
+        {
+            var cars = await ApiService.GetCarsAsync();
+            var brands = await ApiService.GetBrandsAsync();
+            var deals = await ApiService.GetDealsAsync();
+
+            totalCars = cars.Count;
+            totalBrands = brands.Count;
+            totalDeals = deals.Count;
+
+            // Берём 4 избранных автомобиля для отображения
+            featuredCars = cars.Where(c => c.IsFeatured || c.Status == "Active")
+                              .Take(4)
+                              .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading stats: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task RegisterHotkeys()
+    {
+        await HotkeyService.InitializeAsync();
+        HotkeyService.RegisterHotkey("ctrl+h", () => Navigation.NavigateTo("/"));
+        HotkeyService.RegisterHotkey("ctrl+c", () => Navigation.NavigateTo("/cars"));
+        HotkeyService.RegisterHotkey("ctrl+b", () => Navigation.NavigateTo("/brands"));
+        HotkeyService.RegisterHotkey("ctrl+m", () => Navigation.NavigateTo("/models"));
+        HotkeyService.RegisterHotkey("ctrl+d", () => Navigation.NavigateTo("/deals"));
+        HotkeyService.RegisterHotkey("ctrl+s", () => Navigation.NavigateTo("/statistics"));
+        HotkeyService.RegisterHotkey("ctrl+e", () => Navigation.NavigateTo("/settings"));
+    }
+}

@@ -1,0 +1,81 @@
+﻿@inherits LayoutComponentBase
+@inject HotkeyService HotkeyService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await HotkeyService.InitializeAsync();
+        RegisterHotkeys();
+        
+        AuthService.OnAuthStateChanged += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged()
+    {
+        RegisterHotkeys();
+        StateHasChanged();
+    }
+
+    private void RegisterHotkeys()
+    {
+        // Общие горячие клавиши
+        HotkeyService.RegisterHotkey("ctrl+h", () => Navigation.NavigateTo("/"));
+        HotkeyService.RegisterHotkey("ctrl+c", () => Navigation.NavigateTo("/cars"));
+        HotkeyService.RegisterHotkey("ctrl+s", () => Navigation.NavigateTo("/settings"));
+
+        // Горячие клавиши для авторизованных пользователей
+        if (AuthService.IsAuthenticated)
+        {
+            HotkeyService.RegisterHotkey("ctrl+b", () => Navigation.NavigateTo("/brands"));
+            HotkeyService.RegisterHotkey("ctrl+m", () => Navigation.NavigateTo("/models"));
+        }
+
+        // Горячие клавиши для менеджера
+        if (AuthService.IsManager)
+        {
+            HotkeyService.RegisterHotkey("ctrl+d", () => Navigation.NavigateTo("/deals"));
+            HotkeyService.RegisterHotkey("alt+s", () => Navigation.NavigateTo("/statistics"));
+            HotkeyService.RegisterHotkey("alt+e", () => ExportData());
+            HotkeyService.RegisterHotkey("alt+a", () => Navigation.NavigateTo("/cars")); // Alt+A - Add Car (navigate to cars)
+        }
+
+        // Горячие клавиши для админа
+        if (AuthService.IsAdmin)
+        {
+            HotkeyService.RegisterHotkey("alt+r", () => Navigation.NavigateTo("/reviews-moderation")); // Alt+R - Reviews
+            HotkeyService.RegisterHotkey("alt+b", () => Navigation.NavigateTo("/brands")); // Alt+B - Brands
+            HotkeyService.RegisterHotkey("alt+n", () => Navigation.NavigateTo("/cars")); // Alt+N - New Car
+        }
+    }
+
+    private void ExportData()
+    {
+        // Экспорт данных - можно вызвать действие экспорта
+        Console.WriteLine("Export data hotkey triggered");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        AuthService.OnAuthStateChanged -= OnAuthStateChanged;
+        await HotkeyService.DisposeAsync();
+    }
+}

@@ -1,0 +1,112 @@
+@page "/brands"
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Бренды - AutoMarket</PageTitle>
+
+<div class="page-header">
+    <h1><span class="bi bi-award-fill"></span> Бренды автомобилей</h1>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка брендов...</p>
+    </div>
+}
+else
+{
+    <div class="search-panel mb-4">
+        <input type="text" class="form-control" placeholder="🔍 Поиск по названию или стране..." 
+               @bind="searchQuery" @bind:event="oninput" @onkeyup="FilterBrands" />
+    </div>
+
+    <div class="brands-grid">
+        @foreach (var brand in filteredBrands)
+        {
+            <div class="brand-card" @onclick="@(() => ViewBrandModels(brand.Id))">
+                <div class="brand-card-body">
+                    @if (!string.IsNullOrEmpty(brand.LogoUrl))
+                    {
+                        <div class="brand-logo">
+                            <img src="@brand.LogoUrl" alt="@brand.Name" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="brand-icon">
+                            <span class="bi bi-award"></span>
+                        </div>
+                    }
+                    <h3>@brand.Name</h3>
+                    <p class="brand-country">
+                        <span class="bi bi-flag"></span> @brand.Country
+                    </p>
+                    @if (!string.IsNullOrEmpty(brand.Description))
+                    {
+                        <p class="brand-description">@brand.Description</p>
+                    }
+                    <div class="brand-status">
+                        @if (brand.IsActive)
+                        {
+                            <span class="badge bg-success">Активен</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Неактивен</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (filteredBrands.Count == 0)
+    {
+        <div class="alert alert-info text-center my-4">
+            <span class="bi bi-info-circle"></span> Бренды не найдены.
+        </div>
+    }
+
+    <div class="stats-bar mt-4">
+        <span>Найдено: <strong>@filteredBrands.Count</strong> из @brands.Count брендов</span>
+    </div>
+}
+
+@code {
+    private List<BrandDto> brands = new();
+    private List<BrandDto> filteredBrands = new();
+    private bool isLoading = true;
+    private string searchQuery = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBrands();
+    }
+
+    private async Task LoadBrands()
+    {
+        isLoading = true;
+        brands = await ApiService.GetBrandsAsync();
+        filteredBrands = brands;
+        isLoading = false;
+    }
+
+    private void FilterBrands()
+    {
+        filteredBrands = brands.Where(b =>
+            string.IsNullOrEmpty(searchQuery) ||
+            b.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+            (b.Country?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false)
+        ).ToList();
+    }
+
+    private void ViewBrandModels(int brandId)
+    {
+        Navigation.NavigateTo($"/brands/{brandId}/models");
+    }
+}
+

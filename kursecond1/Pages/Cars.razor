@@ -1,0 +1,242 @@
+@page "/cars"
+
+@inject ApiService ApiService
+@inject UserSettingsService SettingsService
+@inject NavigationManager Navigation
+
+<PageTitle>Автомобили - AutoMarket</PageTitle>
+
+<div class="page-header">
+    <h1><span class="bi bi-car-front-fill"></span> Автомобили</h1>
+    <button class="btn btn-primary" @onclick="ExportToCSV">
+        <span class="bi bi-download"></span> Экспорт CSV
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка автомобилей...</p>
+    </div>
+}
+else
+{
+    <div class="filters-panel">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <input type="text" class="form-control" placeholder="🔍 Поиск по VIN..." 
+                       @bind="searchQuery" @bind:event="oninput" @onkeyup="FilterCars" />
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" @onchange="OnFilterStatusChanged">
+                    <option value="">Все статусы</option>
+                    <option value="Active" selected="@(filterStatus == "Active")">Активные</option>
+                    <option value="Sold" selected="@(filterStatus == "Sold")">Проданные</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" @onchange="OnFilterFuelTypeChanged">
+                    <option value="">Все типы топлива</option>
+                    <option value="Бензин" selected="@(filterFuelType == "Бензин")">Бензин</option>
+                    <option value="Дизель" selected="@(filterFuelType == "Дизель")">Дизель</option>
+                    <option value="Гибрид" selected="@(filterFuelType == "Гибрид")">Гибрид</option>
+                    <option value="Электро" selected="@(filterFuelType == "Электро")">Электро</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100" @onclick="ClearFilters">
+                    Сбросить фильтры
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <span>Найдено: <strong>@filteredCars.Count</strong> из @cars.Count</span>
+    </div>
+
+    <div class="cars-grid">
+        @foreach (var car in GetPagedCars())
+        {
+            <div class="car-card" @onclick="@(() => ViewCarDetails(car.Id))">
+                <div class="car-card-header">
+                    @if (car.IsFeatured)
+                    {
+                        <span class="badge bg-warning">⭐ Рекомендуем</span>
+                    }
+                    <span class="badge @GetStatusBadgeClass(car.Status)">@car.Status</span>
+                </div>
+                <div class="car-card-body">
+                    <h3>@car.BrandName @car.ModelName</h3>
+                    <div class="car-details">
+                        <div class="detail-item">
+                            <span class="bi bi-calendar"></span> @car.Year
+                        </div>
+                        <div class="detail-item">
+                            <span class="bi bi-speedometer2"></span> @car.Mileage.ToString("N0") км
+                        </div>
+                        <div class="detail-item">
+                            <span class="bi bi-fuel-pump"></span> @car.FuelType
+                        </div>
+                        <div class="detail-item">
+                            <span class="bi bi-gear"></span> @car.Transmission
+                        </div>
+                    </div>
+                    <div class="car-location">
+                        <span class="bi bi-geo-alt"></span> @car.Location
+                    </div>
+                    <div class="car-price">
+                        @SettingsService.FormatPrice(car.Price)
+                    </div>
+                    <div class="car-stats">
+                        <small><span class="bi bi-eye"></span> @car.ViewsCount просмотров</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (filteredCars.Count == 0)
+    {
+        <div class="alert alert-info text-center my-4">
+            <span class="bi bi-info-circle"></span> Автомобили не найдены. Попробуйте изменить фильтры.
+        </div>
+    }
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" @onclick="@(() => ChangePage(currentPage - 1))">Назад</a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        var pageNum = i;
+                        <li class="page-item @(currentPage == pageNum ? "active" : "")">
+                            <a class="page-link" @onclick="@(() => ChangePage(pageNum))">@pageNum</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" @onclick="@(() => ChangePage(currentPage + 1))">Вперёд</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+}
+
+@code {
+    private List<CarDto> cars = new();
+    private List<CarDto> filteredCars = new();
+    private bool isLoading = true;
+    
+    private string searchQuery = "";
+    private string filterStatus = "";
+    private string filterFuelType = "";
+    
+    private int currentPage = 1;
+    private int pageSize => SettingsService.GetSettings().PageSize;
+    private int totalPages => (int)Math.Ceiling((double)filteredCars.Count / pageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCars();
+    }
+
+    private async Task LoadCars()
+    {
+        isLoading = true;
+        cars = await ApiService.GetCarsAsync();
+        filteredCars = cars;
+        isLoading = false;
+    }
+
+    private void OnFilterStatusChanged(ChangeEventArgs e)
+    {
+        filterStatus = e.Value?.ToString() ?? "";
+        FilterCars();
+    }
+
+    private void OnFilterFuelTypeChanged(ChangeEventArgs e)
+    {
+        filterFuelType = e.Value?.ToString() ?? "";
+        FilterCars();
+    }
+
+    private void FilterCars()
+    {
+        filteredCars = cars.Where(c =>
+            (string.IsNullOrEmpty(searchQuery) || 
+             c.VIN.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+             c.BrandName?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) == true ||
+             c.ModelName?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) == true) &&
+            (string.IsNullOrEmpty(filterStatus) || c.Status == filterStatus) &&
+            (string.IsNullOrEmpty(filterFuelType) || c.FuelType == filterFuelType)
+        ).ToList();
+        
+        currentPage = 1;
+    }
+
+    private void ClearFilters()
+    {
+        searchQuery = "";
+        filterStatus = "";
+        filterFuelType = "";
+        FilterCars();
+    }
+
+    private List<CarDto> GetPagedCars()
+    {
+        return filteredCars
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void ChangePage(int page)
+    {
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+        }
+    }
+
+    private void ViewCarDetails(int carId)
+    {
+        Navigation.NavigateTo($"/cars/{carId}");
+    }
+
+    [Inject] private ExportService ExportService { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+
+    private async Task ExportToCSV()
+    {
+        try
+        {
+            var csvData = ExportService.ExportCarsToCsv(filteredCars);
+            var fileName = $"cars_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            await JS.InvokeVoidAsync("downloadFile", fileName, Convert.ToBase64String(csvData), "text/csv");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Export error: {ex.Message}");
+        }
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Active" => "bg-success",
+            "Sold" => "bg-secondary",
+            "Reserved" => "bg-warning",
+            _ => "bg-info"
+        };
+    }
+}
+

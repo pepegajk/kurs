@@ -1,0 +1,77 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\bundle\\kursecond1.styles.css",
+      "PackagePath": "staticwebassets\\kursecond1.styles.css"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\css\\brand.css",
+      "PackagePath": "staticwebassets\\css\\brand.css"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\icon-192.png",
+      "PackagePath": "staticwebassets\\icon-192.png"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\charts.js",
+      "PackagePath": "staticwebassets\\js\\charts.js"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\export.js",
+      "PackagePath": "staticwebassets\\js\\export.js"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\hotkeys.js",
+      "PackagePath": "staticwebassets\\js\\hotkeys.js"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\sample-data\\weather.json",
+      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.kursecond1.props",
+      "PackagePath": "build\\kursecond1.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.kursecond1.props",
+      "PackagePath": "buildMultiTargeting\\kursecond1.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.kursecond1.props",
+      "PackagePath": "buildTransitive\\kursecond1.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.kursecond1.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.kursecond1.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

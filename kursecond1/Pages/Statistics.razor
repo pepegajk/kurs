@@ -1,0 +1,266 @@
+@page "/statistics"
+@inject ApiService ApiService
+@inject UserSettingsService SettingsService
+@inject IJSRuntime JS
+
+<PageTitle>Статистика - AutoMarket</PageTitle>
+
+<div class="page-header">
+    <h1><span class="bi bi-graph-up"></span> Статистика и аналитика</h1>
+    <button class="btn btn-primary" @onclick="ExportReport">
+        <span class="bi bi-file-earmark-pdf"></span> Экспорт отчёта
+    </button>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка статистики...</p>
+    </div>
+}
+else if (statistics != null)
+{
+    <div class="filters-panel mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Период с:</label>
+                <input type="date" class="form-control" value="@dateFrom?.ToString("yyyy-MM-dd")" @onchange="OnDateFromChanged" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Период до:</label>
+                <input type="date" class="form-control" value="@dateTo?.ToString("yyyy-MM-dd")" @onchange="OnDateToChanged" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-secondary w-100" @onclick="ResetPeriod">
+                    <span class="bi bi-arrow-clockwise"></span> Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Общая статистика -->
+    <div class="stats-overview">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card primary">
+                    <div class="stat-icon"><span class="bi bi-car-front"></span></div>
+                    <div class="stat-content">
+                        <h3>@statistics.TotalCars</h3>
+                        <p>Всего автомобилей</p>
+                        <small class="text-success">@statistics.ActiveCars активных</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <div class="stat-icon"><span class="bi bi-clipboard-check"></span></div>
+                    <div class="stat-content">
+                        <h3>@statistics.TotalDeals</h3>
+                        <p>Всего сделок</p>
+                        <small class="text-success">@statistics.CompletedDeals завершено</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card warning">
+                    <div class="stat-icon"><span class="bi bi-currency-exchange"></span></div>
+                    <div class="stat-content">
+                        <h3>@SettingsService.FormatPrice(statistics.TotalRevenue)</h3>
+                        <p>Общая выручка</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card info">
+                    <div class="stat-icon"><span class="bi bi-graph-up-arrow"></span></div>
+                    <div class="stat-content">
+                        <h3>@SettingsService.FormatPrice(statistics.AverageCarPrice)</h3>
+                        <p>Средняя цена</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Графики -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h4><span class="bi bi-pie-chart-fill"></span> Топ-5 брендов</h4>
+                <canvas id="brandsChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h4><span class="bi bi-bar-chart-fill"></span> Распределение по ценам</h4>
+                <canvas id="priceRangeChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <h4><span class="bi bi-graph-up"></span> Сделки по месяцам</h4>
+                <canvas id="dealsChart" width="800" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сводные таблицы -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="table-card">
+                <h4><span class="bi bi-list-ol"></span> Топ бренды</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Бренд</th>
+                            <th class="text-end">Количество</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var brand in statistics.TopBrands.Take(10))
+                        {
+                            <tr>
+                                <td>@brand.BrandName</td>
+                                <td class="text-end"><strong>@brand.Count</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="table-card">
+                <h4><span class="bi bi-calendar-month"></span> Продажи по месяцам</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Месяц</th>
+                            <th class="text-end">Сделок</th>
+                            <th class="text-end">Выручка</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var month in statistics.DealsByMonth.Take(12))
+                        {
+                            <tr>
+                                <td>@month.Month</td>
+                                <td class="text-end"><strong>@month.Count</strong></td>
+                                <td class="text-end">@SettingsService.FormatPrice(month.Revenue)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <span class="bi bi-exclamation-triangle"></span> Не удалось загрузить статистику.
+    </div>
+}
+
+@code {
+    private StatisticsDto? statistics;
+    private bool isLoading = true;
+    private DateTime? dateFrom;
+    private DateTime? dateTo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStatistics();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && statistics != null)
+        {
+            await RenderCharts();
+        }
+    }
+
+    private void OnDateFromChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            dateFrom = date;
+        }
+        else
+        {
+            dateFrom = null;
+        }
+        _ = LoadStatistics();
+    }
+
+    private void OnDateToChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            dateTo = date;
+        }
+        else
+        {
+            dateTo = null;
+        }
+        _ = LoadStatistics();
+    }
+
+    private async Task LoadStatistics()
+    {
+        isLoading = true;
+        statistics = await ApiService.GetStatisticsAsync();
+        isLoading = false;
+        
+        if (statistics != null)
+        {
+            await RenderCharts();
+        }
+    }
+
+    private async Task RenderCharts()
+    {
+        if (statistics == null) return;
+
+        try
+        {
+            // Brands Chart (Pie)
+            var brandsLabels = statistics.TopBrands.Take(5).Select(b => b.BrandName).ToArray();
+            var brandsData = statistics.TopBrands.Take(5).Select(b => b.Count).ToArray();
+            await JS.InvokeVoidAsync("renderPieChart", "brandsChart", brandsLabels, brandsData, "Топ-5 брендов");
+
+            // Price Range Chart (Bar)
+            var priceLabels = statistics.CarsByPriceRange.Select(p => p.Range).ToArray();
+            var priceData = statistics.CarsByPriceRange.Select(p => p.Count).ToArray();
+            await JS.InvokeVoidAsync("renderBarChart", "priceRangeChart", priceLabels, priceData, "Распределение по ценам");
+
+            // Deals by Month Chart (Line)
+            var monthLabels = statistics.DealsByMonth.Take(12).Select(d => d.Month).ToArray();
+            var monthData = statistics.DealsByMonth.Take(12).Select(d => d.Count).ToArray();
+            await JS.InvokeVoidAsync("renderLineChart", "dealsChart", monthLabels, monthData, "Сделки по месяцам");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error rendering charts: {ex.Message}");
+        }
+    }
+
+    private void ResetPeriod()
+    {
+        dateFrom = null;
+        dateTo = null;
+    }
+
+    private async Task ExportReport()
+    {
+        Console.WriteLine("Exporting report...");
+    }
+}
+

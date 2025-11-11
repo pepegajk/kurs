@@ -1,0 +1,168 @@
+@page "/settings"
+@inject UserSettingsService SettingsService
+@inject NavigationManager Navigation
+
+<PageTitle>Настройки - AutoMarket</PageTitle>
+
+<div class="page-header">
+    <h1><span class="bi bi-gear-fill"></span> Настройки пользователя</h1>
+</div>
+
+<div class="settings-container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="settings-card">
+                <h3><span class="bi bi-palette-fill"></span> Внешний вид</h3>
+                
+                <div class="mb-3">
+                    <label class="form-label">Тема оформления:</label>
+                    <select class="form-select" @bind="settings.Theme" @bind:after="SaveSettings">
+                        <option value="Light">Светлая</option>
+                        <option value="Dark">Тёмная</option>
+                        <option value="Auto">Автоматическая</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Язык интерфейса:</label>
+                    <select class="form-select" @bind="settings.Language" @bind:after="SaveSettings">
+                        <option value="ru">Русский</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-card mt-4">
+                <h3><span class="bi bi-calendar-event"></span> Форматы данных</h3>
+                
+                <div class="mb-3">
+                    <label class="form-label">Формат даты:</label>
+                    <select class="form-select" @bind="settings.DateFormat" @bind:after="SaveSettings">
+                        <option value="dd.MM.yyyy">ДД.ММ.ГГГГ (например: @DateTime.Now.ToString("dd.MM.yyyy"))</option>
+                        <option value="MM/dd/yyyy">ММ/ДД/ГГГГ (например: @DateTime.Now.ToString("MM/dd/yyyy"))</option>
+                        <option value="yyyy-MM-dd">ГГГГ-ММ-ДД (например: @DateTime.Now.ToString("yyyy-MM-dd"))</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Формат времени:</label>
+                    <select class="form-select" @bind="settings.TimeFormat" @bind:after="SaveSettings">
+                        <option value="HH:mm">24-часовой (например: @DateTime.Now.ToString("HH:mm"))</option>
+                        <option value="hh:mm tt">12-часовой (например: @DateTime.Now.ToString("hh:mm tt"))</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Валюта:</label>
+                    <select class="form-select" @bind="settings.Currency" @bind:after="SaveSettings">
+                        <option value="RUB">Российский рубль (₽)</option>
+                        <option value="USD">Доллар США ($)</option>
+                        <option value="EUR">Евро (€)</option>
+                    </select>
+                    <div class="form-text">
+                        Пример: @SettingsService.FormatPrice(1500000m)
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card mt-4">
+                <h3><span class="bi bi-grid-3x3-gap"></span> Отображение</h3>
+                
+                <div class="mb-3">
+                    <label class="form-label">Размер страницы (элементов на странице):</label>
+                    <input type="number" class="form-control" @bind="settings.PageSize" 
+                           @bind:after="SaveSettings" min="10" max="100" step="5" />
+                    <div class="form-text">От 10 до 100 элементов</div>
+                </div>
+            </div>
+
+            <div class="settings-card mt-4">
+                <h3><span class="bi bi-bell-fill"></span> Уведомления</h3>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" 
+                           @bind="settings.EmailNotifications" @bind:after="SaveSettings" id="emailNotif" />
+                    <label class="form-check-label" for="emailNotif">
+                        Email уведомления
+                    </label>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" 
+                           @bind="settings.PushNotifications" @bind:after="SaveSettings" id="pushNotif" />
+                    <label class="form-check-label" for="pushNotif">
+                        Push уведомления
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-primary" @onclick="SaveSettings">
+                    <span class="bi bi-check-circle"></span> Сохранить изменения
+                </button>
+                <button class="btn btn-outline-secondary ms-2" @onclick="ResetSettings">
+                    <span class="bi bi-arrow-counterclockwise"></span> Сбросить
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="info-card">
+                <h4><span class="bi bi-info-circle"></span> Информация</h4>
+                <p>Настройки сохраняются автоматически при изменении.</p>
+                <p>Все настройки хранятся на сервере и будут доступны с любого устройства.</p>
+                
+                <hr />
+                
+                <h5>Текущие настройки:</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Тема:</strong> @settings.Theme</li>
+                    <li><strong>Язык:</strong> @settings.Language</li>
+                    <li><strong>Формат даты:</strong> @settings.DateFormat</li>
+                    <li><strong>Валюта:</strong> @settings.Currency</li>
+                    <li><strong>Размер страницы:</strong> @settings.PageSize</li>
+                </ul>
+            </div>
+
+            <div class="info-card mt-3">
+                <h4><span class="bi bi-keyboard"></span> Горячие клавиши</h4>
+                <p>Используйте клавиатурные сокращения для быстрой навигации:</p>
+                <ul class="hotkeys-list">
+                    <li><kbd>Ctrl+H</kbd> - Главная</li>
+                    <li><kbd>Ctrl+C</kbd> - Автомобили</li>
+                    <li><kbd>Ctrl+B</kbd> - Бренды</li>
+                    <li><kbd>Ctrl+M</kbd> - Модели</li>
+                    <li><kbd>Ctrl+D</kbd> - Сделки</li>
+                    <li><kbd>Ctrl+S</kbd> - Статистика</li>
+                    <li><kbd>Ctrl+E</kbd> - Настройки</li>
+                    <li><kbd>Ctrl+/</kbd> - Помощь</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserSettingsDto settings = new();
+
+    protected override void OnInitialized()
+    {
+        settings = SettingsService.GetSettings();
+    }
+
+    private void SaveSettings()
+    {
+        if (settings.PageSize < 10) settings.PageSize = 10;
+        if (settings.PageSize > 100) settings.PageSize = 100;
+        
+        SettingsService.UpdateSettings(settings);
+        StateHasChanged();
+    }
+
+    private void ResetSettings()
+    {
+        settings = new UserSettingsDto();
+        SaveSettings();
+    }
+}
+

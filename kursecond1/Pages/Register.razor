@@ -1,0 +1,206 @@
+@page "/register"
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Регистрация - AutoMarket</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2><span class="bi bi-person-plus"></span> Регистрация</h2>
+            <p>Создайте новую учетную запись AutoMarket</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <span class="bi bi-exclamation-triangle"></span> @errorMessage
+            </div>
+        }
+
+        <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+            <DataAnnotationsValidator />
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="firstName" class="form-label">Имя*</label>
+                    <InputText id="firstName" @bind-Value="registerModel.FirstName" class="form-control" />
+                    <ValidationMessage For="@(() => registerModel.FirstName)" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lastName" class="form-label">Фамилия*</label>
+                    <InputText id="lastName" @bind-Value="registerModel.LastName" class="form-control" />
+                    <ValidationMessage For="@(() => registerModel.LastName)" />
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="userName" class="form-label">Имя пользователя*</label>
+                <InputText id="userName" @bind-Value="registerModel.UserName" class="form-control" />
+                <ValidationMessage For="@(() => registerModel.UserName)" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email*</label>
+                <InputText id="email" type="email" @bind-Value="registerModel.Email" class="form-control" />
+                <ValidationMessage For="@(() => registerModel.Email)" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="phoneNumber" class="form-label">Телефон</label>
+                <InputText id="phoneNumber" @bind-Value="registerModel.PhoneNumber" class="form-control" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="password" class="form-label">Пароль*</label>
+                    <InputText id="password" type="password" @bind-Value="registerModel.Password" class="form-control" />
+                    <ValidationMessage For="@(() => registerModel.Password)" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="confirmPassword" class="form-label">Подтверждение*</label>
+                    <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" class="form-control" />
+                    <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="city" class="form-label">Город</label>
+                    <InputText id="city" @bind-Value="registerModel.City" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="address" class="form-label">Адрес</label>
+                    <InputText id="address" @bind-Value="registerModel.Address" class="form-control" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                Зарегистрироваться
+            </button>
+        </EditForm>
+
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .auth-header h2 {
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .auth-header p {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .auth-footer p {
+        margin: 0;
+        color: #666;
+    }
+
+    .auth-footer a {
+        color: #667eea;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+</style>
+
+@code {
+    private RegisterDto registerModel = new();
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Если уже авторизован, перенаправляем на главную
+        if (AuthService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private async Task HandleRegister()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            var success = await AuthService.RegisterAsync(registerModel);
+            
+            if (success)
+            {
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "Не удалось зарегистрироваться. Возможно, пользователь с таким Email уже существует.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Произошла ошибка: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
