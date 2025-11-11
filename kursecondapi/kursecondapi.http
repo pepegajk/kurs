@@ -1,0 +1,6 @@
+@kursecondapi_HostAddress = http://localhost:5263
+
+GET {{kursecondapi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

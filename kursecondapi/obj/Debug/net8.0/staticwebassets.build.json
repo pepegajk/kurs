@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "rmHldFzPq3hAcMJtcHSigHaacq1YH80a1YbLLHEl4yU=",
+  "Source": "kursecondapi",
+  "BasePath": "_content/kursecondapi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

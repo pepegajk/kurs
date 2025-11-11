@@ -1,0 +1,171 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\controllers\\statisticscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\controllers\\statisticscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\models\\car.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\models\\car.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\models\\brand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\models\\brand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\controllers\\brandscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\controllers\\brandscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\models\\model.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\models\\model.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|c:\\users\\\u0432\u0435\u0440\u0430\\desktop\\c#\\kursecondapi\\kursecondapi\\models\\vwactivecar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE89BDAA-48BD-41FC-B35D-DCCA3D2024DA}|kursecondapi\\kursecondapi.csproj|solutionrelative:kursecondapi\\models\\vwactivecar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 384,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "StatisticsController.cs",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Controllers\\StatisticsController.cs",
+              "RelativeDocumentMoniker": "kursecondapi\\Controllers\\StatisticsController.cs",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Controllers\\StatisticsController.cs",
+              "RelativeToolTip": "kursecondapi\\Controllers\\StatisticsController.cs",
+              "ViewState": "AgIAAIYAAAAAAAAAAAAIwJoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-11T17:36:20.516Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Model.cs",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\Model.cs",
+              "RelativeDocumentMoniker": "kursecondapi\\Models\\Model.cs",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\Model.cs",
+              "RelativeToolTip": "kursecondapi\\Models\\Model.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAxwBoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T09:19:20.112Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Car.cs",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\Car.cs",
+              "RelativeDocumentMoniker": "kursecondapi\\Models\\Car.cs",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\Car.cs",
+              "RelativeToolTip": "kursecondapi\\Models\\Car.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAswAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T09:17:58.782Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Brand.cs",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\Brand.cs",
+              "RelativeDocumentMoniker": "kursecondapi\\Models\\Brand.cs",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\Brand.cs",
+              "RelativeToolTip": "kursecondapi\\Models\\Brand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T09:17:52.116Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BrandsController.cs",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Controllers\\BrandsController.cs",
+              "RelativeDocumentMoniker": "kursecondapi\\Controllers\\BrandsController.cs",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Controllers\\BrandsController.cs",
+              "RelativeToolTip": "kursecondapi\\Controllers\\BrandsController.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAzwB4AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T09:15:46.273Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "VwActiveCar.cs",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\VwActiveCar.cs",
+              "RelativeDocumentMoniker": "kursecondapi\\Models\\VwActiveCar.cs",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\Models\\VwActiveCar.cs",
+              "RelativeToolTip": "kursecondapi\\Models\\VwActiveCar.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-10T08:05:23.269Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\appsettings.json",
+              "RelativeDocumentMoniker": "kursecondapi\\appsettings.json",
+              "ToolTip": "C:\\Users\\\u0412\u0435\u0440\u0430\\Desktop\\C#\\kursecondapi\\kursecondapi\\appsettings.json",
+              "RelativeToolTip": "kursecondapi\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-11-10T07:52:33.362Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 16,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
