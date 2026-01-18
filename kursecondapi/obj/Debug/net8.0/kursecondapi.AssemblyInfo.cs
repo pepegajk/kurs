@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("kursecondapi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+793c9ca4f99dd5154c22781f80b5a04cc28b6163")]
 [assembly: System.Reflection.AssemblyProductAttribute("kursecondapi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("kursecondapi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

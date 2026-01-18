@@ -105,6 +105,22 @@
   },
   {
     "ContainingType": "kursecondapi.Controllers.AuthController",
+    "Method": "ChangeUserRole",
+    "RelativePath": "api/Auth/change-role",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "kursecondapi.Controllers.ChangeRoleDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "kursecondapi.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",
@@ -509,6 +525,37 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "kursecondapi.Controllers.CarImagesController",
+    "Method": "UploadCarImageFile",
+    "RelativePath": "api/CarImages/upload",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "CarId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "kursecondapi.Models.CarImage",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "kursecondapi.Controllers.CarsController",
     "Method": "GetCars",
     "RelativePath": "api/Cars",
@@ -518,7 +565,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[kursecondapi.Models.Car, kursecondapi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -666,8 +713,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "deal",
-        "Type": "kursecondapi.Models.Deal",
+        "Name": "dto",
+        "Type": "kursecondapi.Controllers.CreateDealRequestDto",
         "IsRequired": true
       }
     ],
@@ -723,8 +770,8 @@
         "IsRequired": true
       },
       {
-        "Name": "deal",
-        "Type": "kursecondapi.Models.Deal",
+        "Name": "dto",
+        "Type": "kursecondapi.Controllers.UpdateDealDto",
         "IsRequired": true
       }
     ],
@@ -760,6 +807,52 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[kursecondapi.Models.Deal, kursecondapi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "kursecondapi.Controllers.DealsController",
+    "Method": "CreateDealByUser",
+    "RelativePath": "api/Deals/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "kursecondapi.Controllers.CreateDealDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "kursecondapi.Models.Deal",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "kursecondapi.Controllers.DealsController",
+    "Method": "GetMyDeals",
+    "RelativePath": "api/Deals/my",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[kursecondapi.Models.Deal, kursecondapi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",

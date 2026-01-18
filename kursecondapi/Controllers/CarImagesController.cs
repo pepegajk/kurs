@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using kursecondapi.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace kursecondapi.Controllers;
 
@@ -110,6 +114,7 @@ public class CarImagesController : ControllerBase
 
     // POST: api/carimages
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<CarImage>> CreateCarImage([FromBody] CarImage carImage)
     {
         try
@@ -167,6 +172,7 @@ public class CarImagesController : ControllerBase
 
     // PUT: api/carimages/5
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> UpdateCarImage(int id, [FromBody] CarImage carImage)
     {
         try
@@ -209,6 +215,7 @@ public class CarImagesController : ControllerBase
 
     // PUT: api/carimages/5/setmain
     [HttpPut("{id}/setmain")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> SetMainImage(int id)
     {
         try
@@ -271,6 +278,7 @@ public class CarImagesController : ControllerBase
 
     // DELETE: api/carimages/5
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteCarImage(int id)
     {
         try
@@ -281,7 +289,28 @@ public class CarImagesController : ControllerBase
 
             var carId = image.CarId;
             var wasMain = image.IsMain;
+            var imageUrl = image.ImageUrl;
 
+            // Удаляем физический файл с диска
+            if (!string.IsNullOrEmpty(imageUrl) && imageUrl.StartsWith("/images/"))
+            {
+                try
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                        _logger.LogInformation("Физический файл удален: {FilePath}", filePath);
+                    }
+                }
+                catch (Exception fileEx)
+                {
+                    _logger.LogWarning(fileEx, "Не удалось удалить физический файл: {ImageUrl}", imageUrl);
+                    // Продолжаем удаление из БД даже если файл не удалился
+                }
+            }
+
+            // Удаляем запись из базы данных
             _context.CarImages.Remove(image);
             await _context.SaveChangesAsync();
 
@@ -300,12 +329,12 @@ public class CarImagesController : ControllerBase
                 }
             }
             
-            return Ok(new { message = "Изображение успешно удалено" });
+            return Ok(new { message = "Изображение успешно удалено", deletedImageId = id });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ошибка при удалении изображения");
-            return StatusCode(500, "Внутренняя ошибка сервера");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
         }
     }
 
@@ -331,6 +360,110 @@ public class CarImagesController : ControllerBase
         {
             _logger.LogError(ex, "Ошибка при удалении всех изображений машины");
             return StatusCode(500, "Внутренняя ошибка сервера");
+        }
+    }
+
+    // POST: api/carimages/upload
+    [HttpPost("upload")]
+    [Consumes("multipart/form-data")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<CarImage>> UploadCarImageFile([FromForm] DTOs.UploadCarImageDto dto)
+    {
+        try
+        {
+            // 1. Валидация файла
+            if (dto.File == null || dto.File.Length == 0)
+                return BadRequest(new { message = "Файл не был загружен или пуст" });
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var fileExtension = Path.GetExtension(dto.File.FileName).ToLowerInvariant();
+            
+            if (string.IsNullOrEmpty(fileExtension) || !allowedExtensions.Contains(fileExtension))
+                return BadRequest(new { message = "Недопустимый тип файла. Разрешенные форматы: .jpg, .jpeg, .png, .gif, .webp" });
+
+            const long maxFileSize = 10 * 1024 * 1024; // 10 МБ
+            if (dto.File.Length > maxFileSize)
+                return BadRequest(new { message = "Размер файла превышает 10 МБ" });
+
+            // 2. Проверка существования машины
+            var carExists = await _context.Cars.AnyAsync(c => c.Id == dto.CarId);
+            if (!carExists)
+                return NotFound(new { message = $"Машина с ID {dto.CarId} не найдена" });
+
+            // 3. Создание уникального имени файла
+            var fileName = $"{Guid.NewGuid()}{fileExtension}";
+
+            // 4. Сохранение файла в wwwroot/images/cars/
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "cars");
+            
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.File.CopyToAsync(stream);
+            }
+
+            // 5. Создание объекта CarImage
+            var carImage = new CarImage
+            {
+                CarId = dto.CarId,
+                ImageUrl = $"/images/cars/{fileName}",
+                Title = dto.File.FileName,
+                UploadedAt = DateTime.Now
+            };
+
+            // 6. Определение IsMain и DisplayOrder
+            var existingImages = await _context.CarImages
+                .Where(ci => ci.CarId == dto.CarId)
+                .ToListAsync();
+
+            if (existingImages.Count == 0)
+            {
+                // Первое изображение для машины - делаем его главным
+                carImage.IsMain = true;
+                carImage.DisplayOrder = 0;
+            }
+            else
+            {
+                // Не первое изображение - устанавливаем следующий порядок
+                var maxOrder = existingImages.Max(ci => ci.DisplayOrder);
+                carImage.DisplayOrder = maxOrder + 1;
+                carImage.IsMain = false;
+            }
+
+            // Если новое изображение отмечено как главное (через параметр), убираем флаг у остальных
+            // Но по умолчанию делаем главным только первое изображение
+            // Если нужно сделать главным - можно добавить параметр bool isMain = false
+
+            // 7. Сохранение в базу данных
+            _context.CarImages.Add(carImage);
+            await _context.SaveChangesAsync();
+
+            // 8. Возврат результата
+            return CreatedAtAction(nameof(GetCarImage), new { id = carImage.Id }, carImage);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Ошибка доступа при сохранении файла");
+            return StatusCode(500, new { message = "Ошибка доступа к файловой системе" });
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            _logger.LogError(ex, "Директория не найдена");
+            return StatusCode(500, new { message = "Ошибка создания директории для файлов" });
+        }
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "Ошибка ввода-вывода при сохранении файла");
+            return StatusCode(500, new { message = "Ошибка при сохранении файла на диск" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при загрузке изображения");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера при загрузке файла" });
         }
     }
 }

@@ -1,12 +1,537 @@
 {
   "Version": 1,
-  "Hash": "rmHldFzPq3hAcMJtcHSigHaacq1YH80a1YbLLHEl4yU=",
+  "Hash": "c2XjUyimIPMHWDeIcGazkoupDApbdY+ghdzik3//djI=",
   "Source": "kursecondapi",
   "BasePath": "_content/kursecondapi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "kursecondapi\\wwwroot",
+      "Source": "kursecondapi",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\",
+      "BasePath": "_content/kursecondapi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\4b308507-792a-4ca7-baa9-371dd082e91d.png",
+      "SourceId": "kursecondapi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\",
+      "BasePath": "_content/kursecondapi",
+      "RelativePath": "images/cars/4b308507-792a-4ca7-baa9-371dd082e91d#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4ppoy3eyf7",
+      "Integrity": "6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\cars\\4b308507-792a-4ca7-baa9-371dd082e91d.png"
+    },
+    {
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\b2464eef-3d28-4487-abdf-c98a77241d19.png",
+      "SourceId": "kursecondapi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\",
+      "BasePath": "_content/kursecondapi",
+      "RelativePath": "images/cars/b2464eef-3d28-4487-abdf-c98a77241d19#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4ppoy3eyf7",
+      "Integrity": "6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\cars\\b2464eef-3d28-4487-abdf-c98a77241d19.png"
+    },
+    {
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg",
+      "SourceId": "kursecondapi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\",
+      "BasePath": "_content/kursecondapi",
+      "RelativePath": "images/cars/d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "rngn315t6s",
+      "Integrity": "6TR5wVbrNTHLGJ0MoALgPzU/1i2YlvrvCpvi+M6qLjE=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\cars\\d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\ddcee7b6-973a-49e9-be4d-5016e8fda92a.png",
+      "SourceId": "kursecondapi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\",
+      "BasePath": "_content/kursecondapi",
+      "RelativePath": "images/cars/ddcee7b6-973a-49e9-be4d-5016e8fda92a#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4ppoy3eyf7",
+      "Integrity": "6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\cars\\ddcee7b6-973a-49e9-be4d-5016e8fda92a.png"
+    },
+    {
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\rav4.png",
+      "SourceId": "kursecondapi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\",
+      "BasePath": "_content/kursecondapi",
+      "RelativePath": "images/cars/rav4#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4ppoy3eyf7",
+      "Integrity": "6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\cars\\rav4.png"
+    }
+  ],
+  "Endpoints": [
+    {
+      "Route": "images/cars/4b308507-792a-4ca7-baa9-371dd082e91d.4ppoy3eyf7.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\4b308507-792a-4ca7-baa9-371dd082e91d.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:34:43 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ppoy3eyf7"
+        },
+        {
+          "Name": "label",
+          "Value": "images/cars/4b308507-792a-4ca7-baa9-371dd082e91d.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/4b308507-792a-4ca7-baa9-371dd082e91d.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\4b308507-792a-4ca7-baa9-371dd082e91d.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:34:43 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/b2464eef-3d28-4487-abdf-c98a77241d19.4ppoy3eyf7.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\b2464eef-3d28-4487-abdf-c98a77241d19.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:55:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ppoy3eyf7"
+        },
+        {
+          "Name": "label",
+          "Value": "images/cars/b2464eef-3d28-4487-abdf-c98a77241d19.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/b2464eef-3d28-4487-abdf-c98a77241d19.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\b2464eef-3d28-4487-abdf-c98a77241d19.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:55:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115932"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6TR5wVbrNTHLGJ0MoALgPzU/1i2YlvrvCpvi+M6qLjE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:48:58 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-6TR5wVbrNTHLGJ0MoALgPzU/1i2YlvrvCpvi+M6qLjE="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.rngn315t6s.jpg",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115932"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6TR5wVbrNTHLGJ0MoALgPzU/1i2YlvrvCpvi+M6qLjE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:48:58 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "rngn315t6s"
+        },
+        {
+          "Name": "label",
+          "Value": "images/cars/d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-6TR5wVbrNTHLGJ0MoALgPzU/1i2YlvrvCpvi+M6qLjE="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/ddcee7b6-973a-49e9-be4d-5016e8fda92a.4ppoy3eyf7.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\ddcee7b6-973a-49e9-be4d-5016e8fda92a.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:35:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ppoy3eyf7"
+        },
+        {
+          "Name": "label",
+          "Value": "images/cars/ddcee7b6-973a-49e9-be4d-5016e8fda92a.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/ddcee7b6-973a-49e9-be4d-5016e8fda92a.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\ddcee7b6-973a-49e9-be4d-5016e8fda92a.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 15:35:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/rav4.4ppoy3eyf7.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\rav4.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 28 Nov 2025 07:50:05 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ppoy3eyf7"
+        },
+        {
+          "Name": "label",
+          "Value": "images/cars/rav4.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    },
+    {
+      "Route": "images/cars/rav4.png",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\rav4.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "27144"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 28 Nov 2025 07:50:05 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-6LnEI2MvaoGxLouy/7Lu5nzCfz6+C7jPB3B/MGKUbCI="
+        }
+      ]
+    }
+  ]
 }

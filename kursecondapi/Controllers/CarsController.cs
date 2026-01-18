@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using kursecondapi.Models;
 
@@ -22,11 +21,42 @@ public class CarsController : ControllerBase
     // GET: api/cars (Доступно всем)
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<IEnumerable<Car>>> GetCars()
+    public async Task<ActionResult<IEnumerable<object>>> GetCars()
     {
         try
         {
-            var cars = await _context.Cars.ToListAsync();
+            var cars = await _context.Cars
+                .Include(c => c.Model)
+                    .ThenInclude(m => m.Brand)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.ModelId,
+                    c.SellerId,
+                    c.Year,
+                    c.Price,
+                    c.Mileage,
+                    c.Color,
+                    c.BodyType,
+                    c.FuelType,
+                    c.Transmission,
+                    c.DriveType,
+                    c.EngineVolume,
+                    c.EnginePower,
+                    c.Vin,
+                    c.RegistrationNumber,
+                    c.Description,
+                    c.Location,
+                    c.Condition,
+                    c.ViewsCount,
+                    c.CreatedAt,
+                    c.UpdatedAt,
+                    c.Status,
+                    c.IsFeatured,
+                    BrandName = c.Model.Brand.Name,
+                    ModelName = c.Model.Name
+                })
+                .ToListAsync();
             return Ok(cars);
         }
         catch (Exception ex)
@@ -82,7 +112,7 @@ public class CarsController : ControllerBase
 
     // PUT: api/cars/5
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> UpdateCar(int id, [FromBody] Car car)
     {
         try

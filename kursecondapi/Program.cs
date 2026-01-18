@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.IO;
+using System.Security.Claims;
 using kursecondapi.Models;
 using kursecondapi.Services;
 
@@ -13,6 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Подключение к PostgreSQL
 builder.Services.AddDbContext<CarPlatformContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Регистрация сервиса хеширования паролей
+builder.Services.AddScoped<PasswordHasherService>();
 
 // Настройка Identity
 builder.Services.AddIdentity<AspNetUser, AspNetRole>(options =>
@@ -51,7 +56,10 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        // Явно указываем тип claim для ролей
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = ClaimTypes.Name
     };
 });
 
@@ -76,11 +84,62 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+
+// Настройка для загрузки файлов (увеличение лимита до 50 МБ)
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 50 * 1024 * 1024; // 50 МБ
+    options.ValueLengthLimit = int.MaxValue;
+    options.ValueCountLimit = int.MaxValue;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+    { 
+        Title = "Car Platform API", 
+        Version = "v1" 
+    });
+    
+    // Настройка JWT авторизации в Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    // Настройка для загрузки файлов в Swagger
+    c.OperationFilter<kursecondapi.Swagger.FileUploadOperationFilter>();
+});
 
 var app = builder.Build();
+
+// Создание папки wwwroot если её нет
+var wwwrootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+if (!Directory.Exists(wwwrootPath))
+{
+    Directory.CreateDirectory(wwwrootPath);
+    Directory.CreateDirectory(Path.Combine(wwwrootPath, "images", "cars"));
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -90,6 +149,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Поддержка статических файлов (wwwroot)
+app.UseStaticFiles();
 
 // Применение CORS (должно быть перед UseAuthorization)
 app.UseCors("AllowAll");
@@ -105,9 +167,11 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var context = services.GetRequiredService<CarPlatformContext>();
+        var passwordHasher = services.GetRequiredService<PasswordHasherService>();
         var userManager = services.GetRequiredService<UserManager<AspNetUser>>();
         var roleManager = services.GetRequiredService<RoleManager<AspNetRole>>();
-        await RoleInitializer.InitializeAsync(userManager, roleManager);
+        await RoleInitializer.InitializeAsync(context, passwordHasher, userManager, roleManager);
     }
     catch (Exception ex)
     {

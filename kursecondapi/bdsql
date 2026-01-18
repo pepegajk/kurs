@@ -1,0 +1,561 @@
+
+
+CREATE TABLE "AspNetRoles" (
+    "Id" TEXT PRIMARY KEY,
+    "Name" VARCHAR(256) UNIQUE NOT NULL,
+    "NormalizedName" VARCHAR(256) UNIQUE NOT NULL,
+    "ConcurrencyStamp" TEXT
+);
+
+CREATE TABLE "AspNetUsers" (
+    "Id" TEXT PRIMARY KEY,
+    "UserName" VARCHAR(256) UNIQUE NOT NULL,
+    "NormalizedUserName" VARCHAR(256) UNIQUE NOT NULL,
+    "Email" VARCHAR(256) UNIQUE,
+    "NormalizedEmail" VARCHAR(256) UNIQUE,
+    "EmailConfirmed" BOOLEAN NOT NULL DEFAULT FALSE,
+    "PasswordHash" TEXT,
+    "SecurityStamp" TEXT,
+    "ConcurrencyStamp" TEXT,
+    "PhoneNumber" VARCHAR(50),
+    "PhoneNumberConfirmed" BOOLEAN NOT NULL DEFAULT FALSE,
+    "TwoFactorEnabled" BOOLEAN NOT NULL DEFAULT FALSE,
+    "LockoutEnd" TIMESTAMPTZ,
+    "LockoutEnabled" BOOLEAN NOT NULL DEFAULT TRUE,
+    "AccessFailedCount" INTEGER NOT NULL DEFAULT 0,
+    "FirstName" VARCHAR(100) NOT NULL DEFAULT '',
+    "LastName" VARCHAR(100) NOT NULL DEFAULT '',
+    "Avatar" VARCHAR(500),
+    "Address" VARCHAR(200),
+    "City" VARCHAR(100),
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "LastLoginAt" TIMESTAMP,
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE "AspNetUserRoles" (
+    "UserId" TEXT NOT NULL,
+    "RoleId" TEXT NOT NULL,
+    PRIMARY KEY ("UserId", "RoleId"),
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers"("Id") ON DELETE CASCADE,
+    FOREIGN KEY ("RoleId") REFERENCES "AspNetRoles"("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AspNetUserClaims" (
+    "Id" SERIAL PRIMARY KEY,
+    "UserId" TEXT NOT NULL,
+    "ClaimType" TEXT,
+    "ClaimValue" TEXT,
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers"("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AspNetUserLogins" (
+    "LoginProvider" VARCHAR(450) NOT NULL,
+    "ProviderKey" VARCHAR(450) NOT NULL,
+    "ProviderDisplayName" TEXT,
+    "UserId" TEXT NOT NULL,
+    PRIMARY KEY ("LoginProvider", "ProviderKey"),
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers"("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AspNetUserTokens" (
+    "UserId" TEXT NOT NULL,
+    "LoginProvider" VARCHAR(450) NOT NULL,
+    "Name" VARCHAR(450) NOT NULL,
+    "Value" TEXT,
+    PRIMARY KEY ("UserId", "LoginProvider", "Name"),
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers"("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AspNetRoleClaims" (
+    "Id" SERIAL PRIMARY KEY,
+    "RoleId" TEXT NOT NULL,
+    "ClaimType" TEXT,
+    "ClaimValue" TEXT,
+    FOREIGN KEY ("RoleId") REFERENCES "AspNetRoles"("Id") ON DELETE CASCADE
+);
+
+-- ================================================
+-- ПРИКЛАДНЫЕ ТАБЛИЦЫ (используют строковые FK)
+-- ================================================
+
+CREATE TABLE "Brands" (
+    "Id" SERIAL PRIMARY KEY,
+    "Name" VARCHAR(100) NOT NULL UNIQUE,
+    "Description" VARCHAR(500),
+    "LogoUrl" VARCHAR(200),
+    "Country" VARCHAR(50),
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE "Models" (
+    "Id" SERIAL PRIMARY KEY,
+    "BrandId" INTEGER NOT NULL,
+    "Name" VARCHAR(100) NOT NULL,
+    "Description" VARCHAR(500),
+    "YearFrom" INTEGER,
+    "YearTo" INTEGER,
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT "FK_Models_Brands" FOREIGN KEY ("BrandId") REFERENCES "Brands"("Id") ON DELETE RESTRICT,
+    CONSTRAINT "UQ_Models_BrandName" UNIQUE ("BrandId", "Name")
+);
+
+CREATE TABLE "Cars" (
+    "Id" SERIAL PRIMARY KEY,
+    "ModelId" INTEGER NOT NULL,
+    "SellerId" TEXT NOT NULL,
+    "Year" INTEGER NOT NULL CHECK ("Year" BETWEEN 1900 AND 2100),
+    "Price" DECIMAL(18,2) NOT NULL CHECK ("Price" >= 0),
+    "Mileage" INTEGER NOT NULL CHECK ("Mileage" >= 0),
+    "Color" VARCHAR(50) NOT NULL,
+    "BodyType" VARCHAR(50) NOT NULL,
+    "FuelType" VARCHAR(50) NOT NULL,
+    "Transmission" VARCHAR(50) NOT NULL,
+    "DriveType" VARCHAR(50) NOT NULL,
+    "EngineVolume" DECIMAL(3,1),
+    "EnginePower" INTEGER,
+    "VIN" VARCHAR(20) NOT NULL UNIQUE,
+    "RegistrationNumber" VARCHAR(20),
+    "Description" TEXT,
+    "Location" VARCHAR(100) NOT NULL,
+    "Condition" VARCHAR(50) NOT NULL DEFAULT 'Used',
+    "ViewsCount" INTEGER NOT NULL DEFAULT 0,
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "UpdatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "Status" VARCHAR(20) NOT NULL DEFAULT 'Active',
+    "IsFeatured" BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY ("ModelId") REFERENCES "Models"("Id") ON DELETE RESTRICT,
+    FOREIGN KEY ("SellerId") REFERENCES "AspNetUsers"("Id") ON DELETE RESTRICT
+);
+
+CREATE TABLE "CarImages" (
+    "Id" SERIAL PRIMARY KEY,
+    "CarId" INTEGER NOT NULL,
+    "ImageUrl" VARCHAR(500) NOT NULL,
+    "Title" VARCHAR(200),
+    "DisplayOrder" INTEGER NOT NULL DEFAULT 0,
+    "IsMain" BOOLEAN NOT NULL DEFAULT FALSE,
+    "UploadedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY ("CarId") REFERENCES "Cars"("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "Deals" (
+    "Id" SERIAL PRIMARY KEY,
+    "CarId" INTEGER NOT NULL,
+    "SellerId" TEXT NOT NULL,
+    "BuyerId" TEXT NOT NULL,
+    "Price" DECIMAL(18,2) NOT NULL,
+    "CommissionAmount" DECIMAL(18,2),
+    "CommissionPercent" DECIMAL(5,2),
+    "Status" VARCHAR(50) NOT NULL DEFAULT 'Pending',
+    "Notes" TEXT,
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "CompletedAt" TIMESTAMP,
+    "ApprovedBy" TEXT,
+    FOREIGN KEY ("CarId") REFERENCES "Cars"("Id") ON DELETE RESTRICT,
+    FOREIGN KEY ("SellerId") REFERENCES "AspNetUsers"("Id") ON DELETE RESTRICT,
+    FOREIGN KEY ("BuyerId") REFERENCES "AspNetUsers"("Id") ON DELETE RESTRICT,
+    FOREIGN KEY ("ApprovedBy") REFERENCES "AspNetUsers"("Id") ON DELETE SET NULL
+);
+
+CREATE TABLE "Reviews" (
+    "Id" SERIAL PRIMARY KEY,
+    "DealId" INTEGER NOT NULL,
+    "AuthorId" TEXT NOT NULL,
+    "Rating" INTEGER NOT NULL CHECK ("Rating" BETWEEN 1 AND 5),
+    "Comment" TEXT NOT NULL,
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "UpdatedAt" TIMESTAMP,
+    "IsApproved" BOOLEAN NOT NULL DEFAULT FALSE,
+    "ModeratedBy" TEXT,
+    FOREIGN KEY ("DealId") REFERENCES "Deals"("Id") ON DELETE RESTRICT,
+    FOREIGN KEY ("AuthorId") REFERENCES "AspNetUsers"("Id") ON DELETE RESTRICT,
+    FOREIGN KEY ("ModeratedBy") REFERENCES "AspNetUsers"("Id") ON DELETE SET NULL
+);
+
+CREATE TABLE "Favorites" (
+    "Id" SERIAL PRIMARY KEY,
+    "UserId" TEXT NOT NULL,
+    "CarId" INTEGER NOT NULL,
+    "AddedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "Notes" VARCHAR(500),
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers"("Id") ON DELETE CASCADE,
+    FOREIGN KEY ("CarId") REFERENCES "Cars"("Id") ON DELETE CASCADE,
+    UNIQUE ("UserId", "CarId")
+);
+
+CREATE TABLE "UserSettings" (
+    "UserId" TEXT PRIMARY KEY,
+    "Theme" VARCHAR(20) NOT NULL DEFAULT 'Light',
+    "Language" VARCHAR(10) NOT NULL DEFAULT 'ru',
+    "DateFormat" VARCHAR(20) NOT NULL DEFAULT 'dd.MM.yyyy',
+    "TimeFormat" VARCHAR(20) NOT NULL DEFAULT 'HH:mm',
+    "Currency" VARCHAR(10) NOT NULL DEFAULT 'RUB',
+    "PageSize" INTEGER NOT NULL DEFAULT 20 CHECK ("PageSize" BETWEEN 10 AND 100),
+    "EmailNotifications" BOOLEAN NOT NULL DEFAULT TRUE,
+    "PushNotifications" BOOLEAN NOT NULL DEFAULT FALSE,
+    "SavedFilters" TEXT,
+    "FavoriteLocations" VARCHAR(500),
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "UpdatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY ("UserId") REFERENCES "AspNetUsers"("Id") ON DELETE CASCADE
+);
+
+CREATE TABLE "AuditLogs" (
+    "Id" BIGSERIAL PRIMARY KEY,
+    "UserId" TEXT,
+    "UserName" VARCHAR(256),
+    "TableName" VARCHAR(100) NOT NULL,
+    "Action" VARCHAR(50) NOT NULL,
+    "OldValues" TEXT,
+    "NewValues" TEXT,
+    "RecordId" VARCHAR(50),
+    "Timestamp" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "IpAddress" VARCHAR(45),
+    "UserAgent" VARCHAR(500)
+);
+
+-- Индексы
+CREATE INDEX "IX_Cars_Status" ON "Cars"("Status");
+CREATE INDEX "IX_Cars_Price" ON "Cars"("Price");
+CREATE INDEX "IX_Cars_Year" ON "Cars"("Year");
+CREATE INDEX "IX_Cars_ModelId" ON "Cars"("ModelId");
+CREATE INDEX "IX_Cars_SellerId" ON "Cars"("SellerId");
+CREATE INDEX "IX_Deals_Status" ON "Deals"("Status");
+CREATE INDEX "IX_Deals_CarId" ON "Deals"("CarId");
+CREATE INDEX "IX_Reviews_DealId" ON "Reviews"("DealId");
+CREATE INDEX "IX_Favorites_UserId" ON "Favorites"("UserId");
+
+-- ================================================
+-- НАЧАЛЬНЫЕ ДАННЫЕ (идентификаторы = строки)
+-- ================================================
+
+-- Роли
+INSERT INTO "AspNetRoles" ("Id", "Name", "NormalizedName", "ConcurrencyStamp") VALUES
+('role-admin', 'Administrator', 'ADMINISTRATOR', 'stamp-admin'),
+('role-dealer', 'Dealer', 'DEALER', 'stamp-dealer'),
+('role-user', 'User', 'USER', 'stamp-user')
+ON CONFLICT ("Id") DO NOTHING;
+
+-- Пользователи
+WITH users_data AS (
+    SELECT * FROM (VALUES
+        ('user-admin',  'admin@carplatform.ru',  'Администратор', 'Системы',        'Москва',             'role-admin'),
+        ('user-dealer', 'dealer@carplatform.ru', 'Иван',          'Дилеров',        'Санкт-Петербург',    'role-dealer'),
+        ('user-buyer1', 'petrov@mail.ru',        'Александр',     'Петров',         'Москва',             'role-user'),
+        ('user-buyer2', 'ivanova@mail.ru',       'Мария',         'Иванова',        'Санкт-Петербург',    'role-user'),
+        ('user-buyer3', 'smirnov@mail.ru',       'Дмитрий',       'Смирнов',        'Казань',             'role-user'),
+        ('user-buyer4', 'kozlov@mail.ru',        'Николай',       'Козлов',         'Екатеринбург',       'role-user')
+    ) AS t(id, email, fname, lname, city, role_id)
+)
+INSERT INTO "AspNetUsers" (
+    "Id","UserName","NormalizedUserName","Email","NormalizedEmail",
+    "EmailConfirmed","FirstName","LastName","City","IsActive",
+    "SecurityStamp","ConcurrencyStamp"
+)
+SELECT
+    id,
+    email,
+    upper(email),
+    email,
+    upper(email),
+    TRUE,
+    fname,
+    lname,
+    city,
+    TRUE,
+    'sec-' || id,
+    'conc-' || id
+FROM users_data
+ON CONFLICT ("Id") DO NOTHING;
+
+INSERT INTO "AspNetUserRoles" ("UserId","RoleId")
+SELECT "Id",
+       CASE "UserName"
+            WHEN 'admin@carplatform.ru'  THEN 'role-admin'
+            WHEN 'dealer@carplatform.ru' THEN 'role-dealer'
+            ELSE 'role-user'
+       END
+FROM "AspNetUsers"
+WHERE "UserName" IN ('admin@carplatform.ru',
+                     'dealer@carplatform.ru',
+                     'petrov@mail.ru',
+                     'ivanova@mail.ru',
+                     'smirnov@mail.ru',
+                     'kozlov@mail.ru')
+ON CONFLICT DO NOTHING;
+
+-- Дополнительные настройки для нерутовых пользователей
+INSERT INTO "UserSettings" ("UserId","Theme","Language","PageSize")
+SELECT "Id",'Light','ru',20
+FROM "AspNetUsers"
+WHERE "Id" <> 'user-admin'
+ON CONFLICT ("UserId") DO NOTHING;
+
+-- Марки
+INSERT INTO "Brands" ("Name","Country","Description") VALUES
+('BMW','Германия','Баварский производитель премиальных автомобилей'),
+('Mercedes-Benz','Германия','Немецкий производитель люксовых автомобилей'),
+('Toyota','Япония','Крупнейший японский автопроизводитель'),
+('Audi','Германия','Немецкий производитель премиальных автомобилей'),
+('Volkswagen','Германия','Крупнейший европейский автопроизводитель'),
+('Hyundai','Южная Корея','Корейский автопроизводитель'),
+('Kia','Южная Корея','Корейский автопроизводитель'),
+('Mazda','Япония','Японский производитель автомобилей'),
+('Nissan','Япония','Японский автопроизводитель'),
+('Lada','Россия','Российский автопроизводитель АвтоВАЗ')
+ON CONFLICT ("Name") DO NOTHING;
+
+-- Модели
+INSERT INTO "Models" ("BrandId","Name","Description") VALUES
+(1,'X5','Среднеразмерный люксовый кроссовер'),
+(1,'3 Series','Компактный представительский седан'),
+(2,'E-Class','Среднеразмерный представительский седан'),
+(3,'Camry','Среднеразмерный седан'),
+(3,'RAV4','Компактный кроссовер'),
+(4,'A4','Компактный представительский седан'),
+(5,'Polo','Компактный хэтчбек'),
+(6,'Solaris','Компактный седан'),
+(7,'Rio','Компактный седан'),
+(8,'CX-5','Компактный кроссовер')
+ON CONFLICT ("BrandId","Name") DO NOTHING;
+
+-- Автомобили (продавец = user-dealer)
+WITH seller AS (SELECT "Id" FROM "AspNetUsers" WHERE "Id" = 'user-dealer'),
+     car_data AS (
+         SELECT * FROM (VALUES
+            (1,'WBAJE5C50JG123456',2021,4500000::DECIMAL,35000,'Черный','SUV','Бензин','Автомат','Полный',3.0,340,'Москва',TRUE,'Отличное состояние, один владелец, полная сервисная история'),
+            (4,'4T1B11HK9LU123789',2020,2200000,45000,'Белый','Седан','Бензин','Автомат','Передний',2.5,181,'Санкт-Петербург',FALSE,'Toyota Camry в отличном состоянии'),
+            (3,'WDD2130431A123456',2022,5200000,15000,'Серебристый','Седан','Дизель','Автомат','Задний',2.0,194,'Москва',TRUE,'Mercedes E-Class в идеальном состоянии'),
+            (5,'JTMRFREV5LD012345',2021,2650000,22000,'Синий','SUV','Бензин','Автомат','Полный',2.5,200,'Казань',TRUE,'RAV4 с полным приводом'),
+            (6,'XWEHC812CD0001234',2019,1100000,68000,'Красный','Седан','Бензин','Механика','Передний',1.6,123,'Екатеринбург',FALSE,'Hyundai Solaris, без ДТП'),
+            (9,'WAUZZZ8V8LA012345',2021,3100000,28000,'Серый','Седан','Бензин','Робот','Передний',2.0,190,'Новосибирск',FALSE,'Audi A4, один владелец'),
+            (7,'XWEPC811CK0012345',2019,950000,75000,'Белый','Седан','Бензин','Автомат','Передний',1.6,123,'Краснодар',FALSE,'Kia Rio, отличное состояние'),
+            (8,'JM1GL1UM7L1512345',2021,2800000,32000,'Черный','SUV','Бензин','Автомат','Полный',2.0,150,'Ростов-на-Дону',TRUE,'Mazda CX-5, без пробега по РФ')
+         ) AS t(model_id,vin,year,price,mileage,color,body,fuel,trans,drive,volume,power,location,featured,description)
+     )
+INSERT INTO "Cars" (
+    "ModelId","SellerId","Year","Price","Mileage","Color","BodyType",
+    "FuelType","Transmission","DriveType","EngineVolume","EnginePower",
+    "VIN","Location","IsFeatured","Description","Status"
+)
+SELECT
+    cd.model_id, s."Id", cd.year, cd.price, cd.mileage, cd.color, cd.body,
+    cd.fuel, cd.trans, cd.drive, cd.volume, cd.power, cd.vin, cd.location,
+    cd.featured, cd.description, 'Active'
+FROM car_data cd CROSS JOIN seller s
+ON CONFLICT ("VIN") DO NOTHING;
+
+-- Сделки
+WITH admin AS (SELECT "Id" FROM "AspNetUsers" WHERE "Id" = 'user-admin'),
+     seller AS (SELECT "Id" FROM "AspNetUsers" WHERE "Id" = 'user-dealer'),
+     buyers AS (
+         SELECT "Id","UserName"
+         FROM "AspNetUsers"
+         WHERE "Id" IN ('user-buyer1','user-buyer2','user-buyer3')
+     ),
+     car_ids AS (
+         SELECT "Id","VIN"
+         FROM "Cars"
+         WHERE "VIN" IN ('WBAJE5C50JG123456','4T1B11HK9LU123789','WDD2130431A123456')
+     )
+INSERT INTO "Deals" (
+    "CarId","SellerId","BuyerId","Price","CommissionAmount","CommissionPercent",
+    "Status","CreatedAt","CompletedAt","ApprovedBy"
+)
+SELECT
+    ci."Id",
+    s."Id",
+    CASE ci."VIN"
+        WHEN 'WBAJE5C50JG123456' THEN (SELECT "Id" FROM buyers WHERE "UserName" = 'petrov@mail.ru')
+        WHEN '4T1B11HK9LU123789' THEN (SELECT "Id" FROM buyers WHERE "UserName" = 'ivanova@mail.ru')
+        WHEN 'WDD2130431A123456' THEN (SELECT "Id" FROM buyers WHERE "UserName" = 'smirnov@mail.ru')
+    END,
+    CASE ci."VIN"
+        WHEN 'WBAJE5C50JG123456' THEN 4500000
+        WHEN '4T1B11HK9LU123789' THEN 2200000
+        WHEN 'WDD2130431A123456' THEN 5200000
+    END,
+    CASE ci."VIN"
+        WHEN 'WBAJE5C50JG123456' THEN 225000
+        WHEN '4T1B11HK9LU123789' THEN 110000
+        WHEN 'WDD2130431A123456' THEN 260000
+    END,
+    5.0,
+    'Completed',
+    NOW() - INTERVAL '20 days',
+    NOW() - INTERVAL '15 days',
+    a."Id"
+FROM car_ids ci CROSS JOIN seller s CROSS JOIN admin a
+ON CONFLICT DO NOTHING;
+
+-- Отзывы
+WITH admin AS (SELECT "Id" FROM "AspNetUsers" WHERE "Id" = 'user-admin'),
+     deal_map AS (
+         SELECT d."Id", c."VIN", d."BuyerId"
+         FROM "Deals" d
+         JOIN "Cars" c ON d."CarId" = c."Id"
+         WHERE c."VIN" IN ('WBAJE5C50JG123456','4T1B11HK9LU123789','WDD2130431A123456')
+     )
+INSERT INTO "Reviews" (
+    "DealId","AuthorId","Rating","Comment","CreatedAt","IsApproved","ModeratedBy"
+)
+SELECT
+    dm."Id",
+    dm."BuyerId",
+    CASE dm."VIN"
+        WHEN 'WBAJE5C50JG123456' THEN 5
+        WHEN '4T1B11HK9LU123789' THEN 5
+        WHEN 'WDD2130431A123456' THEN 4
+    END,
+    CASE dm."VIN"
+        WHEN 'WBAJE5C50JG123456' THEN 'Купил BMW X5 через AutoMarket. Всё прошло быстро и безопасно. Машина полностью соответствует описанию. Рекомендую!'
+        WHEN '4T1B11HK9LU123789' THEN 'Продала Camry за 2 дня! Удобная платформа, много покупателей. Спасибо за помощь в оформлении.'
+        WHEN 'WDD2130431A123456' THEN 'Нашёл идеальный Mercedes E-Class. Хотелось бы больше фото, но сделка прошла отлично.'
+    END,
+    NOW() - INTERVAL '10 days',
+    TRUE,
+    admin."Id"
+FROM deal_map dm CROSS JOIN admin
+ON CONFLICT DO NOTHING;
+
+-- Избранное
+INSERT INTO "Favorites" ("UserId","CarId","AddedAt")
+SELECT 'user-buyer4', c."Id", NOW() - INTERVAL '3 days'
+FROM "Cars" c
+WHERE c."VIN" = 'WBAJE5C50JG123456'
+ON CONFLICT ("UserId","CarId") DO NOTHING;
+
+-- Просмотры
+UPDATE "Cars" SET "ViewsCount" = 150 WHERE "VIN" = 'WBAJE5C50JG123456';
+UPDATE "Cars" SET "ViewsCount" =  98 WHERE "VIN" = '4T1B11HK9LU123789';
+UPDATE "Cars" SET "ViewsCount" = 210 WHERE "VIN" = 'WDD2130431A123456';
+
+-- ================================================
+-- ФУНКЦИИ, ТРИГГЕРЫ И ПРЕДСТАВЛЕНИЯ
+-- ================================================
+
+CREATE OR REPLACE FUNCTION calculate_commission(deal_price DECIMAL, commission_percent DECIMAL DEFAULT 5.0)
+RETURNS DECIMAL AS $$
+BEGIN
+    RETURN ROUND(deal_price * commission_percent / 100, 2);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."UpdatedAt" = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_cars_timestamp
+BEFORE UPDATE ON "Cars"
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+
+CREATE VIEW "vw_cars_full" AS
+SELECT
+    c."Id",
+    c."ModelId",
+    m."Name" AS "ModelName",
+    b."Name" AS "BrandName",
+    c."Year",
+    c."Price",
+    c."Mileage",
+    c."FuelType",
+    c."Transmission",
+    c."DriveType",
+    c."EngineVolume",
+    c."EnginePower",
+    c."Color",
+    c."BodyType",
+    c."VIN",
+    c."Location",
+    c."Condition",
+    c."Status",
+    c."IsFeatured",
+    c."ViewsCount",
+    c."CreatedAt",
+    c."UpdatedAt",
+    u."Id" AS "SellerId",
+    u."FirstName" AS "SellerFirstName",
+    u."LastName" AS "SellerLastName",
+    u."Email" AS "SellerEmail"
+FROM "Cars" c
+JOIN "Models" m ON m."Id" = c."ModelId"
+JOIN "Brands" b ON b."Id" = m."BrandId"
+JOIN "AspNetUsers" u ON u."Id" = c."SellerId";
+
+CREATE VIEW "vw_active_cars" AS
+SELECT *
+FROM "vw_cars_full"
+WHERE "Status" = 'Active';
+
+-- ================================================
+-- КОНТРОЛЬНЫЕ ПРОВЕРКИ
+-- ================================================
+SELECT 'База car_platform успешно создана и заполнена!' AS "Статус";
+SELECT COUNT(*) AS "Число таблиц" FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
+SELECT COUNT(*) AS "Пользователей" FROM "AspNetUsers";
+SELECT COUNT(*) AS "Ролей" FROM "AspNetRoles";
+SELECT COUNT(*) AS "Марок" FROM "Brands";
+SELECT COUNT(*) AS "Моделей" FROM "Models";
+SELECT COUNT(*) AS "Автомобилей" FROM "Cars";
+SELECT COUNT(*) AS "Активных авто" FROM "Cars" WHERE "Status" = 'Active';
+SELECT COUNT(*) AS "Сделок" FROM "Deals";
+SELECT COUNT(*) AS "Отзывов" FROM "Reviews" WHERE "IsApproved" = TRUE;
+SELECT COUNT(*) AS "Избранного" FROM "Favorites";
+
+-- Топ-5 автомобилей по просмотрам
+SELECT
+    b."Name" || ' ' || m."Name" AS "Авто",
+    c."Year",
+    c."Price",
+    c."ViewsCount",
+    c."Location"
+FROM "Cars" c
+JOIN "Models" m ON c."ModelId" = m."Id"
+JOIN "Brands" b ON m."BrandId" = b."Id"
+WHERE c."Status" = 'Active'
+ORDER BY c."ViewsCount" DESC
+LIMIT 5;
+SELECT * FROM "AspNetUsers";
+SELECT * FROM "AspNetRoles";
+INSERT INTO "AspNetRoles" ("Id", "Name", "NormalizedName", "ConcurrencyStamp") 
+VALUES ('role-manager', 'Manager', 'MANAGER', 'stamp-manager')
+ON CONFLICT ("Id") DO NOTHING;
+
+INSERT INTO "AspNetUsers" (
+    "Id", "UserName", "NormalizedUserName", "Email", "NormalizedEmail",
+    "EmailConfirmed", "FirstName", "LastName", "City", "IsActive",
+    "SecurityStamp", "ConcurrencyStamp"
+)
+VALUES (
+    'user-manager',                      -- Id
+    'manager@carplatform.ru',            -- UserName
+    'MANAGER@CARPLATFORM.RU',            -- NormalizedUserName
+    'manager@carplatform.ru',            -- Email
+    'MANAGER@CARPLATFORM.RU',            -- NormalizedEmail
+    TRUE,                                 -- EmailConfirmed
+    'Анна',                              -- FirstName
+    'Менеджерова',                       -- LastName
+    'Москва',                            -- City
+    TRUE,                                 -- IsActive
+    'sec-user-manager',                  -- SecurityStamp
+    'conc-user-manager'                  -- ConcurrencyStamp
+)
+ON CONFLICT ("Id") DO NOTHING;
+INSERT INTO "AspNetUserRoles" ("UserId", "RoleId")
+VALUES ('user-manager', 'role-manager')
+ON CONFLICT DO NOTHING;
+
+-- Создать настройки для менеджера
+INSERT INTO "UserSettings" ("UserId", "Theme", "Language", "PageSize")
+VALUES ('user-manager', 'Light', 'ru', 20)
+ON CONFLICT ("UserId") DO NOTHING;
+
+SELECT * FROM "AspNetUsers";

@@ -105,7 +105,6 @@ C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\refint\k
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\kursecondapi.pdb
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\kursecondapi.genruntimeconfig.cache
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\ref\kursecondapi.dll
-C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
@@ -115,3 +114,6 @@ C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsof
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\kursecondapi.sourcelink.json
+C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\kursecondapi.staticwebassets.runtime.json

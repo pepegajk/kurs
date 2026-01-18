@@ -1,0 +1,45 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\4b308507-792a-4ca7-baa9-371dd082e91d.png",
+      "PackagePath": "staticwebassets\\images\\cars\\4b308507-792a-4ca7-baa9-371dd082e91d.png"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\b2464eef-3d28-4487-abdf-c98a77241d19.png",
+      "PackagePath": "staticwebassets\\images\\cars\\b2464eef-3d28-4487-abdf-c98a77241d19.png"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg",
+      "PackagePath": "staticwebassets\\images\\cars\\d6e08c3f-551e-4b6b-ad84-e6d5f52adc2c.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\ddcee7b6-973a-49e9-be4d-5016e8fda92a.png",
+      "PackagePath": "staticwebassets\\images\\cars\\ddcee7b6-973a-49e9-be4d-5016e8fda92a.png"
+    },
+    {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecondapi\\kursecondapi\\wwwroot\\images\\cars\\rav4.png",
+      "PackagePath": "staticwebassets\\images\\cars\\rav4.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.kursecondapi.props",
+      "PackagePath": "build\\kursecondapi.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.kursecondapi.props",
+      "PackagePath": "buildMultiTargeting\\kursecondapi.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.kursecondapi.props",
+      "PackagePath": "buildTransitive\\kursecondapi.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.kursecondapi.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.kursecondapi.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
