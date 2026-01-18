@@ -4,6 +4,8 @@
 @inject UserSettingsService SettingsService
 @inject NavigationManager Navigation
 
+@using kursecond1.Models
+
 <PageTitle>Автомобили - AutoMarket</PageTitle>
 
 <div class="page-header">
@@ -61,38 +63,114 @@ else
     <div class="cars-grid">
         @foreach (var car in GetPagedCars())
         {
+            var carImage = carImagesDict.ContainsKey(car.Id) ? carImagesDict[car.Id] : null;
             <div class="car-card" @onclick="@(() => ViewCarDetails(car.Id))">
-                <div class="car-card-header">
-                    @if (car.IsFeatured)
+                <div class="car-card-image">
+                    @if (carImage != null)
                     {
-                        <span class="badge bg-warning">⭐ Рекомендуем</span>
+                        <img src="@ApiService.GetImageUrl(carImage.ImageUrl)" alt="@($"{car.BrandName} {car.ModelName}")" 
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'250\'%3E%3Crect fill=\'%23e5e7eb\' width=\'400\' height=\'250\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%239ca3af\' font-size=\'18\'%3EНет фото%3C/text%3E%3C/svg%3E'" />
                     }
-                    <span class="badge @GetStatusBadgeClass(car.Status)">@car.Status</span>
+                    else
+                    {
+                        <div class="car-image-placeholder">
+                            <span class="bi bi-image"></span>
+                            <span>Нет фото</span>
+                        </div>
+                    }
+                    <div class="car-card-badges">
+                        @if (car.IsFeatured)
+                        {
+                            <span class="badge bg-warning">⭐ Рекомендуем</span>
+                        }
+                        <span class="badge @GetStatusBadgeClass(car.Status)">@car.Status</span>
+                    </div>
                 </div>
                 <div class="car-card-body">
-                    <h3>@car.BrandName @car.ModelName</h3>
-                    <div class="car-details">
-                        <div class="detail-item">
-                            <span class="bi bi-calendar"></span> @car.Year
-                        </div>
-                        <div class="detail-item">
-                            <span class="bi bi-speedometer2"></span> @car.Mileage.ToString("N0") км
-                        </div>
-                        <div class="detail-item">
-                            <span class="bi bi-fuel-pump"></span> @car.FuelType
-                        </div>
-                        <div class="detail-item">
-                            <span class="bi bi-gear"></span> @car.Transmission
-                        </div>
+                    <h3 class="car-title">
+                        @GetCarFullName(car)
+                    </h3>
+                    <div class="car-year-price">
+                        <span class="car-year">@car.Year год</span>
+                        <span class="car-price">@SettingsService.FormatPrice(car.Price)</span>
                     </div>
+                    
+                    <div class="car-specs-grid">
+                        <div class="spec-item">
+                            <span class="bi bi-speedometer2"></span>
+                            <span class="spec-label">Пробег:</span>
+                            <span class="spec-value">@car.Mileage.ToString("N0") км</span>
+                        </div>
+                        @if (car.EngineVolume.HasValue)
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-gear-fill"></span>
+                                <span class="spec-label">Двигатель:</span>
+                                <span class="spec-value">@car.EngineVolume.Value.ToString("0.0") л</span>
+                            </div>
+                        }
+                        @if (car.EnginePower.HasValue)
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-lightning-charge"></span>
+                                <span class="spec-label">Мощность:</span>
+                                <span class="spec-value">@car.EnginePower.Value л.с.</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(car.BodyType))
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-car-front"></span>
+                                <span class="spec-label">Кузов:</span>
+                                <span class="spec-value">@car.BodyType</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(car.FuelType))
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-fuel-pump"></span>
+                                <span class="spec-label">Топливо:</span>
+                                <span class="spec-value">@car.FuelType</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(car.Transmission))
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-gear"></span>
+                                <span class="spec-label">КПП:</span>
+                                <span class="spec-value">@car.Transmission</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(car.DriveType))
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-diagram-3"></span>
+                                <span class="spec-label">Привод:</span>
+                                <span class="spec-value">@car.DriveType</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(car.Color))
+                        {
+                            <div class="spec-item">
+                                <span class="bi bi-palette"></span>
+                                <span class="spec-label">Цвет:</span>
+                                <span class="spec-value">@car.Color</span>
+                            </div>
+                        }
+                    </div>
+                    
                     <div class="car-location">
-                        <span class="bi bi-geo-alt"></span> @car.Location
+                        <span class="bi bi-geo-alt-fill"></span> @car.Location
                     </div>
-                    <div class="car-price">
-                        @SettingsService.FormatPrice(car.Price)
-                    </div>
-                    <div class="car-stats">
-                        <small><span class="bi bi-eye"></span> @car.ViewsCount просмотров</small>
+                    
+                    <div class="car-footer">
+                        <div class="car-stats">
+                            <span class="bi bi-eye"></span> @car.ViewsCount просмотров
+                        </div>
+                        @if (car.Condition == "New")
+                        {
+                            <span class="badge bg-success">Новый</span>
+                        }
                     </div>
                 </div>
             </div>
@@ -133,6 +211,8 @@ else
 @code {
     private List<CarDto> cars = new();
     private List<CarDto> filteredCars = new();
+    private List<BrandDto> brands = new();
+    private List<ModelDto> models = new();
     private bool isLoading = true;
     
     private string searchQuery = "";
@@ -148,12 +228,79 @@ else
         await LoadCars();
     }
 
+    private Dictionary<int, CarImageDto> carImagesDict = new();
+
     private async Task LoadCars()
     {
         isLoading = true;
+        
+        // Загружаем бренды и модели для определения названий
+        brands = await ApiService.GetBrandsAsync();
+        models = await ApiService.GetModelsAsync();
+        
         cars = await ApiService.GetCarsAsync();
+        
+        // Если BrandName и ModelName не загружены, заполняем их из списков
+        foreach (var car in cars)
+        {
+            if (string.IsNullOrEmpty(car.BrandName) || string.IsNullOrEmpty(car.ModelName))
+            {
+                var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+                if (model != null)
+                {
+                    car.ModelName = model.Name;
+                    var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+                    if (brand != null)
+                    {
+                        car.BrandName = brand.Name;
+                    }
+                }
+            }
+        }
+        
         filteredCars = cars;
+        
+        // Загружаем изображения для всех автомобилей
+        carImagesDict.Clear();
+        foreach (var car in cars)
+        {
+            try
+            {
+                var mainImage = await ApiService.GetMainCarImageAsync(car.Id);
+                if (mainImage != null)
+                {
+                    carImagesDict[car.Id] = mainImage;
+                }
+            }
+            catch
+            {
+                // Игнорируем ошибки загрузки изображений
+            }
+        }
+        
         isLoading = false;
+    }
+
+    private string GetCarFullName(CarDto car)
+    {
+        if (!string.IsNullOrEmpty(car.BrandName) && !string.IsNullOrEmpty(car.ModelName))
+        {
+            return $"{car.BrandName} {car.ModelName}";
+        }
+        
+        // Если не загружены, пытаемся найти в списках
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+            if (brand != null)
+            {
+                return $"{brand.Name} {model.Name}";
+            }
+            return model.Name;
+        }
+        
+        return $"Автомобиль #{car.Id}";
     }
 
     private void OnFilterStatusChanged(ChangeEventArgs e)

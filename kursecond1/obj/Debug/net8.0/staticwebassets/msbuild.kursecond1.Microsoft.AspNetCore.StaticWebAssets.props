@@ -66,8 +66,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>f67bd25god</Fingerprint>
-      <Integrity>6UG68vHxVNbBrQbINxMcZwQv3Rk5+4j7hi9W0T7jKrM=</Integrity>
+      <Fingerprint>xjwnmqp6s4</Fingerprint>
+      <Integrity>c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\brand.css'))</OriginalItemSpec>
@@ -120,8 +120,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>6ffp0xujcn</Fingerprint>
-      <Integrity>riHUbJ6KTcWM8p8ClNCiOGUk0TQHv18wB3ERp/Io23A=</Integrity>
+      <Fingerprint>kce5fyidgk</Fingerprint>
+      <Integrity>5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\index.html'))</OriginalItemSpec>
@@ -180,6 +180,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\hotkeys.js'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\theme.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>kursecond1</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>/</BasePath>
+      <RelativePath>js/theme.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>cqnxys5mau</Fingerprint>
+      <Integrity>ZBjQIhxItdZvPAtRS65fEUwEaSv9sKs9o6/v7AWXgto=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\theme.js'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\kursecond1.styles.css'))">
       <SourceType>Package</SourceType>
       <SourceId>kursecond1</SourceId>
@@ -192,8 +210,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName>ScopedCss</AssetTraitName>
       <AssetTraitValue>ApplicationBundle</AssetTraitValue>
-      <Fingerprint>x32g0ittud</Fingerprint>
-      <Integrity>U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=</Integrity>
+      <Fingerprint>asujtevqgw</Fingerprint>
+      <Integrity>msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\kursecond1.styles.css'))</OriginalItemSpec>

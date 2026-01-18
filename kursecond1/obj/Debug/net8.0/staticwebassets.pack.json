@@ -49,6 +49,10 @@
       "PackagePath": "staticwebassets\\js\\hotkeys.js"
     },
     {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\theme.js",
+      "PackagePath": "staticwebassets\\js\\theme.js"
+    },
+    {
       "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\sample-data\\weather.json",
       "PackagePath": "staticwebassets\\sample-data\\weather.json"
     },

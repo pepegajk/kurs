@@ -11,13 +11,19 @@
     font-size: 1.1rem;
 }
 
+/* ============================================
+   НАСТРОЙКА ВЫРАВНИВАНИЯ ИКОНОК В НАВБАРЕ
+   ============================================ */
+/* Основные стили для иконок - здесь настраивается их выравнивание по центру */
 .bi[b-dpjtybiot4] {
-    display: inline-block;
+    display: inline-flex;              /* Используем flex для выравнивания */
+    align-items: center;                /* Выравнивание по вертикали (центр) */
+    justify-content: center;             /* Выравнивание по горизонтали (центр) */
     position: relative;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-right: 0.75rem;
-    top: -1px;
+    width: 1.25rem;                     /* Ширина иконки */
+    height: 1.25rem;                    /* Высота иконки */
+    margin-right: 0.75rem;              /* Отступ справа от иконки до текста */
+    vertical-align: middle;             /* Дополнительное вертикальное выравнивание */
     background-size: cover;
 }
 
@@ -46,13 +52,23 @@
         padding-bottom: 1rem;
     }
 
+    /* Стили для ссылок навигации - здесь настраивается расположение иконки и текста */
     .nav-item[b-dpjtybiot4]  a {
         color: #d7d7d7;
         border-radius: 4px;
         height: 3rem;
-        display: flex;
-        align-items: center;
+        display: flex;                   /* Flex контейнер для иконки и текста */
+        align-items: center;             /* Выравнивание элементов по вертикали (центр) */
+        justify-content: flex-start;     /* Элементы слева (иконка, затем текст) */
         line-height: 3rem;
+    }
+    
+    /* Дополнительные стили для иконок внутри ссылок */
+    .nav-item[b-dpjtybiot4]  a .bi {
+        display: inline-flex;
+        align-items: center;             /* Вертикальное выравнивание иконки */
+        justify-content: center;          /* Горизонтальное выравнивание иконки */
+        flex-shrink: 0;                  /* Иконка не сжимается */
     }
 
 .nav-item[b-dpjtybiot4]  a.active {

@@ -1,0 +1,99 @@
+@page "/profile"
+@inject AuthService AuthService
+
+<PageTitle>Профиль - AutoMarket</PageTitle>
+
+@if (!AuthService.IsAuthenticated)
+{
+    <div class="page-header">
+        <h1><span class="bi bi-person-circle"></span> Профиль пользователя</h1>
+    </div>
+    
+    <div class="alert alert-warning" role="alert">
+        <span class="bi bi-exclamation-triangle"></span> Для просмотра профиля необходимо войти в систему.
+        <a href="login" class="alert-link">Войти</a>
+    </div>
+}
+else if (user != null)
+{
+    <div class="page-header">
+        <h1><span class="bi bi-person-circle"></span> Мой профиль</h1>
+    </div>
+
+    <div class="profile-container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="settings-card">
+                    <h3><span class="bi bi-person-fill"></span> Личная информация</h3>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-control" value="@user.FirstName" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" class="form-control" value="@user.LastName" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="@user.Email" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-control" value="@user.UserName" readonly />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-control" value="@user.PhoneNumber" readonly />
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(user.Address))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Адрес</label>
+                            <input type="text" class="form-control" value="@user.Address" readonly />
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(user.City))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Город</label>
+                            <input type="text" class="form-control" value="@user.City" readonly />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка профиля...</p>
+    </div>
+}
+
+@code {
+    private UserInfoDto? user;
+
+    protected override void OnInitialized()
+    {
+        if (AuthService.IsAuthenticated)
+        {
+            user = AuthService.CurrentUser;
+        }
+    }
+}
+

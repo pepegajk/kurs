@@ -4,28 +4,35 @@
  */
 
 :root {
-    /* Цветовая палитра */
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --secondary-color: #64748b;
+    /* Цветовая палитра - более мягкие и приятные цвета */
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --primary-light: #dbeafe;
+    --secondary-color: #6b7280;
     --success-color: #10b981;
+    --success-light: #d1fae5;
     --warning-color: #f59e0b;
+    --warning-light: #fef3c7;
     --danger-color: #ef4444;
+    --danger-light: #fee2e2;
     --info-color: #06b6d4;
+    --info-light: #cffafe;
     
-    /* Фоновые цвета */
+    /* Фоновые цвета - более мягкие оттенки */
     --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-tertiary: #f1f5f9;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
     --bg-dark: #1e293b;
     
-    /* Текстовые цвета */
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --text-light: #94a3b8;
+    /* Текстовые цвета - более читаемые */
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-light: #9ca3af;
+    --text-muted: #d1d5db;
     
-    /* Границы */
-    --border-color: #e2e8f0;
+    /* Границы - более мягкие */
+    --border-color: #e5e7eb;
+    --border-light: #f3f4f6;
     --border-radius: 12px;
     --border-radius-sm: 8px;
     --border-radius-lg: 16px;
@@ -53,15 +60,109 @@
     --grid-gap: 1.5rem;
 }
 
-/* Темная тема */
+/* Темная тема - более приятные и современные цвета */
 [data-theme="dark"] {
+    /* Фоновые цвета - более мягкие темные оттенки */
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
     --bg-tertiary: #334155;
-    --text-primary: #f1f5f9;
+    --bg-quaternary: #475569;
+    
+    /* Текстовые цвета - более контрастные и читаемые */
+    --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-light: #94a3b8;
-    --border-color: #334155;
+    --text-muted: #64748b;
+    
+    /* Границы - более видимые */
+    --border-color: #475569;
+    --border-light: #334155;
+    
+    /* Акцентные цвета - более яркие для темной темы */
+    --primary-color: #60a5fa;
+    --primary-hover: #3b82f6;
+    --primary-light: #1e3a8a;
+    --success-color: #34d399;
+    --success-light: #065f46;
+    --warning-color: #fbbf24;
+    --warning-light: #78350f;
+    --danger-color: #f87171;
+    --danger-light: #7f1d1d;
+    --info-color: #22d3ee;
+    --info-light: #164e63;
+}
+
+/* Адаптация Bootstrap классов для темной темы */
+[data-theme="dark"] .bg-light {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .table {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .table thead th {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .table tbody td {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-control {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .form-select:focus,
+[data-theme="dark"] .form-control:focus {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .alert-info {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .btn-light {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-light:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Секция преимуществ */
+.features-section {
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl) 0;
 }
 
 /* Базовые стили */
@@ -318,16 +419,146 @@ kbd {
     gap: var(--spacing-sm);
 }
 
+.car-card {
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.car-card-image {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: var(--bg-secondary);
+}
+
+.car-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.car-card:hover .car-card-image img {
+    transform: scale(1.05);
+}
+
+.car-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    color: var(--text-light);
+    gap: var(--spacing-sm);
+}
+
+.car-image-placeholder .bi {
+    font-size: 3rem;
+    opacity: 0.5;
+}
+
+.car-card-badges {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.car-card-body {
+    padding: var(--spacing-md);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.car-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+    line-height: 1.4;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.car-year-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.car-year {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
 .car-price {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 800;
     color: var(--primary-color);
-    margin-bottom: var(--spacing-sm);
+}
+
+.car-specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md) 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.spec-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.875rem;
+}
+
+.spec-item .bi {
+    color: var(--primary-color);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.spec-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.spec-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.car-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--border-color);
 }
 
 .car-stats {
     color: var(--text-light);
     font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
 }
 
 /* Brands Grid */
@@ -549,6 +780,75 @@ kbd {
 
 .hotkeys-list li {
     margin-bottom: var(--spacing-sm);
+}
+
+/* Profile Page */
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    background: var(--bg-primary);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.profile-avatar {
+    margin-bottom: var(--spacing-lg);
+}
+
+.avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.avatar-placeholder .bi {
+    font-size: 6rem;
+    color: var(--text-secondary);
+}
+
+.profile-name {
+    margin-bottom: var(--spacing-md);
+}
+
+.profile-name h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+}
+
+.profile-name p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.profile-role {
+    margin-top: var(--spacing-md);
+}
+
+.profile-role .badge {
+    font-size: 1rem;
+    padding: var(--spacing-sm) var(--spacing-md);
 }
 
 /* Pagination */

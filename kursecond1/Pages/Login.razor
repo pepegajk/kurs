@@ -138,7 +138,7 @@
 
         try
         {
-            var success = await AuthService.LoginAsync(loginModel);
+            var (success, errorMsg) = await AuthService.LoginAsync(loginModel);
             
             if (success)
             {
@@ -146,7 +146,7 @@
             }
             else
             {
-                errorMessage = "Неверный Email или пароль";
+                errorMessage = errorMsg ?? "Неверный Email или пароль";
             }
         }
         catch (Exception ex)

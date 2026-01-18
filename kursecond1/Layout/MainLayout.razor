@@ -2,6 +2,8 @@
 @inject HotkeyService HotkeyService
 @inject AuthService AuthService
 @inject NavigationManager Navigation
+@inject UserSettingsService SettingsService
+@inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
 <div class="page">
@@ -10,10 +12,6 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
         <article class="content px-4">
             @Body
         </article>
@@ -27,12 +25,31 @@
         RegisterHotkeys();
         
         AuthService.OnAuthStateChanged += OnAuthStateChanged;
+        SettingsService.OnSettingsChanged += OnSettingsChanged;
+        
+        // Применяем тему при загрузке
+        await ApplyThemeAsync();
     }
 
     private void OnAuthStateChanged()
     {
         RegisterHotkeys();
         StateHasChanged();
+    }
+
+    private void OnSettingsChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await ApplyThemeAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task ApplyThemeAsync()
+    {
+        var settings = SettingsService.GetSettings();
+        await JSRuntime.InvokeVoidAsync("applyTheme", settings.Theme);
     }
 
     private void RegisterHotkeys()
@@ -76,6 +93,7 @@
     public async ValueTask DisposeAsync()
     {
         AuthService.OnAuthStateChanged -= OnAuthStateChanged;
+        SettingsService.OnSettingsChanged -= OnSettingsChanged;
         await HotkeyService.DisposeAsync();
     }
 }

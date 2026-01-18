@@ -1,0 +1,314 @@
+@page "/my-orders"
+
+@inject ApiService ApiService
+@inject AuthService AuthService
+@inject UserSettingsService SettingsService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Мои сделки - AutoMarket</PageTitle>
+
+@if (!AuthService.IsAuthenticated)
+{
+    <div class="alert alert-warning">
+        <span class="bi bi-exclamation-triangle"></span> Необходимо войти в систему для просмотра сделок.
+        <button class="btn btn-link" @onclick="@(() => Navigation.NavigateTo("/login"))">Войти</button>
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <h1><span class="bi bi-cart-check"></span> Мои сделки</h1>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">Загрузка сделок...</p>
+        </div>
+    }
+    else if (!orders.Any())
+    {
+        <div class="alert alert-info">
+            <span class="bi bi-info-circle"></span> У вас пока нет сделок. 
+            <a href="/cars" class="alert-link">Перейти к каталогу автомобилей</a>
+        </div>
+    }
+    else
+    {
+        <div class="orders-container">
+            @foreach (var order in orders.OrderByDescending(o => o.CreatedAt))
+            {
+                <div class="order-card mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">Сделка №@order.Id</h5>
+                                <small class="text-muted">Создан: @SettingsService.FormatDate(order.CreatedAt)</small>
+                            </div>
+                            <span class="badge @GetStatusBadgeClass(order.Status)">@GetStatusText(order.Status)</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6>Автомобиль</h6>
+                                    <p class="mb-2">
+                                        <strong>@GetCarFullName(order.CarId)</strong>
+                                    </p>
+                                    <a href="/cars/@order.CarId" class="btn btn-sm btn-outline-primary">
+                                        <span class="bi bi-eye"></span> Посмотреть детали
+                                    </a>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <h6>Сумма сделки</h6>
+                                    <p class="h5 text-primary mb-0">@SettingsService.FormatPrice(order.Price)</p>
+                                </div>
+                            </div>
+                            
+                            @if (order.Status == "UnderReview" || order.Status == "InProgress")
+                            {
+                                <hr />
+                                <div class="order-timeline">
+                                    <div class="timeline-item @(order.Status == "Created" ? "active" : "completed")">
+                                        <span class="timeline-icon">✓</span>
+                                        <span class="timeline-text">Сделка создана</span>
+                                        <span class="timeline-date">@SettingsService.FormatDate(order.CreatedAt)</span>
+                                    </div>
+                                    <div class="timeline-item @(order.Status == "UnderReview" ? "active" : order.Status == "InProgress" || order.Status == "Completed" ? "completed" : "")">
+                                        <span class="timeline-icon">✓</span>
+                                        <span class="timeline-text">На рассмотрении менеджера</span>
+                                    </div>
+                                    <div class="timeline-item @(order.Status == "InProgress" ? "active" : order.Status == "Completed" ? "completed" : "")">
+                                        <span class="timeline-icon">✓</span>
+                                        <span class="timeline-text">В работе у дилера</span>
+                                    </div>
+                                    <div class="timeline-item @(order.Status == "Completed" ? "active completed" : "")">
+                                        <span class="timeline-icon">✓</span>
+                                        <span class="timeline-text">Завершен</span>
+                                        @if (order.CompletedAt.HasValue)
+                                        {
+                                            <span class="timeline-date">@SettingsService.FormatDate(order.CompletedAt.Value)</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(order.Notes))
+                            {
+                                <hr />
+                                <div class="alert alert-info mb-0">
+                                    <strong>Примечание:</strong> @order.Notes
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .order-card .card {
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+    }
+
+    .order-card .card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .order-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+        border-radius: var(--border-radius-sm);
+        opacity: 0.5;
+        transition: opacity 0.3s;
+    }
+
+    .timeline-item.active {
+        opacity: 1;
+        background: var(--bg-secondary);
+        font-weight: 600;
+    }
+
+    .timeline-item.completed {
+        opacity: 1;
+    }
+
+    .timeline-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--border-color);
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .timeline-item.active .timeline-icon {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .timeline-item.completed .timeline-icon {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .timeline-text {
+        flex: 1;
+    }
+
+    .timeline-date {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    @@media (max-width: 768px) {
+        .order-timeline {
+            font-size: 0.875rem;
+        }
+    }
+</style>
+
+@code {
+    private List<DealDto> orders = new();
+    private List<CarDto> cars = new();
+    private List<BrandDto> brands = new();
+    private List<ModelDto> models = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.IsAuthenticated)
+        {
+            await LoadOrders();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+        try
+        {
+            // Загружаем сделки
+            orders = await ApiService.GetMyDealsAsync();
+            Console.WriteLine($"Loaded {orders.Count} deals for current user");
+            
+            // Загружаем автомобили, бренды и модели для отображения названий
+            cars = await ApiService.GetCarsAsync();
+            brands = await ApiService.GetBrandsAsync();
+            models = await ApiService.GetModelsAsync();
+            
+            // Заполняем CarInfo для каждой сделки, если оно пустое
+            foreach (var order in orders)
+            {
+                if (string.IsNullOrEmpty(order.CarInfo))
+                {
+                    order.CarInfo = GetCarFullName(order.CarId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading deals: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка при загрузке сделок: {ex.Message}");
+            orders = new List<DealDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    
+    private string GetCarFullName(int carId)
+    {
+        var car = cars.FirstOrDefault(c => c.Id == carId);
+        if (car == null)
+        {
+            return $"Автомобиль ID: {carId}";
+        }
+        
+        // Если в CarDto есть BrandName и ModelName
+        if (!string.IsNullOrEmpty(car.BrandName) && !string.IsNullOrEmpty(car.ModelName))
+        {
+            return $"{car.BrandName} {car.ModelName} {car.Year}";
+        }
+        
+        // Иначе ищем через ModelId
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+            if (brand != null)
+            {
+                return $"{brand.Name} {model.Name} {car.Year}";
+            }
+            return $"{model.Name} {car.Year}";
+        }
+        
+        return $"Автомобиль ID: {carId}";
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-secondary",
+            "Created" => "bg-info",
+            "UnderReview" => "bg-warning",
+            "InProgress" => "bg-primary",
+            "In Work" => "bg-primary",
+            "Completed" => "bg-success",
+            "Cancelled" => "bg-danger",
+            "Canceled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" => "В ожидании",
+            "Created" => "Сделка создана",
+            "UnderReview" => "На рассмотрении",
+            "InProgress" => "В работе",
+            "In Work" => "В работе",
+            "Completed" => "Завершен",
+            "Cancelled" => "Отменен",
+            "Canceled" => "Отменен",
+            _ => status
+        };
+    }
+}
+

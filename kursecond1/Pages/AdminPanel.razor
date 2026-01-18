@@ -1,0 +1,1927 @@
+@page "/admin"
+@using Microsoft.AspNetCore.Components.Forms
+@inject ApiService ApiService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject UserSettingsService SettingsService
+
+<PageTitle>@(AuthService.IsAdmin ? "Админ-панель" : "Панель управления") - AutoMarket</PageTitle>
+
+@if (!AuthService.IsAdmin && !AuthService.IsManager)
+{
+    <div class="alert alert-danger" role="alert">
+        <span class="bi bi-exclamation-triangle"></span> У вас нет доступа к этой странице. Требуются права администратора или менеджера.
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <h1>
+            @if (AuthService.IsAdmin)
+            {
+                <span class="bi bi-shield-check"></span>
+                <text>Админ-панель</text>
+            }
+            else
+            {
+                <span class="bi bi-gear-fill"></span>
+                <text>Панель управления</text>
+            }
+        </h1>
+    </div>
+
+    <div class="admin-container">
+        <ul class="nav nav-tabs mb-4" role="tablist">
+            @if (AuthService.IsAdmin)
+            {
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "brands" ? "active" : "")" @onclick="@(() => SetActiveTab("brands"))">
+                        <span class="bi bi-award-fill"></span> Бренды
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "models" ? "active" : "")" @onclick="@(() => SetActiveTab("models"))">
+                        <span class="bi bi-grid-fill"></span> Модели
+                    </button>
+                </li>
+            }
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == "cars" ? "active" : "")" @onclick="@(() => SetActiveTab("cars"))">
+                    <span class="bi bi-car-front-fill"></span> Автомобили
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == "car-images" ? "active" : "")" @onclick="@(() => SetActiveTab("car-images"))">
+                    <span class="bi bi-image"></span> Фото автомобилей
+                </button>
+            </li>
+            <li class="nav-item">
+                    <button class="nav-link @(activeTab == "orders" ? "active" : "")" @onclick="@(() => SetActiveTab("orders"))">
+                        <span class="bi bi-cart-check"></span> Сделки
+                    </button>
+            </li>
+            @if (AuthService.IsAdmin)
+            {
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "users" ? "active" : "")" @onclick="@(() => SetActiveTab("users"))">
+                        <span class="bi bi-people-fill"></span> Пользователи
+                    </button>
+                </li>
+            }
+        </ul>
+
+        @if (activeTab == "brands")
+        {
+            <div class="admin-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Управление брендами</h3>
+                    <button class="btn btn-primary" @onclick="@(() => ShowBrandModal(null))">
+                        <span class="bi bi-plus-circle"></span> Добавить бренд
+                    </button>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Страна</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var brand in brands)
+                                {
+                                    <tr>
+                                        <td>@brand.Id</td>
+                                        <td>@brand.Name</td>
+                                        <td>@(brand.Country ?? "-")</td>
+                                        <td>
+                                            <span class="badge @(brand.IsActive ? "bg-success" : "bg-secondary")">
+                                                @(brand.IsActive ? "Активен" : "Неактивен")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowBrandModal(brand))">
+                                                <span class="bi bi-pencil"></span> Редактировать
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger ms-2" @onclick="@(() => DeleteBrand(brand.Id))">
+                                                <span class="bi bi-trash"></span> Удалить
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (activeTab == "models")
+        {
+            <div class="admin-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Управление моделями</h3>
+                    <button class="btn btn-primary" @onclick="@(() => ShowModelModal(null))">
+                        <span class="bi bi-plus-circle"></span> Добавить модель
+                    </button>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Бренд</th>
+                                    <th>Годы</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var model in models)
+                                {
+                                    <tr>
+                                        <td>@model.Id</td>
+                                        <td>@model.Name</td>
+                                        <td>@(model.BrandName ?? "-")</td>
+                                        <td>@(model.YearFrom?.ToString() ?? "-") - @(model.YearTo?.ToString() ?? "-")</td>
+                                        <td>
+                                            <span class="badge @(model.IsActive ? "bg-success" : "bg-secondary")">
+                                                @(model.IsActive ? "Активна" : "Неактивна")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowModelModal(model))">
+                                                <span class="bi bi-pencil"></span> Редактировать
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger ms-2" @onclick="@(() => DeleteModel(model.Id))">
+                                                <span class="bi bi-trash"></span> Удалить
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (activeTab == "cars")
+        {
+            <div class="admin-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Управление автомобилями</h3>
+                    <button class="btn btn-primary" @onclick="@(() => ShowCarModal(null))">
+                        <span class="bi bi-plus-circle"></span> Добавить автомобиль
+                    </button>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Модель</th>
+                                    <th>Год</th>
+                                    <th>Цена</th>
+                                    <th>Пробег</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var car in cars)
+                                {
+                                    <tr>
+                                        <td>@car.Id</td>
+                                        <td>@GetCarModelName(car)</td>
+                                        <td>@car.Year</td>
+                                        <td>@car.Price.ToString("N0") ₽</td>
+                                        <td>@car.Mileage.ToString("N0") км</td>
+                                        <td>
+                                            <span class="badge @GetStatusBadge(car.Status)">
+                                                @car.Status
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowCarModal(car))">
+                                                <span class="bi bi-pencil"></span> Редактировать
+                                            </button>
+                                            @if (AuthService.IsAdmin)
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger ms-2" @onclick="@(() => DeleteCar(car.Id))">
+                                                    <span class="bi bi-trash"></span> Удалить
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (activeTab == "car-images")
+        {
+            <div class="admin-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Управление фотографиями автомобилей</h3>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select" style="width: auto;" @onchange="OnCarIdForImagesChanged">
+                            <option value="0">Все автомобили</option>
+                            @foreach (var car in cars)
+                            {
+                                <option value="@car.Id" selected="@(selectedCarIdForImages == car.Id)">@GetCarModelName(car) (@car.Id)</option>
+                            }
+                        </select>
+                        @if (selectedCarIdForImages > 0)
+                        {
+                            <button class="btn btn-primary" @onclick="@(() => ShowImageUploadModal(selectedCarIdForImages))">
+                                <span class="bi bi-plus-circle"></span> Добавить фото
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (isLoadingImages)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                }
+                else
+                {
+                    @if (allCarImages.Any())
+                    {
+                        <div class="car-images-management-grid">
+                            @foreach (var image in allCarImages)
+                            {
+                                var car = cars.FirstOrDefault(c => c.Id == image.CarId);
+                                <div class="car-image-management-item">
+                                    <img src="@ApiService.GetImageUrl(image.ImageUrl)" 
+                                         alt="@image.Title"
+                                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'150\'%3E%3Crect fill=\'%23ddd\' width=\'200\' height=\'150\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3EИзображение%3C/text%3E%3C/svg%3E'" />
+                                    <div class="image-info">
+                                        <div class="image-details">
+                                            <strong>Авто:</strong> @(car != null ? GetCarModelName(car) : $"ID: {image.CarId}")<br/>
+                                            <small>@image.ImageUrl</small>
+                                        </div>
+                                        <div class="image-management-actions">
+                                            @if (image.IsMain)
+                                            {
+                                                <span class="badge bg-warning mb-2">Главное</span>
+                                            }
+                                            else
+                                            {
+                                            <button class="btn btn-sm btn-outline-primary mb-2" 
+                                                    @onclick="@(() => SetMainImageForManagement(image.Id))" 
+                                                    @onclick:stopPropagation="true"
+                                                    @onclick:preventDefault="true"
+                                                    title="Сделать главным">
+                                                <span class="bi bi-star"></span> Главное
+                                            </button>
+                                            }
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    @onclick="@(() => DeleteCarImageForManagement(image.Id))" 
+                                                    @onclick:stopPropagation="true"
+                                                    @onclick:preventDefault="true"
+                                                    title="Удалить">
+                                                <span class="bi bi-trash"></span> Удалить
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <span class="bi bi-info-circle"></span> Фотографии не найдены
+                        </div>
+                    }
+                }
+            </div>
+        }
+
+        @if (activeTab == "orders")
+        {
+            <div class="admin-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Управление сделками</h3>
+                    <div class="d-flex gap-2">
+                        <select class="form-select" style="width: auto;" @onchange="OnOrderStatusFilterChanged">
+                            <option value="">Все статусы</option>
+                            <option value="Pending" selected="@(orderStatusFilter == "Pending")">В ожидании</option>
+                            <option value="Created" selected="@(orderStatusFilter == "Created")">Сделка создана</option>
+                            <option value="UnderReview" selected="@(orderStatusFilter == "UnderReview")">На рассмотрении</option>
+                            <option value="InProgress" selected="@(orderStatusFilter == "InProgress")">В работе</option>
+                            <option value="Completed" selected="@(orderStatusFilter == "Completed")">Завершен</option>
+                            <option value="Cancelled" selected="@(orderStatusFilter == "Cancelled")">Отменен</option>
+                        </select>
+                    </div>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Автомобиль</th>
+                                    <th>Покупатель</th>
+                                    <th>Цена</th>
+                                    <th>Статус</th>
+                                    <th>Дата создания</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in GetFilteredOrders())
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>
+                                            @(order.CarInfo ?? $"Автомобиль ID: {order.CarId}")
+                                            <a href="/cars/@order.CarId" class="btn btn-sm btn-link" target="_blank">
+                                                <span class="bi bi-box-arrow-up-right"></span>
+                                            </a>
+                                        </td>
+                                        <td>@(order.BuyerName ?? "-")</td>
+                                        <td>@SettingsService.FormatPrice(order.Price)</td>
+                                        <td>
+                                            <span class="badge @GetOrderStatusBadgeClass(order.Status)">
+                                                @GetOrderStatusText(order.Status)
+                                            </span>
+                                        </td>
+                                        <td>@SettingsService.FormatDate(order.CreatedAt)</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <select class="form-select form-select-sm" style="width: auto; display: inline-block;" 
+                                                        @onchange="@((e) => OnOrderStatusChange(order.Id, e))">
+                                                    @foreach (var status in GetAllAvailableStatuses())
+                                                    {
+                                                        <option value="@status" selected="@(order.Status == status)">@GetOrderStatusText(status)</option>
+                                                    }
+                                                    @if (!GetAllAvailableStatuses().Contains(order.Status))
+                                                    {
+                                                        <option value="@order.Status" selected>@order.Status</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    @if (!GetFilteredOrders().Any())
+                    {
+                        <div class="alert alert-info">
+                            <span class="bi bi-info-circle"></span> Сделки не найдены
+                        </div>
+                    }
+                }
+            </div>
+        }
+
+        @if (activeTab == "users")
+        {
+            <div class="admin-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Управление пользователями</h3>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control" placeholder="🔍 Поиск по email..." 
+                               @bind="userSearchQuery" @bind:event="oninput" style="width: 250px;" />
+                    </div>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Имя</th>
+                                    <th>Фамилия</th>
+                                    <th>Телефон</th>
+                                    <th>Город</th>
+                                    <th>Дата регистрации</th>
+                                    <th>Последний вход</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in GetFilteredUsers())
+                                {
+                                    <tr>
+                                        <td><small>@user.Id.Substring(0, Math.Min(8, user.Id.Length))...</small></td>
+                                        <td>@user.Email</td>
+                                        <td>@user.FirstName</td>
+                                        <td>@user.LastName</td>
+                                        <td>@(user.PhoneNumber ?? "-")</td>
+                                        <td>@(user.City ?? "-")</td>
+                                        <td>@user.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                        <td>@(user.LastLoginAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                                        <td>
+                                            <span class="badge @(user.IsActive ? "bg-success" : "bg-danger")">
+                                                @(user.IsActive ? "Активен" : "Заблокирован")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm @(user.IsActive ? "btn-outline-danger" : "btn-outline-success")" 
+                                                    @onclick="@(() => ToggleUserActive(user.Id))">
+                                                <span class="bi bi-@(user.IsActive ? "ban" : "check-circle")"></span> 
+                                                @(user.IsActive ? "Заблокировать" : "Активировать")
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Модальное окно для бренда -->
+    @if (showBrandModal)
+    {
+        <div class="modal show d-block admin-modal-backdrop" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content admin-modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(editingBrand?.Id > 0 ? "Редактировать бренд" : "Добавить бренд")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseBrandModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Название *</label>
+                            <input type="text" class="form-control" @bind="editingBrand.Name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            <textarea class="form-control" @bind="editingBrand.Description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Страна</label>
+                            <input type="text" class="form-control" @bind="editingBrand.Country" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL логотипа</label>
+                            <input type="text" class="form-control" @bind="editingBrand.LogoUrl" />
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" @bind="editingBrand.IsActive" id="brandActive" />
+                            <label class="form-check-label" for="brandActive">Активен</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseBrandModal">Отмена</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveBrand">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Модальное окно для модели -->
+    @if (showModelModal)
+    {
+        <div class="modal show d-block admin-modal-backdrop" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content admin-modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(editingModel?.Id > 0 ? "Редактировать модель" : "Добавить модель")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModelModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Бренд *</label>
+                            <select class="form-select" @bind="editingModel.BrandId">
+                                <option value="0">Выберите бренд</option>
+                                @foreach (var brand in brands)
+                                {
+                                    <option value="@brand.Id">@brand.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Название *</label>
+                            <input type="text" class="form-control" @bind="editingModel.Name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            <textarea class="form-control" @bind="editingModel.Description" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Год начала</label>
+                                    <input type="number" class="form-control" @bind="editingModel.YearFrom" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Год окончания</label>
+                                    <input type="number" class="form-control" @bind="editingModel.YearTo" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" @bind="editingModel.IsActive" id="modelActive" />
+                            <label class="form-check-label" for="modelActive">Активна</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModelModal">Отмена</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveModel">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Модальное окно для автомобиля -->
+    @if (showCarModal)
+    {
+        <div class="modal show d-block admin-modal-backdrop" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content admin-modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(editingCar?.Id > 0 ? "Редактировать автомобиль" : "Добавить автомобиль")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseCarModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Модель *</label>
+                                    <select class="form-select" @bind="editingCar.ModelId">
+                                        <option value="0">Выберите модель</option>
+                                        @foreach (var model in models)
+                                        {
+                                            <option value="@model.Id">@model.BrandName @model.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Год *</label>
+                                    <input type="number" class="form-control" @bind="editingCar.Year" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Цена *</label>
+                                    <input type="number" class="form-control" @bind="editingCar.Price" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Пробег *</label>
+                                    <input type="number" class="form-control" @bind="editingCar.Mileage" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Тип кузова</label>
+                                    <input type="text" class="form-control" @bind="editingCar.BodyType" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Тип топлива</label>
+                                    <input type="text" class="form-control" @bind="editingCar.FuelType" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Коробка передач</label>
+                                    <input type="text" class="form-control" @bind="editingCar.Transmission" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Местоположение</label>
+                            <input type="text" class="form-control" @bind="editingCar.Location" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            <textarea class="form-control" @bind="editingCar.Description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Статус</label>
+                            <select class="form-select" @bind="editingCar.Status">
+                                <option value="Active">Активен</option>
+                                <option value="Sold">Продан</option>
+                                <option value="Inactive">Неактивен</option>
+                            </select>
+                        </div>
+
+                        @if (editingCar.Id > 0)
+                        {
+                            <hr class="my-4" />
+                            <h6>Фотографии автомобиля</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Загрузить изображение</label>
+                                <div class="d-flex gap-2 mb-2">
+                                    <InputFile class="form-control" accept="image/*" OnChange="OnFileSelected" />
+                                    <button class="btn btn-primary" type="button" @onclick="UploadImageFile" disabled="@(selectedFile == null || isUploading)">
+                                        @if (isUploading)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                            <span>Загрузка...</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="bi bi-upload"></span>
+                                            <span>Загрузить файл</span>
+                                        }
+                                    </button>
+                                </div>
+                                @if (!string.IsNullOrEmpty(uploadError))
+                                {
+                                    <div class="alert alert-danger mt-2 mb-2" role="alert">
+                                        <span class="bi bi-exclamation-triangle"></span> @uploadError
+                                    </div>
+                                }
+                                @if (selectedFile != null && string.IsNullOrEmpty(uploadError))
+                                {
+                                    <div class="text-success small mb-2">
+                                        <span class="bi bi-check-circle"></span> Выбран файл: @selectedFile.Name (@((selectedFile.Size / 1024.0).ToString("F2")) КБ)
+                                    </div>
+                                }
+                                <div class="text-muted small mb-3">или</div>
+                                <label class="form-label">URL изображения</label>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" @bind="newImageUrl" placeholder="https://example.com/image.jpg" />
+                                    <button class="btn btn-outline-primary" type="button" @onclick="AddCarImage" disabled="@(string.IsNullOrWhiteSpace(newImageUrl))">
+                                        <span class="bi bi-plus-circle"></span> Добавить по URL
+                                    </button>
+                                </div>
+                                <div class="alert alert-info small mb-0" role="alert">
+                                    <strong>Как получить ссылку на фото:</strong><br/>
+                                    • Загрузите фото на <a href="https://imgur.com/upload" target="_blank" class="alert-link">Imgur</a> или <a href="https://imgbb.com" target="_blank" class="alert-link">ImgBB</a><br/>
+                                    • Скопируйте прямую ссылку на изображение (должна заканчиваться на .jpg, .png и т.д.)<br/>
+                                    • Вставьте ссылку выше и нажмите "Добавить по URL"
+                                </div>
+                            </div>
+
+                            @if (carImages.Any())
+                            {
+                                <div class="car-images-grid mb-3">
+                                    @foreach (var img in carImages.OrderBy(i => i.DisplayOrder))
+                                    {
+                                        <div class="car-image-item">
+                                            <img src="@ApiService.GetImageUrl(img.ImageUrl)" alt="@img.Title" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'150\'%3E%3Crect fill=\'%23ddd\' width=\'200\' height=\'150\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3EИзображение%3C/text%3E%3C/svg%3E'" />
+                                            <div class="image-actions">
+                                                @if (!img.IsMain)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-primary" @onclick="@(() => SetMainImage(img.Id))" title="Сделать главным">
+                                                        <span class="bi bi-star"></span>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">Главное</span>
+                                                }
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteCarImage(img.Id))" title="Удалить">
+                                                    <span class="bi bi-trash"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseCarModal">Отмена</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveCar">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Модальное окно для загрузки фото (из вкладки Фото автомобилей) -->
+    @if (showImageUploadModal)
+    {
+        <div class="modal show d-block admin-modal-backdrop" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content admin-modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Добавить фотографию</h5>
+                        <button type="button" class="btn-close" @onclick="CloseImageUploadModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Загрузить изображение</label>
+                            <div class="d-flex gap-2 mb-2">
+                                <InputFile class="form-control" accept="image/*" OnChange="OnFileSelectedForTab" />
+                                <button class="btn btn-primary" type="button" @onclick="UploadImageFileForTab" disabled="@(selectedFileForUpload == null || isUploadingForTab)">
+                                    @if (isUploadingForTab)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                        <span>Загрузка...</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="bi bi-upload"></span>
+                                        <span>Загрузить файл</span>
+                                    }
+                                </button>
+                            </div>
+                            @if (!string.IsNullOrEmpty(uploadErrorForTab))
+                            {
+                                <div class="alert alert-danger mt-2 mb-2" role="alert">
+                                    <span class="bi bi-exclamation-triangle"></span> @uploadErrorForTab
+                                </div>
+                            }
+                            @if (selectedFileForUpload != null && string.IsNullOrEmpty(uploadErrorForTab))
+                            {
+                                <div class="text-success small mb-2">
+                                    <span class="bi bi-check-circle"></span> Выбран файл: @selectedFileForUpload.Name (@((selectedFileForUpload.Size / 1024.0).ToString("F2")) КБ)
+                                </div>
+                            }
+                        </div>
+
+                        <div class="text-muted text-center mb-3">или</div>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL изображения</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" @bind="newImageUrlForUpload" placeholder="https://example.com/image.jpg" />
+                                <button class="btn btn-outline-primary" type="button" @onclick="AddCarImageByUrlForTab" disabled="@(string.IsNullOrWhiteSpace(newImageUrlForUpload))">
+                                    <span class="bi bi-plus-circle"></span> Добавить по URL
+                                </button>
+                            </div>
+                            <div class="alert alert-info small mb-0" role="alert">
+                                <strong>Как получить ссылку на фото:</strong><br/>
+                                • Загрузите фото на <a href="https://imgur.com/upload" target="_blank" class="alert-link">Imgur</a> или <a href="https://imgbb.com" target="_blank" class="alert-link">ImgBB</a><br/>
+                                • Скопируйте прямую ссылку на изображение (должна заканчиваться на .jpg, .png и т.д.)<br/>
+                                • Вставьте ссылку выше и нажмите "Добавить по URL"
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseImageUploadModal">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private string activeTab = "brands";
+    private bool isLoading = false;
+    
+    private List<BrandDto> brands = new();
+    private List<ModelDto> models = new();
+    private List<CarDto> cars = new();
+    private List<AdminUserDto> users = new();
+    private List<CarImageDto> allCarImages = new();
+    private bool isLoadingImages = false;
+    private int selectedCarIdForImages = 0;
+    private string userSearchQuery = "";
+    
+    // Orders management
+    private List<DealDto> orders = new();
+    private string orderStatusFilter = "";
+
+    // Image upload modal for car-images tab
+    private bool showImageUploadModal = false;
+    private int imageUploadCarId = 0;
+    private string newImageUrlForUpload = string.Empty;
+    private IBrowserFile? selectedFileForUpload;
+    private string? uploadErrorForTab = null;
+    private bool isUploadingForTab = false;
+
+    [Inject] private IJSRuntime JSRuntime { get; set; } = null!;
+
+    private string GetCarModelName(CarDto car)
+    {
+        if (!string.IsNullOrEmpty(car.BrandName) || !string.IsNullOrEmpty(car.ModelName))
+        {
+            return $"{car.BrandName} {car.ModelName}".Trim();
+        }
+        
+        // Если BrandName и ModelName не загружены, пытаемся найти модель по ModelId
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+            return $"{brand?.Name} {model.Name}".Trim();
+        }
+        
+        return "Не указано";
+    }
+
+    // Brand modal
+    private bool showBrandModal = false;
+    private BrandDto editingBrand = new();
+
+    // Model modal
+    private bool showModelModal = false;
+    private ModelDto editingModel = new();
+
+    // Car modal
+    private bool showCarModal = false;
+    private CarDto editingCar = new();
+    private List<CarImageDto> carImages = new();
+    private string newImageUrl = string.Empty;
+    private IBrowserFile? selectedFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        if (activeTab == "car-images")
+        {
+            await LoadCarImagesForManagement();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            brands = await ApiService.GetBrandsAsync();
+            models = await ApiService.GetModelsAsync();
+            cars = await ApiService.GetCarsAsync();
+            users = await ApiService.GetUsersAsync();
+            orders = await ApiService.GetDealsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        if (tab == "car-images")
+        {
+            _ = LoadCarImagesForManagement();
+        }
+        else if (tab == "orders")
+        {
+            _ = LoadData();
+        }
+    }
+
+    // Brand methods
+    private void ShowBrandModal(BrandDto? brand)
+    {
+        editingBrand = brand != null ? new BrandDto
+        {
+            Id = brand.Id,
+            Name = brand.Name,
+            Description = brand.Description,
+            Country = brand.Country,
+            LogoUrl = brand.LogoUrl,
+            IsActive = brand.IsActive
+        } : new BrandDto { IsActive = true };
+        showBrandModal = true;
+    }
+
+    private void CloseBrandModal()
+    {
+        showBrandModal = false;
+        editingBrand = new();
+    }
+
+    private async Task SaveBrand()
+    {
+        bool success;
+        if (editingBrand.Id > 0)
+        {
+            success = await ApiService.UpdateBrandAsync(editingBrand.Id, editingBrand);
+        }
+        else
+        {
+            success = await ApiService.CreateBrandAsync(editingBrand);
+        }
+
+        if (success)
+        {
+            CloseBrandModal();
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteBrand(int id)
+    {
+        if (await ApiService.DeleteBrandAsync(id))
+        {
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    // Model methods
+    private void ShowModelModal(ModelDto? model)
+    {
+        editingModel = model != null ? new ModelDto
+        {
+            Id = model.Id,
+            BrandId = model.BrandId,
+            Name = model.Name,
+            Description = model.Description,
+            YearFrom = model.YearFrom,
+            YearTo = model.YearTo,
+            IsActive = model.IsActive
+        } : new ModelDto { IsActive = true };
+        showModelModal = true;
+    }
+
+    private void CloseModelModal()
+    {
+        showModelModal = false;
+        editingModel = new();
+    }
+
+    private async Task SaveModel()
+    {
+        bool success;
+        if (editingModel.Id > 0)
+        {
+            success = await ApiService.UpdateModelAsync(editingModel.Id, editingModel);
+        }
+        else
+        {
+            success = await ApiService.CreateModelAsync(editingModel);
+        }
+
+        if (success)
+        {
+            CloseModelModal();
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteModel(int id)
+    {
+        if (await ApiService.DeleteModelAsync(id))
+        {
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    // Car methods
+    private async Task ShowCarModal(CarDto? car)
+    {
+        editingCar = car != null ? new CarDto
+        {
+            Id = car.Id,
+            ModelId = car.ModelId,
+            Year = car.Year,
+            Price = car.Price,
+            Mileage = car.Mileage,
+            BodyType = car.BodyType,
+            FuelType = car.FuelType,
+            Transmission = car.Transmission,
+            Location = car.Location,
+            Description = car.Description,
+            Status = car.Status
+        } : new CarDto { Status = "Active" };
+        
+        if (editingCar.Id > 0)
+        {
+            carImages = await ApiService.GetCarImagesAsync(editingCar.Id);
+        }
+        else
+        {
+            carImages = new();
+        }
+        
+        newImageUrl = string.Empty;
+        showCarModal = true;
+    }
+
+    private void CloseCarModal()
+    {
+        showCarModal = false;
+        editingCar = new();
+        carImages = new();
+        newImageUrl = string.Empty;
+        selectedFile = null;
+        uploadError = null;
+        isUploading = false;
+    }
+
+    private async Task AddCarImage()
+    {
+        if (string.IsNullOrWhiteSpace(newImageUrl) || editingCar.Id <= 0)
+            return;
+
+        var newImage = new CarImageDto
+        {
+            CarId = editingCar.Id,
+            ImageUrl = newImageUrl,
+            DisplayOrder = carImages.Count,
+            IsMain = carImages.Count == 0
+        };
+
+        if (await ApiService.CreateCarImageAsync(newImage))
+        {
+            carImages = await ApiService.GetCarImagesAsync(editingCar.Id);
+            newImageUrl = string.Empty;
+            StateHasChanged();
+        }
+    }
+
+    private string? uploadError = null;
+    private bool isUploading = false;
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        uploadError = null;
+        
+        if (e.File == null)
+        {
+            selectedFile = null;
+            StateHasChanged();
+            return;
+        }
+
+        // Проверка типа файла
+        if (!e.File.ContentType.StartsWith("image/"))
+        {
+            uploadError = "Выберите файл изображения (JPG, PNG, GIF и т.д.)";
+            selectedFile = null;
+            StateHasChanged();
+            return;
+        }
+
+        // Проверка размера файла (максимум 10 МБ)
+        const long maxFileSize = 10 * 1024 * 1024; // 10 МБ
+        if (e.File.Size > maxFileSize)
+        {
+            uploadError = $"Размер файла превышает 10 МБ. Текущий размер: {(e.File.Size / 1024.0 / 1024.0):F2} МБ";
+            selectedFile = null;
+            StateHasChanged();
+            return;
+        }
+
+        selectedFile = e.File;
+        StateHasChanged();
+    }
+
+    private async Task UploadImageFile()
+    {
+        if (selectedFile == null || editingCar.Id <= 0)
+            return;
+
+        isUploading = true;
+        uploadError = null;
+        StateHasChanged();
+
+        try
+        {
+            // Открываем поток файла и загружаем через multipart/form-data
+            using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            
+            if (await ApiService.UploadCarImageFileAsync(editingCar.Id, stream, selectedFile.Name, selectedFile.ContentType))
+            {
+                carImages = await ApiService.GetCarImagesAsync(editingCar.Id);
+                selectedFile = null;
+                uploadError = null;
+                StateHasChanged();
+            }
+            else
+            {
+                uploadError = "Не удалось загрузить изображение. Убедитесь, что API поддерживает загрузку файлов или используйте вариант с URL.";
+            }
+        }
+        catch (Exception ex)
+        {
+            uploadError = $"Ошибка при загрузке файла: {ex.Message}";
+            Console.WriteLine($"Error uploading file: {ex.Message}");
+        }
+        finally
+        {
+            isUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteCarImage(int imageId)
+    {
+        try
+        {
+            if (editingCar.Id <= 0)
+            {
+                Console.WriteLine("No car selected for deletion");
+                return;
+            }
+
+            // Подтверждение удаления
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Вы уверены, что хотите удалить это изображение?"))
+            {
+                return;
+            }
+
+            var success = await ApiService.DeleteCarImageAsync(editingCar.Id, imageId);
+            if (success)
+            {
+                carImages = await ApiService.GetCarImagesAsync(editingCar.Id);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine($"Failed to delete image {imageId}");
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при удалении изображения.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in DeleteCarImage: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
+    }
+
+    private async Task SetMainImage(int imageId)
+    {
+        try
+        {
+            var success = await ApiService.SetMainImageAsync(imageId);
+            if (success)
+            {
+                carImages = await ApiService.GetCarImagesAsync(editingCar.Id);
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine($"Failed to set main image {imageId}");
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при установке главного изображения.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in SetMainImage: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
+    }
+
+    private async Task SaveCar()
+    {
+        bool success;
+        if (editingCar.Id > 0)
+        {
+            success = await ApiService.UpdateCarAsync(editingCar.Id, editingCar);
+        }
+        else
+        {
+            success = await ApiService.CreateCarAsync(editingCar);
+        }
+
+        if (success)
+        {
+            CloseCarModal();
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteCar(int id)
+    {
+        if (await ApiService.DeleteCarAsync(id))
+        {
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    private string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Active" => "bg-success",
+            "Sold" => "bg-info",
+            "Inactive" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private async Task ToggleUserActive(string userId)
+    {
+        if (await ApiService.ToggleUserActiveAsync(userId))
+        {
+            await LoadData();
+            StateHasChanged();
+        }
+    }
+
+    private List<AdminUserDto> GetFilteredUsers()
+    {
+        if (string.IsNullOrWhiteSpace(userSearchQuery))
+            return users;
+
+        return users.Where(u => 
+            u.Email.Contains(userSearchQuery, StringComparison.OrdinalIgnoreCase) ||
+            (u.FirstName?.Contains(userSearchQuery, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (u.LastName?.Contains(userSearchQuery, StringComparison.OrdinalIgnoreCase) ?? false)
+        ).ToList();
+    }
+
+    private async Task OnCarIdForImagesChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var carId))
+        {
+            selectedCarIdForImages = carId;
+        }
+        else
+        {
+            selectedCarIdForImages = 0;
+        }
+        await LoadCarImagesForManagement();
+    }
+
+    private async Task LoadCarImagesForManagement()
+    {
+        isLoadingImages = true;
+        StateHasChanged();
+
+        try
+        {
+            if (selectedCarIdForImages > 0)
+            {
+                // Загружаем фото только для выбранного авто
+                allCarImages = await ApiService.GetCarImagesAsync(selectedCarIdForImages);
+            }
+            else
+            {
+                // Загружаем фото для всех авто
+                allCarImages = new List<CarImageDto>();
+                foreach (var car in cars)
+                {
+                    var images = await ApiService.GetCarImagesAsync(car.Id);
+                    allCarImages.AddRange(images);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading car images: {ex.Message}");
+            allCarImages = new List<CarImageDto>();
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка при загрузке изображений: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingImages = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetMainImageForManagement(int imageId)
+    {
+        try
+        {
+            Console.WriteLine($"SetMainImageForManagement called with imageId: {imageId}");
+            var image = allCarImages.FirstOrDefault(img => img.Id == imageId);
+            if (image == null)
+            {
+                Console.WriteLine($"Image {imageId} not found in allCarImages");
+                await JSRuntime.InvokeVoidAsync("alert", $"Изображение {imageId} не найдено");
+                return;
+            }
+
+            Console.WriteLine($"Setting main image: {imageId} for car: {image.CarId}");
+            var success = await ApiService.SetMainImageAsync(imageId);
+            Console.WriteLine($"SetMainImageAsync returned: {success}");
+            
+            if (success)
+            {
+                await LoadCarImagesForManagement();
+                await Task.Delay(100); // Небольшая задержка для обновления
+                StateHasChanged();
+                Console.WriteLine("StateHasChanged called after setting main image");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to set main image {imageId}");
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при установке главного изображения. Проверьте консоль.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in SetMainImageForManagement: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteCarImageForManagement(int imageId)
+    {
+        try
+        {
+            Console.WriteLine($"DeleteCarImageForManagement called with imageId: {imageId}");
+            var image = allCarImages.FirstOrDefault(img => img.Id == imageId);
+            if (image == null)
+            {
+                Console.WriteLine($"Image {imageId} not found in allCarImages");
+                await JSRuntime.InvokeVoidAsync("alert", $"Изображение {imageId} не найдено");
+                return;
+            }
+
+            // Подтверждение удаления
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Вы уверены, что хотите удалить это изображение?");
+            Console.WriteLine($"User confirmed deletion: {confirmed}");
+            if (!confirmed)
+            {
+                return;
+            }
+
+            Console.WriteLine($"Deleting image: {imageId} for car: {image.CarId}");
+            var success = await ApiService.DeleteCarImageAsync(image.CarId, imageId);
+            Console.WriteLine($"DeleteCarImageAsync returned: {success}");
+            
+            if (success)
+            {
+                await LoadCarImagesForManagement();
+                await Task.Delay(100); // Небольшая задержка для обновления
+                StateHasChanged();
+                Console.WriteLine("StateHasChanged called after deletion");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to delete image {imageId}");
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при удалении изображения. Проверьте консоль браузера (F12).");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in DeleteCarImageForManagement: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
+    }
+
+    private void ShowImageUploadModal(int carId)
+    {
+        imageUploadCarId = carId;
+        newImageUrlForUpload = string.Empty;
+        selectedFileForUpload = null;
+        uploadErrorForTab = null;
+        isUploadingForTab = false;
+        showImageUploadModal = true;
+    }
+
+    private void CloseImageUploadModal()
+    {
+        showImageUploadModal = false;
+        imageUploadCarId = 0;
+        newImageUrlForUpload = string.Empty;
+        selectedFileForUpload = null;
+        uploadErrorForTab = null;
+        isUploadingForTab = false;
+    }
+
+    private async Task OnFileSelectedForTab(InputFileChangeEventArgs e)
+    {
+        uploadErrorForTab = null;
+        
+        if (e.File == null)
+        {
+            selectedFileForUpload = null;
+            StateHasChanged();
+            return;
+        }
+
+        if (!e.File.ContentType.StartsWith("image/"))
+        {
+            uploadErrorForTab = "Выберите файл изображения (JPG, PNG, GIF и т.д.)";
+            selectedFileForUpload = null;
+            StateHasChanged();
+            return;
+        }
+
+        const long maxFileSize = 10 * 1024 * 1024;
+        if (e.File.Size > maxFileSize)
+        {
+            uploadErrorForTab = $"Размер файла превышает 10 МБ. Текущий размер: {(e.File.Size / 1024.0 / 1024.0):F2} МБ";
+            selectedFileForUpload = null;
+            StateHasChanged();
+            return;
+        }
+
+        selectedFileForUpload = e.File;
+        StateHasChanged();
+    }
+
+    private async Task UploadImageFileForTab()
+    {
+        if (selectedFileForUpload == null || imageUploadCarId <= 0)
+            return;
+
+        isUploadingForTab = true;
+        uploadErrorForTab = null;
+        StateHasChanged();
+
+        try
+        {
+            using var stream = selectedFileForUpload.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            
+            if (await ApiService.UploadCarImageFileAsync(imageUploadCarId, stream, selectedFileForUpload.Name, selectedFileForUpload.ContentType))
+            {
+                await LoadCarImagesForManagement();
+                CloseImageUploadModal();
+            }
+            else
+            {
+                uploadErrorForTab = "Не удалось загрузить изображение. Попробуйте использовать вариант с URL.";
+            }
+        }
+        catch (Exception ex)
+        {
+            uploadErrorForTab = $"Ошибка при загрузке файла: {ex.Message}";
+            Console.WriteLine($"Error uploading file: {ex.Message}");
+        }
+        finally
+        {
+            isUploadingForTab = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddCarImageByUrlForTab()
+    {
+        if (string.IsNullOrWhiteSpace(newImageUrlForUpload) || imageUploadCarId <= 0)
+            return;
+
+        var newImage = new CarImageDto
+        {
+            CarId = imageUploadCarId,
+            ImageUrl = newImageUrlForUpload,
+            DisplayOrder = 0,
+            IsMain = false
+        };
+
+        if (await ApiService.CreateCarImageAsync(newImage))
+        {
+            await LoadCarImagesForManagement();
+            CloseImageUploadModal();
+        }
+        else
+        {
+            uploadErrorForTab = "Не удалось добавить изображение. Проверьте URL.";
+        }
+    }
+
+    // Orders management methods
+    private void OnOrderStatusFilterChanged(ChangeEventArgs e)
+    {
+        orderStatusFilter = e.Value?.ToString() ?? "";
+        StateHasChanged();
+    }
+
+    private List<DealDto> GetFilteredOrders()
+    {
+        if (string.IsNullOrEmpty(orderStatusFilter))
+            return orders;
+        
+        return orders.Where(o => o.Status == orderStatusFilter).ToList();
+    }
+
+    private async Task OnOrderStatusChange(int orderId, ChangeEventArgs e)
+    {
+        var newStatus = e.Value?.ToString();
+        if (string.IsNullOrEmpty(newStatus))
+            return;
+
+        var order = orders.FirstOrDefault(o => o.Id == orderId);
+        if (order == null)
+            return;
+
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Изменить статус сделки №{orderId} на '{GetOrderStatusText(newStatus)}'?");
+        
+        if (!confirmed)
+        {
+            // Возвращаем старое значение
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            var success = await ApiService.UpdateDealStatusAsync(orderId, newStatus);
+            if (success)
+            {
+                await LoadData();
+                StateHasChanged();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при изменении статуса сделки.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating deal status: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
+    }
+
+    private string GetOrderStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "bg-secondary",
+            "Created" => "bg-info",
+            "UnderReview" => "bg-warning",
+            "InProgress" => "bg-primary",
+            "In Work" => "bg-primary",
+            "Completed" => "bg-success",
+            "Cancelled" => "bg-danger",
+            "Canceled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetOrderStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" => "В ожидании",
+            "Created" => "Сделка создана",
+            "UnderReview" => "На рассмотрении",
+            "InProgress" => "В работе",
+            "In Work" => "В работе",
+            "Completed" => "Завершен",
+            "Cancelled" => "Отменен",
+            "Canceled" => "Отменен",
+            _ => status
+        };
+    }
+    
+    private string[] GetAllAvailableStatuses()
+    {
+        // Возвращаем все возможные статусы (и существующие в БД, и новые)
+        return new[] { "Pending", "Created", "UnderReview", "InProgress", "Completed", "Cancelled" };
+    }
+}
+
+<style>
+    .admin-modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1050;
+    }
+
+    .admin-modal-content {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+    .admin-modal-content .modal-header {
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .admin-modal-content .modal-title {
+        color: var(--text-primary);
+    }
+
+    .admin-modal-content .btn-close {
+        filter: var(--text-primary) brightness(0) invert(1);
+    }
+
+    [data-theme="dark"] .admin-modal-content .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .admin-modal-content .modal-body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .admin-modal-content .modal-footer {
+        background-color: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .admin-modal-content .form-label {
+        color: var(--text-primary);
+    }
+
+    .admin-modal-content .form-control,
+    .admin-modal-content .form-select {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    .admin-modal-content .form-control:focus,
+    .admin-modal-content .form-select:focus {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+    }
+
+    .admin-modal-content .form-check-label {
+        color: var(--text-primary);
+    }
+
+    .admin-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .admin-section {
+        background: var(--bg-primary);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--text-secondary);
+        border-color: var(--border-color);
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: var(--bg-primary);
+        border-color: var(--border-color) var(--border-color) var(--bg-primary);
+    }
+
+    .car-images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .car-image-item {
+        position: relative;
+        border: 2px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        background: var(--bg-secondary);
+    }
+
+    .car-image-item img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .car-image-item .image-actions {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem;
+        display: flex;
+        gap: 0.25rem;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .car-image-item:hover .image-actions {
+        opacity: 1;
+    }
+
+    .car-image-item .image-actions .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .car-images-management-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .car-image-management-item {
+        background: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .car-image-management-item:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color);
+    }
+
+    .car-image-management-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .car-image-management-item .image-info {
+        padding: 1rem;
+    }
+
+    .car-image-management-item .image-details {
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .car-image-management-item .image-details strong {
+        color: var(--text-primary);
+    }
+
+    .car-image-management-item .image-details small {
+        display: block;
+        margin-top: 0.25rem;
+        color: var(--text-light);
+        word-break: break-all;
+    }
+
+    .car-image-management-item .image-management-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .car-image-management-item .image-management-actions .btn {
+        width: 100%;
+    }
+
+    .admin-section {
+        background: var(--bg-primary);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .admin-section:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .table {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .table thead th {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+        font-weight: 600;
+    }
+
+    .table tbody tr {
+        border-color: var(--border-color);
+        transition: background-color 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--bg-secondary);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-danger {
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: var(--danger-color);
+        border-color: var(--danger-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .badge {
+        padding: 0.35em 0.65em;
+        font-weight: 500;
+        border-radius: var(--border-radius-sm);
+    }
+
+    [data-theme="dark"] .badge.bg-success {
+        background-color: var(--success-color) !important;
+        color: #0f172a;
+    }
+
+    [data-theme="dark"] .badge.bg-info {
+        background-color: var(--info-color) !important;
+        color: #0f172a;
+    }
+
+    [data-theme="dark"] .badge.bg-warning {
+        background-color: var(--warning-color) !important;
+        color: #0f172a;
+    }
+</style>
+

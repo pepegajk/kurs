@@ -37,7 +37,7 @@
             </div>
         }
 
-        @if (AuthService.IsManager)
+        @if (AuthService.IsManager || AuthService.IsAdmin)
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="deals">
@@ -49,10 +49,23 @@
                     <span class="bi bi-graph-up" aria-hidden="true"></span> Статистика
                 </NavLink>
             </div>
+            @if (AuthService.IsManager && !AuthService.IsAdmin)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="admin">
+                        <span class="bi bi-gear-fill" aria-hidden="true"></span> Панель управления
+                    </NavLink>
+                </div>
+            }
         }
 
         @if (AuthService.IsAdmin)
         {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="bi bi-shield-check" aria-hidden="true"></span> Админ-панель
+                </NavLink>
+            </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="reviews-moderation">
                     <span class="bi bi-check-circle" aria-hidden="true"></span> Модерация отзывов
@@ -62,6 +75,19 @@
 
         @if (AuthService.IsAuthenticated)
         {
+            @if (!AuthService.IsAdmin)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="my-orders">
+                        <span class="bi bi-cart-check" aria-hidden="true"></span> Мои сделки
+                    </NavLink>
+                </div>
+            }
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="profile">
+                    <span class="bi bi-person-circle" aria-hidden="true"></span> Профиль
+                </NavLink>
+            </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="settings">
                     <span class="bi bi-gear-fill" aria-hidden="true"></span> Настройки
@@ -69,16 +95,6 @@
             </div>
 
             <hr class="text-white my-2" />
-
-            <div class="nav-item px-3">
-                <div class="nav-link user-info">
-                    <span class="bi bi-person-circle"></span>
-                    <div class="ms-2">
-                        <div class="fw-bold">@AuthService.CurrentUser?.FirstName @AuthService.CurrentUser?.LastName</div>
-                        <small class="text-muted">@GetRoleDisplay()</small>
-                    </div>
-                </div>
-            </div>
 
             <div class="nav-item px-3">
                 <button class="nav-link btn btn-link text-start w-100" @onclick="HandleLogout">
@@ -122,14 +138,6 @@
     private async Task HandleLogout()
     {
         await AuthService.LogoutAsync();
-    }
-
-    private string GetRoleDisplay()
-    {
-        if (AuthService.IsAdmin) return "Администратор";
-        if (AuthService.IsManager) return "Менеджер";
-        if (AuthService.IsUser) return "Пользователь";
-        return "Гость";
     }
 
     public void Dispose()

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "PdAKe3fTHOFGluxvenTuuSrEUqVHcmGhXbbgvumjMNI=",
+  "Hash": "0wpJfkeNcb38KEpRBPx4sBwm2Ej1bo24JSzmm7FDHHI=",
   "Source": "kursecond1",
   "BasePath": "/",
   "Mode": "Root",
@@ -31,8 +31,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "manifest",
-      "Fingerprint": "nnqnecnrrg",
-      "Integrity": "s5RN0AChLkl5Gw9wJBlCzuQ6tT0PXHyvCfpnF2cMsdI=",
+      "Fingerprint": "3tczwcy2bn",
+      "Integrity": "l5uAtlO8DVRamY8KZ8il6r/bYnn8y8x48znzy5XWWT8=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Debug\\net8.0\\blazor.boot.json"
@@ -283,8 +283,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "symbol",
-      "Fingerprint": "i0oagcrrnj",
-      "Integrity": "EshrmKVzjZ4wLryKnLugSS6R2JoyvLIaUHAUA268h+Q=",
+      "Fingerprint": "fo5athpl1i",
+      "Integrity": "wdPPLJeFgCaEhWNJwwpJ7g0vCZWXp1wkkcEltsa0BeM=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "obj\\Debug\\net8.0\\kursecond1.pdb"
@@ -304,8 +304,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "WasmResource",
       "AssetTraitValue": "runtime",
-      "Fingerprint": "dfvsgwb7s9",
-      "Integrity": "GY68fXOlFMxnw6q17+26BLiEvPOph5Xos55niYO2Wok=",
+      "Fingerprint": "tc4ae4s4dq",
+      "Integrity": "jVKspxcWTekwym/68uVGGgWqrwR5N/L4I3R4HZTDUlk=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\webcil\\kursecond1.wasm"
@@ -5162,7 +5162,7 @@
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Security.Cryptography.Cng.wasm"
     },
     {
-      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\7185doybs4-dfvsgwb7s9.gz",
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\7185doybs4-tc4ae4s4dq.gz",
       "SourceId": "kursecond1",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\",
@@ -5176,8 +5176,8 @@
       "RelatedAsset": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\kursecond1.wasm",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "3svco2mf3q",
-      "Integrity": "HVQerXrPrgvXcWyvZwShVvB0tdtxjInVt4LCvAVwmBY=",
+      "Fingerprint": "o5ngg3bmu7",
+      "Integrity": "xPoAZfCI0Jr/A4Gka5Gq1+RHOQFjVbCyV4/xzz57TOk=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\kursecond1.wasm"
@@ -5330,7 +5330,7 @@
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Runtime.wasm"
     },
     {
-      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\8z3wo9wmys-i0oagcrrnj.gz",
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\8z3wo9wmys-fo5athpl1i.gz",
       "SourceId": "kursecond1",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\",
@@ -5344,8 +5344,8 @@
       "RelatedAsset": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\kursecond1.pdb",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "gu7yakq5lw",
-      "Integrity": "OFaRrIL/QvV5MwM6wg2QXKkXHpKYcaqFrCc4t0P8Klo=",
+      "Fingerprint": "67dx58hlgz",
+      "Integrity": "ElbU4af8+58uM2W8Q/TUGNotra61kiH3/1kflWg4Oc4=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\kursecond1.pdb"
@@ -7871,7 +7871,7 @@
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Linq.Expressions.wasm"
     },
     {
-      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\tn2iunlpth-nnqnecnrrg.gz",
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\tn2iunlpth-3tczwcy2bn.gz",
       "SourceId": "kursecond1",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\",
@@ -7885,8 +7885,8 @@
       "RelatedAsset": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.boot.json",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "09yqhbgomu",
-      "Integrity": "HBPv3rR1CkaR3ZY83ScQ3pujgz7x23PwCgqnt6BB1E8=",
+      "Fingerprint": "bxubzqsmfx",
+      "Integrity": "T1zg9F6H5PJugP9Riux9DdBAYQYmCkJz+bS0uSF9gnw=",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.boot.json"
@@ -8641,8 +8641,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "ScopedCss",
       "AssetTraitValue": "ApplicationBundle",
-      "Fingerprint": "x32g0ittud",
-      "Integrity": "U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=",
+      "Fingerprint": "asujtevqgw",
+      "Integrity": "msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\bundle\\kursecond1.styles.css"
@@ -8662,8 +8662,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "ScopedCss",
       "AssetTraitValue": "ProjectBundle",
-      "Fingerprint": "x32g0ittud",
-      "Integrity": "U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=",
+      "Fingerprint": "asujtevqgw",
+      "Integrity": "msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\kursecond1.bundle.scp.css"
@@ -8746,8 +8746,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "f67bd25god",
-      "Integrity": "6UG68vHxVNbBrQbINxMcZwQv3Rk5+4j7hi9W0T7jKrM=",
+      "Fingerprint": "xjwnmqp6s4",
+      "Integrity": "c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\brand.css"
@@ -8809,8 +8809,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "6ffp0xujcn",
-      "Integrity": "riHUbJ6KTcWM8p8ClNCiOGUk0TQHv18wB3ERp/Io23A=",
+      "Fingerprint": "kce5fyidgk",
+      "Integrity": "5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\index.html"
@@ -8879,6 +8879,27 @@
       "OriginalItemSpec": "wwwroot\\js\\hotkeys.js"
     },
     {
+      "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\theme.js",
+      "SourceId": "kursecond1",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "js/theme#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "cqnxys5mau",
+      "Integrity": "ZBjQIhxItdZvPAtRS65fEUwEaSv9sKs9o6/v7AWXgto=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\theme.js"
+    },
+    {
       "Identity": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\sample-data\\weather.json",
       "SourceId": "kursecond1",
       "SourceType": "Discovered",
@@ -8920,11 +8941,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"s5RN0AChLkl5Gw9wJBlCzuQ6tT0PXHyvCfpnF2cMsdI=\""
+          "Value": "\"l5uAtlO8DVRamY8KZ8il6r/bYnn8y8x48znzy5XWWT8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 21:28:56 GMT"
+          "Value": "Thu, 15 Jan 2026 12:09:08 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -8934,18 +8955,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-s5RN0AChLkl5Gw9wJBlCzuQ6tT0PXHyvCfpnF2cMsdI="
+          "Value": "sha256-l5uAtlO8DVRamY8KZ8il6r/bYnn8y8x48znzy5XWWT8="
         }
       ]
     },
     {
       "Route": "_framework/blazor.boot.json",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\tn2iunlpth-nnqnecnrrg.gz",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\tn2iunlpth-3tczwcy2bn.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000113058225"
+          "Quality": "0.000113032666"
         }
       ],
       "ResponseHeaders": [
@@ -8955,15 +8976,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8844"
+          "Value": "8846"
         },
         {
           "Name": "ETag",
-          "Value": "\"HBPv3rR1CkaR3ZY83ScQ3pujgz7x23PwCgqnt6BB1E8=\""
+          "Value": "\"T1zg9F6H5PJugP9Riux9DdBAYQYmCkJz+bS0uSF9gnw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 20:39:30 GMT"
+          "Value": "Thu, 15 Jan 2026 12:03:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -8983,19 +9004,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"s5RN0AChLkl5Gw9wJBlCzuQ6tT0PXHyvCfpnF2cMsdI=\""
+          "Value": "W/\"l5uAtlO8DVRamY8KZ8il6r/bYnn8y8x48znzy5XWWT8=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-s5RN0AChLkl5Gw9wJBlCzuQ6tT0PXHyvCfpnF2cMsdI="
+          "Value": "sha256-l5uAtlO8DVRamY8KZ8il6r/bYnn8y8x48znzy5XWWT8="
         }
       ]
     },
     {
       "Route": "_framework/blazor.boot.json.gz",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\tn2iunlpth-nnqnecnrrg.gz",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\tn2iunlpth-3tczwcy2bn.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -9004,7 +9025,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8844"
+          "Value": "8846"
         },
         {
           "Name": "Content-Type",
@@ -9012,11 +9033,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HBPv3rR1CkaR3ZY83ScQ3pujgz7x23PwCgqnt6BB1E8=\""
+          "Value": "\"T1zg9F6H5PJugP9Riux9DdBAYQYmCkJz+bS0uSF9gnw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 20:39:30 GMT"
+          "Value": "Thu, 15 Jan 2026 12:03:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -9034,7 +9055,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HBPv3rR1CkaR3ZY83ScQ3pujgz7x23PwCgqnt6BB1E8="
+          "Value": "sha256-T1zg9F6H5PJugP9Riux9DdBAYQYmCkJz+bS0uSF9gnw="
         }
       ]
     },
@@ -10556,7 +10577,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "96748"
+          "Value": "173100"
         },
         {
           "Name": "Content-Type",
@@ -10564,11 +10585,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"EshrmKVzjZ4wLryKnLugSS6R2JoyvLIaUHAUA268h+Q=\""
+          "Value": "\"wdPPLJeFgCaEhWNJwwpJ7g0vCZWXp1wkkcEltsa0BeM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 21:28:55 GMT"
+          "Value": "Thu, 15 Jan 2026 12:09:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10578,18 +10599,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-EshrmKVzjZ4wLryKnLugSS6R2JoyvLIaUHAUA268h+Q="
+          "Value": "sha256-wdPPLJeFgCaEhWNJwwpJ7g0vCZWXp1wkkcEltsa0BeM="
         }
       ]
     },
     {
       "Route": "_framework/kursecond1.pdb",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\8z3wo9wmys-i0oagcrrnj.gz",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\8z3wo9wmys-fo5athpl1i.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000014387454"
+          "Quality": "0.000008156141"
         }
       ],
       "ResponseHeaders": [
@@ -10599,15 +10620,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "69504"
+          "Value": "122606"
         },
         {
           "Name": "ETag",
-          "Value": "\"OFaRrIL/QvV5MwM6wg2QXKkXHpKYcaqFrCc4t0P8Klo=\""
+          "Value": "\"ElbU4af8+58uM2W8Q/TUGNotra61kiH3/1kflWg4Oc4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 20:39:30 GMT"
+          "Value": "Thu, 15 Jan 2026 12:03:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10627,19 +10648,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"EshrmKVzjZ4wLryKnLugSS6R2JoyvLIaUHAUA268h+Q=\""
+          "Value": "W/\"wdPPLJeFgCaEhWNJwwpJ7g0vCZWXp1wkkcEltsa0BeM=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-EshrmKVzjZ4wLryKnLugSS6R2JoyvLIaUHAUA268h+Q="
+          "Value": "sha256-wdPPLJeFgCaEhWNJwwpJ7g0vCZWXp1wkkcEltsa0BeM="
         }
       ]
     },
     {
       "Route": "_framework/kursecond1.pdb.gz",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\8z3wo9wmys-i0oagcrrnj.gz",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\8z3wo9wmys-fo5athpl1i.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -10648,7 +10669,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "69504"
+          "Value": "122606"
         },
         {
           "Name": "Content-Type",
@@ -10656,11 +10677,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"OFaRrIL/QvV5MwM6wg2QXKkXHpKYcaqFrCc4t0P8Klo=\""
+          "Value": "\"ElbU4af8+58uM2W8Q/TUGNotra61kiH3/1kflWg4Oc4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 20:39:30 GMT"
+          "Value": "Thu, 15 Jan 2026 12:03:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10678,7 +10699,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-OFaRrIL/QvV5MwM6wg2QXKkXHpKYcaqFrCc4t0P8Klo="
+          "Value": "sha256-ElbU4af8+58uM2W8Q/TUGNotra61kiH3/1kflWg4Oc4="
         }
       ]
     },
@@ -10693,7 +10714,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "196885"
+          "Value": "402197"
         },
         {
           "Name": "Content-Type",
@@ -10701,11 +10722,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"GY68fXOlFMxnw6q17+26BLiEvPOph5Xos55niYO2Wok=\""
+          "Value": "\"jVKspxcWTekwym/68uVGGgWqrwR5N/L4I3R4HZTDUlk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 21:28:55 GMT"
+          "Value": "Thu, 15 Jan 2026 12:09:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10715,18 +10736,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-GY68fXOlFMxnw6q17+26BLiEvPOph5Xos55niYO2Wok="
+          "Value": "sha256-jVKspxcWTekwym/68uVGGgWqrwR5N/L4I3R4HZTDUlk="
         }
       ]
     },
     {
       "Route": "_framework/kursecond1.wasm",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\7185doybs4-dfvsgwb7s9.gz",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\7185doybs4-tc4ae4s4dq.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000016622340"
+          "Quality": "0.000008678597"
         }
       ],
       "ResponseHeaders": [
@@ -10736,15 +10757,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "60159"
+          "Value": "115225"
         },
         {
           "Name": "ETag",
-          "Value": "\"HVQerXrPrgvXcWyvZwShVvB0tdtxjInVt4LCvAVwmBY=\""
+          "Value": "\"xPoAZfCI0Jr/A4Gka5Gq1+RHOQFjVbCyV4/xzz57TOk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 20:39:30 GMT"
+          "Value": "Thu, 15 Jan 2026 12:03:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10764,19 +10785,19 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"GY68fXOlFMxnw6q17+26BLiEvPOph5Xos55niYO2Wok=\""
+          "Value": "W/\"jVKspxcWTekwym/68uVGGgWqrwR5N/L4I3R4HZTDUlk=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-GY68fXOlFMxnw6q17+26BLiEvPOph5Xos55niYO2Wok="
+          "Value": "sha256-jVKspxcWTekwym/68uVGGgWqrwR5N/L4I3R4HZTDUlk="
         }
       ]
     },
     {
       "Route": "_framework/kursecond1.wasm.gz",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\7185doybs4-dfvsgwb7s9.gz",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\compressed\\7185doybs4-tc4ae4s4dq.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -10785,7 +10806,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "60159"
+          "Value": "115225"
         },
         {
           "Name": "Content-Type",
@@ -10793,11 +10814,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HVQerXrPrgvXcWyvZwShVvB0tdtxjInVt4LCvAVwmBY=\""
+          "Value": "\"xPoAZfCI0Jr/A4Gka5Gq1+RHOQFjVbCyV4/xzz57TOk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 11 Nov 2025 20:39:30 GMT"
+          "Value": "Thu, 15 Jan 2026 12:03:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10815,7 +10836,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HVQerXrPrgvXcWyvZwShVvB0tdtxjInVt4LCvAVwmBY="
+          "Value": "sha256-xPoAZfCI0Jr/A4Gka5Gq1+RHOQFjVbCyV4/xzz57TOk="
         }
       ]
     },
@@ -37243,7 +37264,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "14851"
+          "Value": "21852"
         },
         {
           "Name": "Content-Type",
@@ -37251,11 +37272,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"6UG68vHxVNbBrQbINxMcZwQv3Rk5+4j7hi9W0T7jKrM=\""
+          "Value": "\"c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 13:01:30 GMT"
+          "Value": "Fri, 28 Nov 2025 07:59:57 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -37265,12 +37286,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-6UG68vHxVNbBrQbINxMcZwQv3Rk5+4j7hi9W0T7jKrM="
+          "Value": "sha256-c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw="
         }
       ]
     },
     {
-      "Route": "css/brand.f67bd25god.css",
+      "Route": "css/brand.xjwnmqp6s4.css",
       "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\css\\brand.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -37280,7 +37301,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "14851"
+          "Value": "21852"
         },
         {
           "Name": "Content-Type",
@@ -37288,11 +37309,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"6UG68vHxVNbBrQbINxMcZwQv3Rk5+4j7hi9W0T7jKrM=\""
+          "Value": "\"c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 13:01:30 GMT"
+          "Value": "Fri, 28 Nov 2025 07:59:57 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -37302,7 +37323,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "f67bd25god"
+          "Value": "xjwnmqp6s4"
         },
         {
           "Name": "label",
@@ -37310,7 +37331,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-6UG68vHxVNbBrQbINxMcZwQv3Rk5+4j7hi9W0T7jKrM="
+          "Value": "sha256-c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw="
         }
       ]
     },
@@ -37479,51 +37500,6 @@
       ]
     },
     {
-      "Route": "index.6ffp0xujcn.html",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\index.html",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "1348"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/html"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"riHUbJ6KTcWM8p8ClNCiOGUk0TQHv18wB3ERp/Io23A=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 13:01:30 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "6ffp0xujcn"
-        },
-        {
-          "Name": "label",
-          "Value": "index.html"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-riHUbJ6KTcWM8p8ClNCiOGUk0TQHv18wB3ERp/Io23A="
-        }
-      ]
-    },
-    {
       "Route": "index.html",
       "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\index.html",
       "Selectors": [],
@@ -37534,7 +37510,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1348"
+          "Value": "1389"
         },
         {
           "Name": "Content-Type",
@@ -37542,11 +37518,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"riHUbJ6KTcWM8p8ClNCiOGUk0TQHv18wB3ERp/Io23A=\""
+          "Value": "\"5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 13:01:30 GMT"
+          "Value": "Thu, 27 Nov 2025 07:48:29 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -37556,7 +37532,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-riHUbJ6KTcWM8p8ClNCiOGUk0TQHv18wB3ERp/Io23A="
+          "Value": "sha256-5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84="
+        }
+      ]
+    },
+    {
+      "Route": "index.kce5fyidgk.html",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\index.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1389"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Nov 2025 07:48:29 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "kce5fyidgk"
+        },
+        {
+          "Name": "label",
+          "Value": "index.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84="
         }
       ]
     },
@@ -37807,6 +37828,178 @@
       ]
     },
     {
+      "Route": "js/theme.cqnxys5mau.js",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\theme.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1957"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ZBjQIhxItdZvPAtRS65fEUwEaSv9sKs9o6/v7AWXgto=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Nov 2025 07:48:29 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "cqnxys5mau"
+        },
+        {
+          "Name": "label",
+          "Value": "js/theme.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZBjQIhxItdZvPAtRS65fEUwEaSv9sKs9o6/v7AWXgto="
+        }
+      ]
+    },
+    {
+      "Route": "js/theme.js",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\theme.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1957"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ZBjQIhxItdZvPAtRS65fEUwEaSv9sKs9o6/v7AWXgto=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Nov 2025 07:48:29 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZBjQIhxItdZvPAtRS65fEUwEaSv9sKs9o6/v7AWXgto="
+        }
+      ]
+    },
+    {
+      "Route": "kursecond1.asujtevqgw.bundle.scp.css",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\kursecond1.bundle.scp.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6512"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Nov 2025 07:35:03 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "asujtevqgw"
+        },
+        {
+          "Name": "label",
+          "Value": "kursecond1.bundle.scp.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc="
+        }
+      ]
+    },
+    {
+      "Route": "kursecond1.asujtevqgw.styles.css",
+      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\bundle\\kursecond1.styles.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6512"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Nov 2025 07:35:03 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "asujtevqgw"
+        },
+        {
+          "Name": "label",
+          "Value": "kursecond1.styles.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc="
+        }
+      ]
+    },
+    {
       "Route": "kursecond1.bundle.scp.css",
       "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\kursecond1.bundle.scp.css",
       "Selectors": [],
@@ -37817,7 +38010,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4653"
+          "Value": "6512"
         },
         {
           "Name": "Content-Type",
@@ -37825,11 +38018,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=\""
+          "Value": "\"msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 12:17:09 GMT"
+          "Value": "Thu, 27 Nov 2025 07:35:03 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -37839,7 +38032,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ="
+          "Value": "sha256-msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc="
         }
       ]
     },
@@ -37854,7 +38047,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4653"
+          "Value": "6512"
         },
         {
           "Name": "Content-Type",
@@ -37862,11 +38055,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=\""
+          "Value": "\"msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 12:17:09 GMT"
+          "Value": "Thu, 27 Nov 2025 07:35:03 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -37876,97 +38069,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ="
-        }
-      ]
-    },
-    {
-      "Route": "kursecond1.x32g0ittud.bundle.scp.css",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\kursecond1.bundle.scp.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4653"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 12:17:09 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "x32g0ittud"
-        },
-        {
-          "Name": "label",
-          "Value": "kursecond1.bundle.scp.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ="
-        }
-      ]
-    },
-    {
-      "Route": "kursecond1.x32g0ittud.styles.css",
-      "AssetFile": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\obj\\Debug\\net8.0\\scopedcss\\bundle\\kursecond1.styles.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4653"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 10 Nov 2025 12:17:09 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "x32g0ittud"
-        },
-        {
-          "Name": "label",
-          "Value": "kursecond1.styles.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-U/kghgA5q6LoZ7b7JrPhzx0RPw7kfsoSePma0jae2UQ="
+          "Value": "sha256-msfPfYwIjfA7tNS5XH2lSwuCreSy2Dz6tIdpnRxMDIc="
         }
       ]
     },

@@ -1,0 +1,673 @@
+@page "/cars/{CarId:int}"
+
+@inject ApiService ApiService
+@inject UserSettingsService SettingsService
+@inject NavigationManager Navigation
+@inject AuthService AuthService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>@GetCarTitle() - AutoMarket</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2">Загрузка данных автомобиля...</p>
+    </div>
+}
+else if (car == null)
+{
+    <div class="alert alert-danger">
+        <span class="bi bi-exclamation-triangle"></span> Автомобиль не найден.
+        <button class="btn btn-link" @onclick="@(() => Navigation.NavigateTo("/cars"))">Вернуться к списку</button>
+    </div>
+}
+else
+{
+    <div class="car-details-container">
+        <!-- Заголовок с кнопкой назад -->
+        <div class="mb-4">
+            <button class="btn btn-outline-secondary" @onclick="@(() => Navigation.NavigateTo("/cars"))">
+                <span class="bi bi-arrow-left"></span> Назад к списку
+            </button>
+        </div>
+
+        <!-- Основная информация -->
+        <div class="car-details-header">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h1 class="car-details-title">
+                        @GetCarFullName()
+                        @if (car.IsFeatured)
+                        {
+                            <span class="badge bg-warning ms-2">⭐ Рекомендуем</span>
+                        }
+                    </h1>
+                    <div class="car-details-meta">
+                        <span class="badge @GetStatusBadgeClass(car.Status)">@GetStatusText(car.Status)</span>
+                        <span class="text-muted ms-3">
+                            <span class="bi bi-calendar"></span> @car.Year год
+                        </span>
+                        <span class="text-muted ms-3">
+                            <span class="bi bi-speedometer2"></span> @car.Mileage.ToString("N0") км
+                        </span>
+                        <span class="text-muted ms-3">
+                            <span class="bi bi-geo-alt"></span> @car.Location
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="car-details-price">
+                        @SettingsService.FormatPrice(car.Price)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Галерея изображений -->
+        @if (carImages.Any())
+        {
+            <div class="car-images-gallery mb-4">
+                <div class="main-image-container">
+                    @if (selectedImageIndex >= 0 && selectedImageIndex < carImages.Count)
+                    {
+                        <img src="@ApiService.GetImageUrl(carImages[selectedImageIndex].ImageUrl)" 
+                             alt="@carImages[selectedImageIndex].Title"
+                             class="main-car-image"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'500\'%3E%3Crect fill=\'%23e5e7eb\' width=\'800\' height=\'500\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%239ca3af\' font-size=\'24\'%3EНет фото%3C/text%3E%3C/svg%3E'" />
+                    }
+                </div>
+                @if (carImages.Count > 1)
+                {
+                    <div class="thumbnail-images">
+                        @for (int i = 0; i < carImages.Count; i++)
+                        {
+                            var index = i;
+                            <div class="thumbnail-item @(selectedImageIndex == index ? "active" : "")" 
+                                 @onclick="@(() => SelectImage(index))">
+                                <img src="@ApiService.GetImageUrl(carImages[index].ImageUrl)" 
+                                     alt="@carImages[index].Title" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="car-image-placeholder-large mb-4">
+                <span class="bi bi-image" style="font-size: 4rem;"></span>
+                <p>Нет фотографий</p>
+            </div>
+        }
+
+        <!-- Основная информация и характеристики -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Описание</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(car.Description))
+                        {
+                            <p>@car.Description</p>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Описание отсутствует</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Характеристики</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="specs-grid">
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-award"></span> Бренд:
+                                </span>
+                                <span class="spec-value">@GetBrandName()</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-grid"></span> Модель:
+                                </span>
+                                <span class="spec-value">@GetModelName()</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-calendar"></span> Год выпуска:
+                                </span>
+                                <span class="spec-value">@car.Year</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-speedometer2"></span> Пробег:
+                                </span>
+                                <span class="spec-value">@car.Mileage.ToString("N0") км</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-fuel-pump"></span> Тип топлива:
+                                </span>
+                                <span class="spec-value">@car.FuelType</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-gear"></span> Коробка передач:
+                                </span>
+                                <span class="spec-value">@car.Transmission</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-diagram-3"></span> Привод:
+                                </span>
+                                <span class="spec-value">@car.DriveType</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-palette"></span> Цвет:
+                                </span>
+                                <span class="spec-value">@car.Color</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-square"></span> Тип кузова:
+                                </span>
+                                <span class="spec-value">@car.BodyType</span>
+                            </div>
+                            @if (car.EngineVolume.HasValue)
+                            {
+                                <div class="spec-row">
+                                    <span class="spec-label">
+                                        <span class="bi bi-engine"></span> Объём двигателя:
+                                    </span>
+                                    <span class="spec-value">@car.EngineVolume.Value л</span>
+                                </div>
+                            }
+                            @if (car.EnginePower.HasValue)
+                            {
+                                <div class="spec-row">
+                                    <span class="spec-label">
+                                        <span class="bi bi-lightning"></span> Мощность:
+                                    </span>
+                                    <span class="spec-value">@car.EnginePower.Value л.с.</span>
+                                </div>
+                            }
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-badge-vr"></span> VIN:
+                                </span>
+                                <span class="spec-value font-monospace">@GetMaskedVin()</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(car.RegistrationNumber))
+                            {
+                                <div class="spec-row">
+                                    <span class="spec-label">
+                                        <span class="bi bi-card-text"></span> Гос. номер:
+                                    </span>
+                                    <span class="spec-value">@car.RegistrationNumber</span>
+                                </div>
+                            }
+                            <div class="spec-row">
+                                <span class="spec-label">
+                                    <span class="bi bi-shield-check"></span> Состояние:
+                                </span>
+                                <span class="spec-value">@GetConditionText(car.Condition)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Боковая панель -->
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Цена</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="car-price-large">@SettingsService.FormatPrice(car.Price)</div>
+                        @if (car.Status == "Active")
+                        {
+                            <button class="btn btn-primary btn-lg w-100 mt-3" @onclick="CreateDeal">
+                                <span class="bi bi-cart-plus"></span> Оформить сделку
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary btn-lg w-100 mt-3" disabled>
+                                <span class="bi bi-x-circle"></span> Недоступен для покупки
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Местоположение</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">
+                            <span class="bi bi-geo-alt-fill text-primary"></span> @car.Location
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Статистика</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Просмотров:</span>
+                            <strong>@car.ViewsCount</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Дата публикации:</span>
+                            <strong>@SettingsService.FormatDate(car.CreatedAt)</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Обновлено:</span>
+                            <strong>@SettingsService.FormatDate(car.UpdatedAt)</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .car-details-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .car-details-header {
+        background: var(--bg-primary);
+        padding: var(--spacing-xl);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .car-details-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .car-details-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .car-details-price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary-color);
+    }
+
+    .car-images-gallery {
+        background: var(--bg-primary);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+
+    .main-image-container {
+        width: 100%;
+        margin-bottom: var(--spacing-md);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background: var(--bg-secondary);
+    }
+
+    .main-car-image {
+        width: 100%;
+        height: 500px;
+        object-fit: contain;
+        background: var(--bg-secondary);
+    }
+
+    .thumbnail-images {
+        display: flex;
+        gap: var(--spacing-sm);
+        flex-wrap: wrap;
+    }
+
+    .thumbnail-item {
+        width: 120px;
+        height: 90px;
+        border: 3px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .thumbnail-item:hover {
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+    }
+
+    .thumbnail-item.active {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .thumbnail-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .car-image-placeholder-large {
+        background: var(--bg-primary);
+        padding: var(--spacing-2xl);
+        border-radius: var(--border-radius);
+        text-align: center;
+        color: var(--text-secondary);
+        box-shadow: var(--shadow);
+    }
+
+    .specs-grid {
+        display: grid;
+        gap: var(--spacing-md);
+    }
+
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .spec-row:last-child {
+        border-bottom: none;
+    }
+
+    .spec-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .spec-value {
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: right;
+    }
+
+    .car-price-large {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary-color);
+    }
+
+    @@media (max-width: 768px) {
+        .car-details-title {
+            font-size: 1.5rem;
+        }
+
+        .car-details-price {
+            font-size: 2rem;
+        }
+
+        .main-car-image {
+            height: 300px;
+        }
+
+        .car-price-large {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int CarId { get; set; }
+
+    private CarDto? car;
+    private List<CarImageDto> carImages = new();
+    private List<BrandDto> brands = new();
+    private List<ModelDto> models = new();
+    private bool isLoading = true;
+    private int selectedImageIndex = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCarDetails();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCarDetails();
+    }
+
+    private async Task LoadCarDetails()
+    {
+        isLoading = true;
+        try
+        {
+            // Загружаем все данные параллельно
+            var carTask = ApiService.GetCarByIdAsync(CarId);
+            var brandsTask = ApiService.GetBrandsAsync();
+            var modelsTask = ApiService.GetModelsAsync();
+            
+            await Task.WhenAll(carTask, brandsTask, modelsTask);
+            
+            car = await carTask;
+            brands = await brandsTask;
+            models = await modelsTask;
+            
+            if (car != null)
+            {
+                carImages = await ApiService.GetCarImagesAsync(CarId);
+                if (carImages.Any())
+                {
+                    var mainImage = carImages.FirstOrDefault(img => img.IsMain);
+                    selectedImageIndex = mainImage != null ? carImages.IndexOf(mainImage) : 0;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading car details: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectImage(int index)
+    {
+        selectedImageIndex = index;
+    }
+
+    private string GetCarFullName()
+    {
+        if (car == null) return "";
+        
+        // Сначала пробуем использовать данные из car (если они есть)
+        if (!string.IsNullOrEmpty(car.BrandName) && !string.IsNullOrEmpty(car.ModelName))
+        {
+            return $"{car.BrandName} {car.ModelName}";
+        }
+        
+        // Если нет, ищем по ModelId
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+            if (brand != null)
+            {
+                return $"{brand.Name} {model.Name}";
+            }
+            return model.Name;
+        }
+        
+        return $"Автомобиль #{car.Id}";
+    }
+    
+    private string GetBrandName()
+    {
+        if (car == null) return "-";
+        
+        if (!string.IsNullOrEmpty(car.BrandName))
+        {
+            return car.BrandName;
+        }
+        
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+            if (brand != null)
+            {
+                return brand.Name;
+            }
+        }
+        
+        return "-";
+    }
+    
+    private string GetModelName()
+    {
+        if (car == null) return "-";
+        
+        if (!string.IsNullOrEmpty(car.ModelName))
+        {
+            return car.ModelName;
+        }
+        
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            return model.Name;
+        }
+        
+        return "-";
+    }
+    
+    private string GetMaskedVin()
+    {
+        if (car == null || string.IsNullOrEmpty(car.VIN))
+            return "-";
+        
+        if (car.VIN.Length <= 5)
+            return new string('*', car.VIN.Length);
+        
+        // Показываем все кроме последних 5 символов
+        var visiblePart = car.VIN.Substring(0, car.VIN.Length - 5);
+        var maskedPart = new string('*', 5);
+        return $"{visiblePart}{maskedPart}";
+    }
+
+    private string GetCarTitle()
+    {
+        return car != null ? GetCarFullName() : "Автомобиль";
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Active" => "bg-success",
+            "Sold" => "bg-secondary",
+            "Reserved" => "bg-warning",
+            _ => "bg-info"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Active" => "Активен",
+            "Sold" => "Продан",
+            "Reserved" => "Зарезервирован",
+            _ => status
+        };
+    }
+
+    private string GetConditionText(string condition)
+    {
+        return condition switch
+        {
+            "New" => "Новый",
+            "Used" => "С пробегом",
+            "Damaged" => "Повреждён",
+            _ => condition
+        };
+    }
+
+    private async Task CreateDeal()
+    {
+        if (car == null)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Ошибка: данные об автомобиле не загружены.");
+            return;
+        }
+
+        // Проверяем авторизацию ДО всего
+        Console.WriteLine("=== CREATE DEAL START ===");
+        Console.WriteLine($"IsAuthenticated: {AuthService.IsAuthenticated}");
+        Console.WriteLine($"CurrentUser: {(AuthService.CurrentUser != null ? $"UserId={AuthService.CurrentUser.UserId}, Email={AuthService.CurrentUser.Email}" : "NULL")}");
+        
+        var tokenCheck = await AuthService.GetTokenAsync();
+        Console.WriteLine($"Token in localStorage: {(string.IsNullOrEmpty(tokenCheck) ? "NOT FOUND" : $"Found (length: {tokenCheck.Length})")}");
+        
+        if (!AuthService.IsAuthenticated || string.IsNullOrEmpty(tokenCheck))
+        {
+            var msg = !AuthService.IsAuthenticated 
+                ? "Необходимо войти в систему для оформления сделки. Пожалуйста, войдите и попробуйте снова." 
+                : "Ошибка авторизации. Токен не найден. Пожалуйста, войдите в систему заново.";
+            await JSRuntime.InvokeVoidAsync("alert", msg);
+            Console.WriteLine($"User not authenticated. Redirecting to login.");
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
+            Console.WriteLine($"Creating deal for car {car.Id}, price {car.Price}");
+            Console.WriteLine($"User authenticated: {AuthService.IsAuthenticated}, UserId: {AuthService.CurrentUser?.UserId}");
+            
+            var success = await ApiService.CreateDealAsync(car.Id, car.Price);
+            Console.WriteLine($"CreateDealAsync returned: {success}");
+            Console.WriteLine("=== CREATE DEAL END ===");
+            
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Сделка успешно создана! Вы можете отслеживать её статус в разделе 'Мои сделки'.");
+                Navigation.NavigateTo("/my-orders");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при создании сделки (403 Forbidden). Возможные причины:\n1. Вы не авторизованы - войдите заново\n2. У вас нет прав на создание сделок\n3. Проблема на стороне сервера\n\nПроверьте консоль браузера (F12) для подробностей.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating deal: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            Console.WriteLine("=== CREATE DEAL ERROR ===");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка при создании сделки: {ex.Message}");
+        }
+    }
+}
+

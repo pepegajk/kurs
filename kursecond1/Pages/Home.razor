@@ -1,7 +1,6 @@
 ﻿@page "/"
 @inject ApiService ApiService
 @inject NavigationManager Navigation
-@inject HotkeyService HotkeyService
 
 <PageTitle>AutoMarket - Платформа продажи автомобилей</PageTitle>
 
@@ -70,10 +69,10 @@
 <!-- О платформе -->
 <section class="about-section py-5 mb-5">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-                <h2 class="mb-4">О нашей платформе</h2>
-                <p class="lead">AutoMarket — это современная платформа для покупки и продажи автомобилей, объединяющая покупателей и проверенных дилеров.</p>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="mb-4 text-center">О нашей платформе</h2>
+                <p class="lead text-center">AutoMarket — это современная платформа для покупки и продажи автомобилей, объединяющая покупателей и проверенных дилеров.</p>
                 <ul class="list-unstyled mt-4">
                     <li class="mb-3">
                         <i class="bi bi-check-circle-fill text-success me-2"></i>
@@ -92,33 +91,6 @@
                         <strong>Широкий выбор</strong> - большой каталог автомобилей
                     </li>
                 </ul>
-            </div>
-            <div class="col-lg-6">
-                <div class="quick-actions">
-                    <h4 class="mb-3">Быстрый доступ</h4>
-                    <div class="action-cards-grid">
-                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/cars"))">
-                            <i class="bi bi-car-front-fill"></i>
-                            <span>Автомобили</span>
-                            <small>Ctrl+C</small>
-                        </div>
-                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/brands"))">
-                            <i class="bi bi-award-fill"></i>
-                            <span>Бренды</span>
-                            <small>Ctrl+B</small>
-                        </div>
-                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/deals"))">
-                            <i class="bi bi-clipboard-check-fill"></i>
-                            <span>Сделки</span>
-                            <small>Ctrl+D</small>
-                        </div>
-                        <div class="action-card-mini" @onclick="@(() => Navigation.NavigateTo("/statistics"))">
-                            <i class="bi bi-graph-up"></i>
-                            <span>Статистика</span>
-                            <small>Ctrl+S</small>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -186,7 +158,7 @@
 </section>
 
 <!-- Преимущества -->
-<section class="features-section py-5 mb-5 bg-light">
+<section class="features-section py-5 mb-5">
     <div class="container">
         <h2 class="text-center mb-5">Почему выбирают AutoMarket</h2>
         <div class="row g-4">
@@ -215,48 +187,6 @@
     </div>
 </section>
 
-<!-- Горячие клавиши -->
-<section class="hotkeys-section py-5">
-    <div class="container">
-        <div class="hotkeys-info-card">
-            <h3 class="text-center mb-4">⌨️ Горячие клавиши для быстрой навигации</h3>
-            <div class="hotkeys-grid">
-                <div class="hotkey-item">
-                    <kbd>Ctrl+H</kbd>
-                    <span>Главная</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+C</kbd>
-                    <span>Автомобили</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+B</kbd>
-                    <span>Бренды</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+M</kbd>
-                    <span>Модели</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+D</kbd>
-                    <span>Сделки</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+S</kbd>
-                    <span>Статистика</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+E</kbd>
-                    <span>Настройки</span>
-                </div>
-                <div class="hotkey-item">
-                    <kbd>Ctrl+/</kbd>
-                    <span>Помощь</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <style>
     .hero-section {
@@ -267,12 +197,13 @@
     }
 
     .stat-card {
-        background: white;
+        background: var(--bg-primary);
         padding: 2rem;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         text-align: center;
         transition: transform 0.3s;
+        border: 1px solid var(--border-color);
     }
 
     .stat-card:hover {
@@ -298,57 +229,14 @@
         font-size: 2rem;
         font-weight: bold;
         margin: 0.5rem 0;
-        color: #333;
+        color: var(--text-primary);
     }
 
     .stat-card p {
-        color: #666;
+        color: var(--text-secondary);
         margin: 0;
     }
 
-    .action-cards-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-
-    .action-card-mini {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s;
-        border: 2px solid #e2e8f0;
-    }
-
-    .action-card-mini:hover {
-        border-color: var(--primary-color);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .action-card-mini i {
-        font-size: 2.5rem;
-        color: var(--primary-color);
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    .action-card-mini span {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-
-    .action-card-mini small {
-        display: block;
-        background: var(--bg-tertiary);
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        margin-top: 0.5rem;
-    }
 
     .car-card-home {
         cursor: pointer;
@@ -374,56 +262,30 @@
     }
 
     .feature-card {
-        background: white;
+        background: var(--bg-primary);
         transition: transform 0.3s;
         border-radius: 12px;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
     }
 
     .feature-card:hover {
         transform: translateY(-10px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feature-card h4 {
+        color: var(--text-primary);
+    }
+
+    .feature-card p {
+        color: var(--text-secondary);
     }
 
     .feature-icon {
         font-size: 3.5rem;
     }
 
-    .hotkeys-info-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .hotkeys-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .hotkey-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        background: var(--bg-secondary);
-        border-radius: 8px;
-    }
-
-    .hotkey-item kbd {
-        background: var(--bg-tertiary);
-        padding: 0.5rem 0.75rem;
-        border-radius: 6px;
-        font-family: var(--font-mono);
-        font-size: 0.875rem;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        min-width: 80px;
-        text-align: center;
-    }
-
-    .hotkey-item span {
-        font-weight: 500;
-    }
 
     @@media (max-width: 768px) {
         .hero-section h1 {
@@ -434,13 +296,6 @@
             font-size: 1.5rem;
         }
 
-        .action-cards-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .hotkeys-grid {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
 
@@ -454,7 +309,6 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadStats();
-        await RegisterHotkeys();
     }
 
     private async Task LoadStats()
@@ -485,15 +339,4 @@
         }
     }
 
-    private async Task RegisterHotkeys()
-    {
-        await HotkeyService.InitializeAsync();
-        HotkeyService.RegisterHotkey("ctrl+h", () => Navigation.NavigateTo("/"));
-        HotkeyService.RegisterHotkey("ctrl+c", () => Navigation.NavigateTo("/cars"));
-        HotkeyService.RegisterHotkey("ctrl+b", () => Navigation.NavigateTo("/brands"));
-        HotkeyService.RegisterHotkey("ctrl+m", () => Navigation.NavigateTo("/models"));
-        HotkeyService.RegisterHotkey("ctrl+d", () => Navigation.NavigateTo("/deals"));
-        HotkeyService.RegisterHotkey("ctrl+s", () => Navigation.NavigateTo("/statistics"));
-        HotkeyService.RegisterHotkey("ctrl+e", () => Navigation.NavigateTo("/settings"));
-    }
 }

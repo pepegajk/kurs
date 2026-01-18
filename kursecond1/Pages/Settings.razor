@@ -1,6 +1,8 @@
 @page "/settings"
 @inject UserSettingsService SettingsService
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 <PageTitle>Настройки - AutoMarket</PageTitle>
 
@@ -16,10 +18,10 @@
                 
                 <div class="mb-3">
                     <label class="form-label">Тема оформления:</label>
-                    <select class="form-select" @bind="settings.Theme" @bind:after="SaveSettings">
+                    <select class="form-select" @bind="settings.Theme" @bind:after="OnThemeChanged">
                         <option value="Light">Светлая</option>
                         <option value="Dark">Тёмная</option>
-                        <option value="Auto">Автоматическая</option>
+                        <option value="System">Системная</option>
                     </select>
                 </div>
 
@@ -86,14 +88,6 @@
                         Email уведомления
                     </label>
                 </div>
-
-                <div class="form-check form-switch mb-3">
-                    <input class="form-check-input" type="checkbox" 
-                           @bind="settings.PushNotifications" @bind:after="SaveSettings" id="pushNotif" />
-                    <label class="form-check-label" for="pushNotif">
-                        Push уведомления
-                    </label>
-                </div>
             </div>
 
             <div class="mt-4">
@@ -124,20 +118,6 @@
                 </ul>
             </div>
 
-            <div class="info-card mt-3">
-                <h4><span class="bi bi-keyboard"></span> Горячие клавиши</h4>
-                <p>Используйте клавиатурные сокращения для быстрой навигации:</p>
-                <ul class="hotkeys-list">
-                    <li><kbd>Ctrl+H</kbd> - Главная</li>
-                    <li><kbd>Ctrl+C</kbd> - Автомобили</li>
-                    <li><kbd>Ctrl+B</kbd> - Бренды</li>
-                    <li><kbd>Ctrl+M</kbd> - Модели</li>
-                    <li><kbd>Ctrl+D</kbd> - Сделки</li>
-                    <li><kbd>Ctrl+S</kbd> - Статистика</li>
-                    <li><kbd>Ctrl+E</kbd> - Настройки</li>
-                    <li><kbd>Ctrl+/</kbd> - Помощь</li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
@@ -145,9 +125,27 @@
 @code {
     private UserSettingsDto settings = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         settings = SettingsService.GetSettings();
+        SettingsService.OnSettingsChanged += OnSettingsChanged;
+        await ApplyThemeAsync();
+    }
+
+    private async Task OnThemeChanged()
+    {
+        await SaveSettingsAsync();
+        await ApplyThemeAsync();
+    }
+
+    private async Task SaveSettingsAsync()
+    {
+        if (settings.PageSize < 10) settings.PageSize = 10;
+        if (settings.PageSize > 100) settings.PageSize = 100;
+        
+        SettingsService.UpdateSettings(settings);
+        await ApplyThemeAsync();
+        StateHasChanged();
     }
 
     private void SaveSettings()
@@ -159,10 +157,30 @@
         StateHasChanged();
     }
 
-    private void ResetSettings()
+    private async Task ApplyThemeAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("applyTheme", settings.Theme);
+    }
+
+    private void OnSettingsChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            settings = SettingsService.GetSettings();
+            await ApplyThemeAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task ResetSettings()
     {
         settings = new UserSettingsDto();
-        SaveSettings();
+        await SaveSettingsAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        SettingsService.OnSettingsChanged -= OnSettingsChanged;
     }
 }
 

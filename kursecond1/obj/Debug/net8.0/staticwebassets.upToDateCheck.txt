@@ -8,4 +8,5 @@ wwwroot\index.html
 wwwroot\js\charts.js
 wwwroot\js\export.js
 wwwroot\js\hotkeys.js
+wwwroot\js\theme.js
 wwwroot\sample-data\weather.json

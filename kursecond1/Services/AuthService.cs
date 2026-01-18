@@ -28,7 +28,7 @@ public class AuthService
     public bool IsManager => (_currentUser?.Roles.Contains("Manager") ?? false) || IsAdmin;
     public bool IsUser => (_currentUser?.Roles.Contains("User") ?? false) || IsManager;
 
-    public async Task<bool> LoginAsync(LoginDto loginDto)
+    public async Task<(bool Success, string? ErrorMessage)> LoginAsync(LoginDto loginDto)
     {
         try
         {
@@ -52,16 +52,33 @@ public class AuthService
                     };
 
                     NotifyAuthStateChanged();
-                    return true;
+                    return (true, null);
+                }
+            }
+            else
+            {
+                // Пытаемся извлечь сообщение об ошибке из ответа
+                try
+                {
+                    var errorResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
+                    if (errorResponse.TryGetProperty("message", out var messageElement))
+                    {
+                        var errorMessage = messageElement.GetString();
+                        return (false, errorMessage);
+                    }
+                }
+                catch
+                {
+                    // Если не удалось распарсить, возвращаем общее сообщение
                 }
             }
 
-            return false;
+            return (false, "Неверный Email или пароль");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Login error: {ex.Message}");
-            return false;
+            return (false, $"Произошла ошибка: {ex.Message}");
         }
     }
 
@@ -145,11 +162,13 @@ public class AuthService
     private async Task SaveTokenAsync(string token)
     {
         await _jsRuntime.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
+        _httpClient.DefaultRequestHeaders.Remove("Authorization");
         _httpClient.DefaultRequestHeaders.Authorization = 
             new AuthenticationHeaderValue("Bearer", token);
+        Console.WriteLine($"Token saved to localStorage and HttpClient. Token length: {token.Length}");
     }
 
-    private async Task<string?> GetTokenAsync()
+    public async Task<string?> GetTokenAsync()
     {
         try
         {
