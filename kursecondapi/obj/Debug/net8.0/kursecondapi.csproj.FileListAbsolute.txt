@@ -115,5 +115,4 @@ C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsof
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\kursecondapi.sourcelink.json
-C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Вера\Desktop\C#\kursecondapi\kursecondapi\bin\Debug\net8.0\kursecondapi.staticwebassets.runtime.json

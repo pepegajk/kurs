@@ -26,6 +26,13 @@ public class DealsController : ControllerBase
     {
         try
         {
+            // Диагностическое логирование для проверки авторизации
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            var allClaims = User.Claims.Select(c => $"{c.Type}={c.Value}").ToList();
+            _logger.LogWarning("GetDeals вызван пользователем {UserId} с ролями: {Roles}. Все claims: {AllClaims}", 
+                userId, string.Join(", ", userRoles), string.Join("; ", allClaims));
+            
             // Получаем все сделки с полной информацией
             var deals = await _context.Deals
                 .Include(d => d.Car)
@@ -203,7 +210,7 @@ public class DealsController : ControllerBase
             }
 
             // Устанавливаем значения по умолчанию
-            deal.CreatedAt = DateTime.Now;
+            deal.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
 
             // Рассчитываем комиссию, если не указана
             if (deal.CommissionPercent == null || deal.CommissionPercent == 0)
@@ -281,7 +288,7 @@ public class DealsController : ControllerBase
                 Price = dto.Price ?? car.Price, // Используем цену из запроса или цену машины
                 Status = "Pending",
                 Notes = dto.Notes,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
             };
 
             // Рассчитываем комиссию (5% по умолчанию)
@@ -343,7 +350,9 @@ public class DealsController : ControllerBase
                 // Автоматически устанавливаем CompletedAt при завершении сделки
                 if (dto.Status == "Completed" && existingDeal.CompletedAt == null)
                 {
-                    existingDeal.CompletedAt = dto.CompletedAt ?? DateTime.Now;
+                    var completedAtValue = dto.CompletedAt ?? DateTime.Now;
+                    // Конвертируем DateTime в Unspecified для PostgreSQL timestamp without time zone
+                    existingDeal.CompletedAt = DateTime.SpecifyKind(completedAtValue, DateTimeKind.Unspecified);
                 }
                 // Сбрасываем CompletedAt, если сделка не завершена
                 else if (dto.Status != "Completed" && existingDeal.CompletedAt != null)
@@ -355,7 +364,8 @@ public class DealsController : ControllerBase
             // Обновляем CompletedAt, если он явно указан в DTO
             if (dto.CompletedAt.HasValue)
             {
-                existingDeal.CompletedAt = dto.CompletedAt.Value;
+                // Конвертируем DateTime в Unspecified для PostgreSQL timestamp without time zone
+                existingDeal.CompletedAt = DateTime.SpecifyKind(dto.CompletedAt.Value, DateTimeKind.Unspecified);
             }
 
             if (dto.Price.HasValue && dto.Price.Value > 0)
@@ -451,6 +461,86 @@ public class DealsController : ControllerBase
         {
             _logger.LogError(ex, "Ошибка при удалении сделки");
             return StatusCode(500, "Внутренняя ошибка сервера");
+        }
+    }
+
+    // GET: api/deals/seller/{sellerId}
+    [HttpGet("seller/{sellerId}")]
+    [Authorize(Roles = "Dealer,Manager,Admin,Administrator")]
+    public async Task<ActionResult<IEnumerable<Deal>>> GetDealsBySeller(string sellerId)
+    {
+        try
+        {
+            // Получаем ID текущего пользователя
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Пользователь не авторизован" });
+
+            // Проверяем права доступа: дилер может видеть только свои сделки
+            var isAdminOrManager = User.IsInRole("Administrator") || User.IsInRole("Admin") || User.IsInRole("Manager");
+            if (!isAdminOrManager && sellerId != userId)
+            {
+                return Forbid("Вы можете просматривать только свои сделки");
+            }
+
+            // Получаем все сделки продавца с полной информацией
+            var deals = await _context.Deals
+                .Where(d => d.SellerId == sellerId)
+                .Include(d => d.Car)
+                    .ThenInclude(c => c.Model)
+                        .ThenInclude(m => m.Brand)
+                .Include(d => d.Buyer)
+                .Include(d => d.Seller)
+                .OrderByDescending(d => d.CreatedAt)
+                .ToListAsync();
+
+            return Ok(deals);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при получении сделок продавца");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера", details = ex.Message });
+        }
+    }
+
+    // POST: api/deals/{id}/approve
+    [HttpPost("{id}/approve")]
+    [Authorize(Roles = "Manager,Admin,Administrator")]
+    public async Task<IActionResult> ApproveDeal(int id)
+    {
+        try
+        {
+            var deal = await _context.Deals.FindAsync(id);
+            if (deal == null)
+                return NotFound(new { message = $"Сделка с ID {id} не найдена" });
+
+            // Получаем ID текущего пользователя
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Пользователь не авторизован" });
+
+            deal.Status = "InProgress";
+            deal.ApprovedBy = userId;
+            // Сбрасываем CompletedAt, если сделка была завершена ранее
+            deal.CompletedAt = null;
+
+            await _context.SaveChangesAsync();
+
+            // Загружаем обновленную сделку с полной информацией
+            var updatedDeal = await _context.Deals
+                .Include(d => d.Car)
+                    .ThenInclude(c => c.Model)
+                        .ThenInclude(m => m.Brand)
+                .Include(d => d.Buyer)
+                .Include(d => d.Seller)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            return Ok(new { message = "Сделка успешно утверждена", deal = updatedDeal });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при утверждении сделки");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера", details = ex.Message });
         }
     }
 }

@@ -83,10 +83,18 @@ public class CarImagesController : ControllerBase
 
     // GET: api/carimages/car/5/main
     [HttpGet("car/{carId}/main")]
-    public async Task<ActionResult<CarImage>> GetMainImageByCar(int carId)
+    [AllowAnonymous]
+    public async Task<ActionResult<object>> GetMainImageByCar(int carId)
     {
         try
         {
+            // Проверяем существование автомобиля
+            var carExists = await _context.Cars.AnyAsync(c => c.Id == carId);
+            if (!carExists)
+            {
+                return NotFound(new { message = $"Автомобиль с ID {carId} не найден" });
+            }
+
             var mainImage = await _context.CarImages
                 .Where(ci => ci.CarId == carId && ci.IsMain)
                 .FirstOrDefaultAsync();
@@ -100,15 +108,27 @@ public class CarImagesController : ControllerBase
                     .FirstOrDefaultAsync();
             }
 
+            // Если изображений нет, возвращаем дефолтное изображение
             if (mainImage == null)
-                return NotFound(new { message = $"Изображения для машины с ID {carId} не найдены" });
+            {
+                return Ok(new
+                {
+                    Id = 0,
+                    CarId = carId,
+                    ImageUrl = "/images/cars/default-car.jpg", // Дефолтное изображение
+                    Title = "Изображение отсутствует",
+                    DisplayOrder = 0,
+                    IsMain = true,
+                    UploadedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
+                });
+            }
             
             return Ok(mainImage);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка при получении главного изображения");
-            return StatusCode(500, "Внутренняя ошибка сервера");
+            _logger.LogError(ex, "Ошибка при получении главного изображения для автомобиля {CarId}", carId);
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера", details = ex.Message });
         }
     }
 

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using kursecondapi.Models;
+using kursecondapi.DTOs;
 using System.Text;
 using System.Globalization;
 
@@ -311,6 +312,84 @@ public class ManagerController : ControllerBase
         {
             _logger.LogError(ex, "Ошибка при получении панели менеджера");
             return StatusCode(500, "Внутренняя ошибка сервера");
+        }
+    }
+
+    // GET: api/manager/statistics/sellers
+    [HttpGet("statistics/sellers")]
+    public async Task<ActionResult<SellerStatisticsDto>> GetSellerStatistics()
+    {
+        try
+        {
+            // Получаем всех продавцов (пользователей, у которых есть автомобили)
+            var sellers = await _context.Cars
+                .Where(c => c.SellerId != null)
+                .Select(c => c.SellerId)
+                .Distinct()
+                .ToListAsync();
+
+            var statistics = new List<SellerStatisticItem>();
+
+            foreach (var sellerId in sellers)
+            {
+                var seller = await _context.AspNetUsers.FindAsync(sellerId);
+                if (seller == null) continue;
+
+                // Статистика по автомобилям
+                var totalCars = await _context.Cars.CountAsync(c => c.SellerId == sellerId);
+                var activeCars = await _context.Cars.CountAsync(c => c.SellerId == sellerId && c.Status == "Active");
+                var pendingCars = await _context.Cars.CountAsync(c => c.SellerId == sellerId && (c.Status == "Pending" || c.Status == "Inactive"));
+                var soldCars = await _context.Cars.CountAsync(c => c.SellerId == sellerId && c.Status == "Sold");
+
+                // Статистика по сделкам
+                var totalDeals = await _context.Deals.CountAsync(d => d.SellerId == sellerId);
+                var completedDeals = await _context.Deals.CountAsync(d => d.SellerId == sellerId && d.Status == "Completed");
+                var activeDeals = await _context.Deals.CountAsync(d => d.SellerId == sellerId && 
+                    (d.Status == "Pending" || d.Status == "InProgress" || d.Status == "Created"));
+
+                // Общая выручка (сумма завершенных сделок)
+                var totalRevenue = await _context.Deals
+                    .Where(d => d.SellerId == sellerId && d.Status == "Completed")
+                    .SumAsync(d => d.Price);
+
+                // Средняя цена автомобилей
+                var averageCarPrice = await _context.Cars
+                    .Where(c => c.SellerId == sellerId)
+                    .AverageAsync(c => (decimal?)c.Price) ?? 0;
+
+                // Статистика по отзывам (средний рейтинг)
+                var reviews = await _context.Reviews
+                    .Where(r => r.IsApproved && r.Deal.SellerId == sellerId)
+                    .ToListAsync();
+
+                var averageRating = reviews.Any() ? reviews.Average(r => (double?)r.Rating) : null;
+                var totalReviews = reviews.Count;
+
+                statistics.Add(new SellerStatisticItem
+                {
+                    SellerId = sellerId,
+                    SellerName = $"{seller.FirstName} {seller.LastName}",
+                    SellerEmail = seller.Email,
+                    TotalCars = totalCars,
+                    ActiveCars = activeCars,
+                    PendingCars = pendingCars,
+                    SoldCars = soldCars,
+                    TotalDeals = totalDeals,
+                    CompletedDeals = completedDeals,
+                    ActiveDeals = activeDeals,
+                    TotalRevenue = totalRevenue,
+                    AverageCarPrice = averageCarPrice,
+                    AverageRating = averageRating,
+                    TotalReviews = totalReviews
+                });
+            }
+
+            return Ok(new SellerStatisticsDto { Sellers = statistics });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при получении статистики продавцов");
+            return StatusCode(500, new { message = "Внутренняя ошибка сервера", details = ex.Message });
         }
     }
 }

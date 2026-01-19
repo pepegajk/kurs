@@ -7,6 +7,7 @@ using System.IO;
 using System.Security.Claims;
 using kursecondapi.Models;
 using kursecondapi.Services;
+using kursecondapi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -158,6 +159,9 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Middleware для логирования авторизации (должен быть после UseAuthorization)
+app.UseMiddleware<AuthorizationLoggingMiddleware>();
 
 app.MapControllers();
 

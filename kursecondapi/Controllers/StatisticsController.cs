@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using kursecondapi.Models;
+using System.Security.Claims;
 
 namespace kursecondapi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = "ManagerOnly")]
 public class StatisticsController : ControllerBase
 {
     private readonly CarPlatformContext _context;
@@ -25,6 +26,13 @@ public class StatisticsController : ControllerBase
     {
         try
         {
+            // Диагностическое логирование для проверки авторизации
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            var allClaims = User.Claims.Select(c => $"{c.Type}={c.Value}").ToList();
+            _logger.LogWarning("GetStatistics вызван пользователем {UserId} с ролями: {Roles}. Все claims: {AllClaims}", 
+                userId, string.Join(", ", userRoles), string.Join("; ", allClaims));
+            
             var totalCars = await _context.Cars.CountAsync();
             var activeCars = await _context.Cars.CountAsync(c => c.Status == "Active");
             var soldCars = await _context.Cars.CountAsync(c => c.Status == "Sold");
@@ -41,19 +49,66 @@ public class StatisticsController : ControllerBase
 
             var totalViews = await _context.Cars.SumAsync(c => c.ViewsCount);
 
+            // Вычисляем DealsByMonth - группировка завершённых сделок по месяцам
+            // Используем CompletedAt если есть, иначе CreatedAt
+            var completedDealsList = await _context.Deals
+                .Where(d => d.Status == "Completed")
+                .ToListAsync();
+            
+            var dealsByMonth = completedDealsList
+                .Select(d => new
+                {
+                    Deal = d,
+                    Date = d.CompletedAt ?? d.CreatedAt
+                })
+                .GroupBy(x => new { x.Date.Year, x.Date.Month })
+                .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    Count = g.Count(),
+                    Revenue = g.Sum(x => x.Deal.Price)
+                })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .Select(x => new
+                {
+                    Month = $"{x.Year}-{x.Month:00}",
+                    x.Count,
+                    x.Revenue
+                })
+                .ToList();
+
+            // Вычисляем CarsByPriceRange - распределение по ценовым диапазонам
+            var carsByPriceRange = await _context.Cars
+                .GroupBy(c => c.Price < 1000000 ? "<1м" :
+                              c.Price < 2000000 ? "1-2м" :
+                              c.Price < 3000000 ? "2-3м" :
+                              c.Price < 5000000 ? "3-5м" : "5м+")
+                .Select(g => new
+                {
+                    Range = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Range)
+                .ToListAsync();
+
             var statistics = new
             {
                 TotalCars = totalCars,
                 ActiveCars = activeCars,
-                SoldCars = soldCars,
                 TotalDeals = totalDeals,
                 CompletedDeals = completedDeals,
                 TotalRevenue = totalRevenue,
-                TotalCommission = totalCommission,
-                TotalViews = totalViews,
                 AverageCarPrice = totalCars > 0 ? await _context.Cars.AverageAsync(c => c.Price) : 0,
-                TopBrands = await GetTopBrands()
+                TopBrands = await GetTopBrands(),
+                DealsByMonth = dealsByMonth,
+                CarsByPriceRange = carsByPriceRange
             };
+
+            // Логирование для отладки
+            _logger.LogInformation("Статистика: TotalCars={TotalCars}, ActiveCars={ActiveCars}, TotalDeals={TotalDeals}, CompletedDeals={CompletedDeals}, DealsByMonthCount={DealsByMonthCount}", 
+                totalCars, activeCars, totalDeals, completedDeals, dealsByMonth.Count);
 
             return Ok(statistics);
         }
