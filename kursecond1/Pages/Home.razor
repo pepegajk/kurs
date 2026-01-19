@@ -58,7 +58,14 @@
                     <div class="stat-icon bg-warning">
                         <i class="bi bi-star-fill"></i>
                     </div>
-                    <h3>4.8/5</h3>
+                    @if (averageRating > 0)
+                    {
+                        <h3>@averageRating.ToString("0.0")/5</h3>
+                    }
+                    else
+                    {
+                        <h3>—</h3>
+                    }
                     <p>Рейтинг</p>
                 </div>
             </div>
@@ -137,6 +144,21 @@
                                     <i class="bi bi-calendar"></i> @car.Year г • 
                                     <i class="bi bi-speedometer2"></i> @car.Mileage.ToString("N0") км
                                 </p>
+                                @{
+                                    var carRating = GetCarRating(car.Id);
+                                }
+                                @if (carRating.HasValue)
+                                {
+                                    <div class="mb-2">
+                                        <span class="text-warning">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                <i class="bi @(i < Math.Round(carRating.Value) ? "bi-star-fill" : "bi-star")"></i>
+                                            }
+                                        </span>
+                                        <span class="text-muted small ms-1">@carRating.Value.ToString("0.0")</span>
+                                    </div>
+                                }
                                 <h5 class="text-primary mb-2">@car.Price.ToString("N0") ₽</h5>
                                 <div class="d-flex justify-content-between text-muted small">
                                     <span><i class="bi bi-fuel-pump"></i> @car.FuelType</span>
@@ -303,7 +325,9 @@
     private int totalCars = 0;
     private int totalBrands = 0;
     private int totalDeals = 0;
+    private double averageRating = 0.0;
     private List<CarDto> featuredCars = new();
+    private Dictionary<int, double?> carRatings = new();
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
@@ -328,6 +352,12 @@
             featuredCars = cars.Where(c => c.IsFeatured || c.Status == "Active")
                               .Take(4)
                               .ToList();
+
+            // Вычисляем средний рейтинг по всем одобренным отзывам
+            await CalculateAverageRating(cars);
+            
+            // Загружаем рейтинги для featured cars
+            await LoadCarRatings(featuredCars);
         }
         catch (Exception ex)
         {
@@ -337,6 +367,66 @@
         {
             isLoading = false;
         }
+    }
+
+    private async Task CalculateAverageRating(List<CarDto> cars)
+    {
+        try
+        {
+            var allRatings = new List<int>();
+            
+            // Получаем отзывы для всех автомобилей
+            foreach (var car in cars)
+            {
+                var reviews = await ApiService.GetReviewsByCarAsync(car.Id);
+                var approvedRatings = reviews.Where(r => r.IsApproved).Select(r => r.Rating);
+                allRatings.AddRange(approvedRatings);
+            }
+            
+            if (allRatings.Any())
+            {
+                averageRating = allRatings.Average();
+            }
+            else
+            {
+                averageRating = 0.0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error calculating average rating: {ex.Message}");
+            averageRating = 0.0;
+        }
+    }
+
+    private async Task LoadCarRatings(List<CarDto> cars)
+    {
+        try
+        {
+            foreach (var car in cars)
+            {
+                var reviews = await ApiService.GetReviewsByCarAsync(car.Id);
+                var approvedRatings = reviews.Where(r => r.IsApproved).Select(r => r.Rating).ToList();
+                
+                if (approvedRatings.Any())
+                {
+                    carRatings[car.Id] = approvedRatings.Average();
+                }
+                else
+                {
+                    carRatings[car.Id] = null;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading car ratings: {ex.Message}");
+        }
+    }
+
+    private double? GetCarRating(int carId)
+    {
+        return carRatings.ContainsKey(carId) ? carRatings[carId] : null;
     }
 
 }

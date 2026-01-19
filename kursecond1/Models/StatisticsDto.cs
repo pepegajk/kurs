@@ -21,9 +21,28 @@ public class BrandStatDto
 
 public class DealByMonthDto
 {
-    public string Month { get; set; } = string.Empty;
+    // Поддержка обоих вариантов: строка "2025-06" или объект с year/month
+    public string? Month { get; set; }
+    public int? Year { get; set; }
+    public int? MonthNumber { get; set; }
+    
     public int Count { get; set; }
     public decimal Revenue { get; set; }
+    
+    // Свойство для получения месяца в строковом формате
+    public string MonthFormatted
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Month))
+                return Month;
+            
+            if (Year.HasValue && MonthNumber.HasValue)
+                return $"{Year}-{MonthNumber:00}";
+            
+            return string.Empty;
+        }
+    }
 }
 
 public class PriceRangeDto

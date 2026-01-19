@@ -17,13 +17,16 @@
             </NavLink>
         </div>
         
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="cars">
-                <span class="bi bi-car-front-fill" aria-hidden="true"></span> Автомобили
-            </NavLink>
-        </div>
+        @if (!AuthService.IsManager || AuthService.IsAdmin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="cars">
+                    <span class="bi bi-car-front-fill" aria-hidden="true"></span> Автомобили
+                </NavLink>
+            </div>
+        }
 
-        @if (AuthService.IsAuthenticated)
+        @if (AuthService.IsAuthenticated && (!AuthService.IsManager || AuthService.IsAdmin))
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="brands">
@@ -66,6 +69,10 @@
                     <span class="bi bi-shield-check" aria-hidden="true"></span> Админ-панель
                 </NavLink>
             </div>
+        }
+
+        @if (AuthService.IsAdmin)
+        {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="reviews-moderation">
                     <span class="bi bi-check-circle" aria-hidden="true"></span> Модерация отзывов
@@ -73,9 +80,23 @@
             </div>
         }
 
+        @if (AuthService.IsSeller && !AuthService.IsAdmin && !AuthService.IsManager)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="my-cars">
+                    <span class="bi bi-car-front" aria-hidden="true"></span> Мои автомобили
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="my-sales">
+                    <span class="bi bi-cash-stack" aria-hidden="true"></span> Мои продажи
+                </NavLink>
+            </div>
+        }
+
         @if (AuthService.IsAuthenticated)
         {
-            @if (!AuthService.IsAdmin)
+            @if (!AuthService.IsAdmin && !AuthService.IsManager)
             {
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="my-orders">

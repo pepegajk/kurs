@@ -55,11 +55,14 @@ else
                     <span class="bi bi-image"></span> Фото автомобилей
                 </button>
             </li>
-            <li class="nav-item">
-                    <button class="nav-link @(activeTab == "orders" ? "active" : "")" @onclick="@(() => SetActiveTab("orders"))">
-                        <span class="bi bi-cart-check"></span> Сделки
+            @if (AuthService.IsAdmin)
+            {
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "car-moderation" ? "active" : "")" @onclick="@(() => SetActiveTab("car-moderation"))">
+                        <span class="bi bi-check-circle"></span> Модерация автомобилей
                     </button>
-            </li>
+                </li>
+            }
             @if (AuthService.IsAdmin)
             {
                 <li class="nav-item">
@@ -336,20 +339,17 @@ else
             </div>
         }
 
-        @if (activeTab == "orders")
+        @if (activeTab == "car-moderation")
         {
             <div class="admin-section">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3>Управление сделками</h3>
+                    <h3>Модерация автомобилей</h3>
                     <div class="d-flex gap-2">
-                        <select class="form-select" style="width: auto;" @onchange="OnOrderStatusFilterChanged">
+                        <select class="form-select" style="width: auto;" @onchange="OnCarModerationFilterChanged">
                             <option value="">Все статусы</option>
-                            <option value="Pending" selected="@(orderStatusFilter == "Pending")">В ожидании</option>
-                            <option value="Created" selected="@(orderStatusFilter == "Created")">Сделка создана</option>
-                            <option value="UnderReview" selected="@(orderStatusFilter == "UnderReview")">На рассмотрении</option>
-                            <option value="InProgress" selected="@(orderStatusFilter == "InProgress")">В работе</option>
-                            <option value="Completed" selected="@(orderStatusFilter == "Completed")">Завершен</option>
-                            <option value="Cancelled" selected="@(orderStatusFilter == "Cancelled")">Отменен</option>
+                            <option value="Pending" selected="@(carModerationFilter == "Pending")">На модерации</option>
+                            <option value="Active" selected="@(carModerationFilter == "Active")">Одобрено</option>
+                            <option value="Rejected" selected="@(carModerationFilter == "Rejected")">Отклонено</option>
                         </select>
                     </div>
                 </div>
@@ -367,47 +367,57 @@ else
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Автомобиль</th>
-                                    <th>Покупатель</th>
+                                    <th>Модель</th>
+                                    <th>Продавец</th>
+                                    <th>Год</th>
                                     <th>Цена</th>
-                                    <th>Статус</th>
+                                    <th>Статус модерации</th>
                                     <th>Дата создания</th>
                                     <th>Действия</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var order in GetFilteredOrders())
+                                @foreach (var car in GetFilteredCarsForModeration())
                                 {
                                     <tr>
-                                        <td>@order.Id</td>
+                                        <td>@car.Id</td>
                                         <td>
-                                            @(order.CarInfo ?? $"Автомобиль ID: {order.CarId}")
-                                            <a href="/cars/@order.CarId" class="btn btn-sm btn-link" target="_blank">
-                                                <span class="bi bi-box-arrow-up-right"></span>
+                                            <a href="/cars/@car.Id" target="_blank" class="text-decoration-none">
+                                                @GetCarModelName(car)
+                                                <span class="bi bi-box-arrow-up-right ms-1"></span>
                                             </a>
                                         </td>
-                                        <td>@(order.BuyerName ?? "-")</td>
-                                        <td>@SettingsService.FormatPrice(order.Price)</td>
+                                        <td>@GetSellerName(car.SellerId)</td>
+                                        <td>@car.Year</td>
+                                        <td>@car.Price.ToString("N0") ₽</td>
                                         <td>
-                                            <span class="badge @GetOrderStatusBadgeClass(order.Status)">
-                                                @GetOrderStatusText(order.Status)
+                                            <span class="badge @GetModerationStatusBadge(car.Status)">
+                                                @GetModerationStatusText(car.Status)
                                             </span>
                                         </td>
-                                        <td>@SettingsService.FormatDate(order.CreatedAt)</td>
+                                        <td>@car.CreatedAt.ToString("dd.MM.yyyy")</td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <select class="form-select form-select-sm" style="width: auto; display: inline-block;" 
-                                                        @onchange="@((e) => OnOrderStatusChange(order.Id, e))">
-                                                    @foreach (var status in GetAllAvailableStatuses())
-                                                    {
-                                                        <option value="@status" selected="@(order.Status == status)">@GetOrderStatusText(status)</option>
-                                                    }
-                                                    @if (!GetAllAvailableStatuses().Contains(order.Status))
-                                                    {
-                                                        <option value="@order.Status" selected>@order.Status</option>
-                                                    }
-                                                </select>
-                                            </div>
+                                            @if (car.Status == "Pending" || car.Status == "Inactive")
+                                            {
+                                                <button class="btn btn-sm btn-success me-2" @onclick="@(() => ApproveCar(car.Id))">
+                                                    <span class="bi bi-check-circle"></span> Одобрить
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" @onclick="@(() => RejectCar(car.Id))">
+                                                    <span class="bi bi-x-circle"></span> Отклонить
+                                                </button>
+                                            }
+                                            else if (car.Status == "Rejected")
+                                            {
+                                                <button class="btn btn-sm btn-success" @onclick="@(() => ApproveCar(car.Id))">
+                                                    <span class="bi bi-check-circle"></span> Одобрить
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-sm btn-danger" @onclick="@(() => RejectCar(car.Id))">
+                                                    <span class="bi bi-x-circle"></span> Отклонить
+                                                </button>
+                                            }
                                         </td>
                                     </tr>
                                 }
@@ -415,10 +425,10 @@ else
                         </table>
                     </div>
                     
-                    @if (!GetFilteredOrders().Any())
+                    @if (!GetFilteredCarsForModeration().Any())
                     {
                         <div class="alert alert-info">
-                            <span class="bi bi-info-circle"></span> Сделки не найдены
+                            <span class="bi bi-info-circle"></span> Автомобили не найдены
                         </div>
                     }
                 }
@@ -830,7 +840,7 @@ else
 }
 
 @code {
-    private string activeTab = "brands";
+    private string activeTab = "cars"; // По умолчанию для менеджера
     private bool isLoading = false;
     
     private List<BrandDto> brands = new();
@@ -842,9 +852,8 @@ else
     private int selectedCarIdForImages = 0;
     private string userSearchQuery = "";
     
-    // Orders management
-    private List<DealDto> orders = new();
-    private string orderStatusFilter = "";
+    // Car moderation
+    private string carModerationFilter = "";
 
     // Image upload modal for car-images tab
     private bool showImageUploadModal = false;
@@ -907,7 +916,7 @@ else
             models = await ApiService.GetModelsAsync();
             cars = await ApiService.GetCarsAsync();
             users = await ApiService.GetUsersAsync();
-            orders = await ApiService.GetDealsAsync();
+            // orders = await ApiService.GetDealsAsync(); // Удалено - сделки теперь на отдельной странице
         }
         catch (Exception ex)
         {
@@ -926,7 +935,7 @@ else
         {
             _ = LoadCarImagesForManagement();
         }
-        else if (tab == "orders")
+        else if (tab == "car-moderation")
         {
             _ = LoadData();
         }
@@ -1534,44 +1543,71 @@ else
         }
     }
 
-    // Orders management methods
-    private void OnOrderStatusFilterChanged(ChangeEventArgs e)
+    // Car moderation methods
+    private void OnCarModerationFilterChanged(ChangeEventArgs e)
     {
-        orderStatusFilter = e.Value?.ToString() ?? "";
+        carModerationFilter = e.Value?.ToString() ?? "";
         StateHasChanged();
     }
 
-    private List<DealDto> GetFilteredOrders()
+    private List<CarDto> GetFilteredCarsForModeration()
     {
-        if (string.IsNullOrEmpty(orderStatusFilter))
-            return orders;
+        var filtered = cars.Where(c => c.Status == "Pending" || c.Status == "Inactive" || c.Status == "Active" || c.Status == "Rejected").ToList();
         
-        return orders.Where(o => o.Status == orderStatusFilter).ToList();
+        if (string.IsNullOrEmpty(carModerationFilter))
+            return filtered;
+        
+        return filtered.Where(c => 
+        {
+            if (carModerationFilter == "Pending")
+                return c.Status == "Pending" || c.Status == "Inactive";
+            return c.Status == carModerationFilter;
+        }).ToList();
     }
 
-    private async Task OnOrderStatusChange(int orderId, ChangeEventArgs e)
+    private string GetModerationStatusBadge(string status)
     {
-        var newStatus = e.Value?.ToString();
-        if (string.IsNullOrEmpty(newStatus))
-            return;
+        return status switch
+        {
+            "Pending" or "Inactive" => "bg-warning",
+            "Active" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
 
-        var order = orders.FirstOrDefault(o => o.Id == orderId);
-        if (order == null)
-            return;
+    private string GetModerationStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" or "Inactive" => "На модерации",
+            "Active" => "Одобрено",
+            "Rejected" => "Отклонено",
+            _ => status
+        };
+    }
 
+    private string GetSellerName(string sellerId)
+    {
+        var user = users.FirstOrDefault(u => u.Id == sellerId);
+        if (user != null)
+        {
+            return $"{user.FirstName} {user.LastName}".Trim();
+        }
+        return sellerId.Substring(0, Math.Min(8, sellerId.Length)) + "...";
+    }
+
+    private async Task ApproveCar(int carId)
+    {
         var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
-            $"Изменить статус сделки №{orderId} на '{GetOrderStatusText(newStatus)}'?");
+            $"Одобрить автомобиль ID {carId}? Он станет видимым для всех пользователей.");
         
         if (!confirmed)
-        {
-            // Возвращаем старое значение
-            StateHasChanged();
             return;
-        }
 
         try
         {
-            var success = await ApiService.UpdateDealStatusAsync(orderId, newStatus);
+            var success = await ApiService.ApproveCarAsync(carId);
             if (success)
             {
                 await LoadData();
@@ -1579,52 +1615,42 @@ else
             }
             else
             {
-                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при изменении статуса сделки.");
+                await JSRuntime.InvokeVoidAsync("alert", "Не удалось одобрить автомобиль.");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error updating deal status: {ex.Message}");
+            Console.WriteLine($"Error approving car: {ex.Message}");
             await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
         }
     }
 
-    private string GetOrderStatusBadgeClass(string status)
+    private async Task RejectCar(int carId)
     {
-        return status switch
-        {
-            "Pending" => "bg-secondary",
-            "Created" => "bg-info",
-            "UnderReview" => "bg-warning",
-            "InProgress" => "bg-primary",
-            "In Work" => "bg-primary",
-            "Completed" => "bg-success",
-            "Cancelled" => "bg-danger",
-            "Canceled" => "bg-danger",
-            _ => "bg-secondary"
-        };
-    }
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Отклонить автомобиль ID {carId}? Он будет скрыт от пользователей.");
+        
+        if (!confirmed)
+            return;
 
-    private string GetOrderStatusText(string status)
-    {
-        return status switch
+        try
         {
-            "Pending" => "В ожидании",
-            "Created" => "Сделка создана",
-            "UnderReview" => "На рассмотрении",
-            "InProgress" => "В работе",
-            "In Work" => "В работе",
-            "Completed" => "Завершен",
-            "Cancelled" => "Отменен",
-            "Canceled" => "Отменен",
-            _ => status
-        };
-    }
-    
-    private string[] GetAllAvailableStatuses()
-    {
-        // Возвращаем все возможные статусы (и существующие в БД, и новые)
-        return new[] { "Pending", "Created", "UnderReview", "InProgress", "Completed", "Cancelled" };
+            var success = await ApiService.RejectCarAsync(carId);
+            if (success)
+            {
+                await LoadData();
+                StateHasChanged();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Не удалось отклонить автомобиль.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error rejecting car: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
     }
 }
 

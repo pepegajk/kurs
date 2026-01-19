@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "kursecond1",
   "resources": {
-    "hash": "sha256-88znaN0Kps8DLSj+gE2GEhILdJSHMKEBHpbhmoiKGgw=",
+    "hash": "sha256-T433uz//F0SbylSVrXfO/JXbJ+toE51UwneM9VSI11o=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-B6DNRvFeCUi3jbx9uKpuj+hV9cN0KG4RdZj1FgBZwj8="
     },
@@ -209,10 +209,10 @@
       "mscorlib.wasm": "sha256-QoC5hTKpDNO6efLnEvYwV9OJBXvYRq8/1yGhNZKiNCw=",
       "netstandard.wasm": "sha256-JT2F4bYWJpaSGq+iD0ITLpWxsDhMUjhqje9RpBtTg7w=",
       "System.Private.CoreLib.wasm": "sha256-fvIPBcvgvsRuWrKi2LGQsLYvcKUSnyIuBUsE3LJu/0Y=",
-      "kursecond1.wasm": "sha256-jVKspxcWTekwym/68uVGGgWqrwR5N/L4I3R4HZTDUlk="
+      "kursecond1.wasm": "sha256-p4mbZ1M/zf5NQtjcjq6ZPib14IIGwt2U6somZbRdHbA="
     },
     "pdb": {
-      "kursecond1.pdb": "sha256-wdPPLJeFgCaEhWNJwwpJ7g0vCZWXp1wkkcEltsa0BeM="
+      "kursecond1.pdb": "sha256-v0fFEq6obMD4RZ4v6f9DcGowMx5ZXufgF76SnpG61oY="
     }
   },
   "cacheBootResources": true,

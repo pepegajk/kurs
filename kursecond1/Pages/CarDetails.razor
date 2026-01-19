@@ -281,6 +281,74 @@ else
                 </div>
             </div>
         </div>
+
+        <!-- Секция отзывов -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <span class="bi bi-star-fill text-warning"></span> Отзывы
+                            @if (reviews.Any())
+                            {
+                                <span class="badge bg-primary ms-2">@reviews.Count</span>
+                                @if (averageRating > 0)
+                                {
+                                    <span class="ms-2">
+                                        <span class="bi bi-star-fill text-warning"></span>
+                                        <strong>@averageRating.ToString("F1")</strong>
+                                        <span class="text-muted">/ 5.0</span>
+                                    </span>
+                                }
+                            }
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (isLoadingReviews)
+                        {
+                            <div class="text-center py-4">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Загрузка отзывов...</p>
+                            </div>
+                        }
+                        else if (!reviews.Any())
+                        {
+                            <div class="alert alert-info mb-0">
+                                <span class="bi bi-info-circle"></span> Отзывов пока нет. Будьте первым!
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="reviews-list">
+                                @foreach (var review in reviews)
+                                {
+                                    <div class="review-item mb-4 pb-4 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <strong>@(review.AuthorName ?? "Покупатель")</strong>
+                                                <span class="text-muted ms-2 small">@review.CreatedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                                            </div>
+                                            <div class="review-rating">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <span class="bi @(i <= review.Rating ? "bi-star-fill text-warning" : "bi-star text-muted")"></span>
+                                                }
+                                            </div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(review.Comment))
+                                        {
+                                            <p class="mb-0">@review.Comment</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 }
 
@@ -446,6 +514,11 @@ else
     private List<ModelDto> models = new();
     private bool isLoading = true;
     private int selectedImageIndex = 0;
+    
+    // Отзывы
+    private List<ReviewDto> reviews = new();
+    private bool isLoadingReviews = false;
+    private double averageRating = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -481,6 +554,9 @@ else
                     var mainImage = carImages.FirstOrDefault(img => img.IsMain);
                     selectedImageIndex = mainImage != null ? carImages.IndexOf(mainImage) : 0;
                 }
+                
+                // Загружаем отзывы после загрузки данных об автомобиле
+                await LoadReviews();
             }
         }
         catch (Exception ex)
@@ -613,6 +689,30 @@ else
             "Damaged" => "Повреждён",
             _ => condition
         };
+    }
+
+    private async Task LoadReviews()
+    {
+        if (CarId <= 0) return;
+        
+        isLoadingReviews = true;
+        try
+        {
+            reviews = await ApiService.GetReviewsByCarAsync(CarId);
+            
+            if (reviews.Any())
+            {
+                averageRating = reviews.Average(r => r.Rating);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading reviews: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingReviews = false;
+        }
     }
 
     private async Task CreateDeal()

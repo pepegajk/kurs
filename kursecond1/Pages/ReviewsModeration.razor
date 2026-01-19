@@ -4,6 +4,8 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
+@using kursecond1.Models
+
 <PageTitle>Модерация отзывов - AutoMarket</PageTitle>
 
 @if (!AuthService.IsAdmin)
@@ -16,7 +18,43 @@
 
 <div class="page-header">
     <h1><span class="bi bi-check-circle"></span> Модерация отзывов</h1>
+    <div>
+        <span class="badge bg-warning">@filteredReviews.Count отзывов</span>
+    </div>
 </div>
+
+@if (!isLoading && pendingReviews.Any())
+{
+    <div class="filters-panel mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Фильтр по рейтингу:</label>
+                <select class="form-select" @onchange="OnRatingFilterChanged">
+                    <option value="">Все рейтинги</option>
+                    <option value="5" selected="@(filterRating == 5)">5 звёзд</option>
+                    <option value="4" selected="@(filterRating == 4)">4 звезды</option>
+                    <option value="3" selected="@(filterRating == 3)">3 звезды</option>
+                    <option value="2" selected="@(filterRating == 2)">2 звезды</option>
+                    <option value="1" selected="@(filterRating == 1)">1 звезда</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Сортировка:</label>
+                <select class="form-select" @onchange="OnSortChanged">
+                    <option value="date-desc" selected="@(sortBy == "date-desc")">По дате (новые)</option>
+                    <option value="date-asc" selected="@(sortBy == "date-asc")">По дате (старые)</option>
+                    <option value="rating-desc" selected="@(sortBy == "rating-desc")">По рейтингу (высокий)</option>
+                    <option value="rating-asc" selected="@(sortBy == "rating-asc")">По рейтингу (низкий)</option>
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button class="btn btn-outline-secondary" @onclick="ClearFilters">
+                    <span class="bi bi-x-circle"></span> Сбросить фильтры
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @if (isLoading)
 {
@@ -36,94 +74,383 @@ else if (pendingReviews.Count == 0)
 else
 {
     <div class="reviews-list">
-        @foreach (var review in pendingReviews)
+        @foreach (var review in filteredReviews)
         {
-            <div class="review-card">
-                <div class="review-header">
-                    <div>
-                        <strong>Отзыв #@review.Id</strong>
-                        <span class="badge bg-warning ms-2">На модерации</span>
+            <div class="review-card-modern">
+                <div class="review-card-header">
+                    <div class="review-id-section">
+                        <span class="review-id">#@review.Id</span>
+                        <span class="badge-moderation">На модерации</span>
                     </div>
-                    <div class="review-rating">
-                        @for (int i = 1; i <= 5; i++)
-                        {
-                            <span class="bi @(i <= review.Rating ? "bi-star-fill text-warning" : "bi-star")"></span>
-                        }
-                    </div>
-                </div>
-                
-                <div class="review-body">
-                    <p><strong>Комментарий:</strong></p>
-                    <p>@review.Comment</p>
-                    
-                    <div class="review-meta">
-                        <small class="text-muted">
-                            <span class="bi bi-calendar"></span> @review.CreatedAt.ToString("dd.MM.yyyy HH:mm")
-                        </small>
+                    <div class="review-rating-section">
+                        <div class="rating-stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="bi @(i <= review.Rating ? "bi-star-fill text-warning" : "bi-star text-muted")" style="font-size: 1.1rem;"></span>
+                            }
+                        </div>
+                        <span class="rating-value">@review.Rating / 5</span>
                     </div>
                 </div>
 
-                <div class="review-actions">
-                    <button class="btn btn-success" @onclick="() => ApproveReview(review.Id)">
-                        <span class="bi bi-check-lg"></span> Одобрить
+                <div class="review-card-body">
+                    <div class="review-info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <span class="bi bi-person-circle"></span>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Автор</div>
+                                <div class="info-value">@(!string.IsNullOrEmpty(review.AuthorName) ? review.AuthorName : "Покупатель")</div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <span class="bi bi-car-front-fill"></span>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Автомобиль</div>
+                                <div class="info-value">@(!string.IsNullOrEmpty(review.CarInfo) ? review.CarInfo : "Не указан")</div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <span class="bi bi-receipt-cutoff"></span>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Сделка</div>
+                                <div class="info-value">#@review.DealId</div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <span class="bi bi-calendar3"></span>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Дата создания</div>
+                                <div class="info-value">@review.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(review.Comment))
+                    {
+                        <div class="review-comment-section">
+                            <div class="comment-header">
+                                <span class="bi bi-chat-quote"></span>
+                                <span>Комментарий</span>
+                            </div>
+                            <div class="comment-text">
+                                @review.Comment
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="review-comment-empty">
+                            <span class="bi bi-chat-left-text"></span>
+                            <span>Комментарий не указан</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="review-card-footer">
+                    <button class="btn-approve" @onclick="() => ApproveReview(review.Id)">
+                        <span class="bi bi-check-circle-fill"></span>
+                        <span>Одобрить</span>
                     </button>
-                    <button class="btn btn-danger" @onclick="() => RejectReview(review.Id)">
-                        <span class="bi bi-x-lg"></span> Отклонить
+                    <button class="btn-reject" @onclick="() => RejectReview(review.Id)">
+                        <span class="bi bi-x-circle-fill"></span>
+                        <span>Отклонить</span>
                     </button>
                 </div>
             </div>
         }
     </div>
+    
+    @if (!filteredReviews.Any() && pendingReviews.Any())
+    {
+        <div class="alert alert-info">
+            <span class="bi bi-info-circle"></span> Нет отзывов, соответствующих выбранным фильтрам
+        </div>
+    }
 }
 
 <style>
     .reviews-list {
         display: grid;
-        gap: 20px;
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .review-card {
+    .review-card-modern {
         background: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        border-left: 4px solid #ffc107;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
     }
 
-    .review-header {
+    .review-card-modern:hover {
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .review-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
+        color: white;
     }
 
-    .review-rating {
+    .review-id-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .review-id {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .badge-moderation {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .review-rating-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 10px 16px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+    }
+
+    .rating-stars {
+        display: flex;
+        gap: 2px;
+    }
+
+    .rating-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .review-card-body {
+        padding: 24px;
+    }
+
+    .review-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+
+    .info-item:hover {
+        background: #e9ecef;
+        transform: translateX(4px);
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .info-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        color: #212529;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .review-comment-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 4px solid #667eea;
+        margin-top: 8px;
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .comment-header .bi {
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+
+    .comment-text {
+        color: #212529;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+    }
+
+    .review-comment-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 40px 20px;
+        color: #adb5bd;
+        font-style: italic;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 2px dashed #dee2e6;
+    }
+
+    .review-card-footer {
+        background: #f8f9fa;
+        padding: 20px 24px;
+        display: flex;
+        gap: 12px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-approve,
+    .btn-reject {
+        flex: 1;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: none;
+    }
+
+    .btn-approve {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .btn-approve:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-approve:active {
+        transform: translateY(0);
+    }
+
+    .btn-reject {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .btn-reject:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-reject:active {
+        transform: translateY(0);
+    }
+
+    .btn-approve .bi,
+    .btn-reject .bi {
         font-size: 1.2rem;
     }
 
-    .review-body {
-        margin-bottom: 15px;
+    .filters-panel {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
     }
 
-    .review-meta {
-        margin-top: 10px;
-    }
+    @@media (max-width: 768px) {
+        .review-info-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .review-actions {
-        display: flex;
-        gap: 10px;
-    }
+        .review-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
 
-    .review-actions button {
-        flex: 1;
+        .review-card-footer {
+            flex-direction: column;
+        }
     }
 </style>
 
 @code {
     private List<ReviewDto> pendingReviews = new();
+    private List<ReviewDto> filteredReviews = new();
     private bool isLoading = true;
+    private int? filterRating = null;
+    private string sortBy = "date-desc";
 
     protected override async Task OnInitializedAsync()
     {
@@ -141,11 +468,8 @@ else
         isLoading = true;
         try
         {
-            var response = await ApiService.GetAsync<List<ReviewDto>>("api/reviews/pending");
-            if (response != null)
-            {
-                pendingReviews = response;
-            }
+            pendingReviews = await ApiService.GetPendingReviewsAsync();
+            ApplyFilters();
         }
         catch (Exception ex)
         {
@@ -158,15 +482,67 @@ else
         }
     }
 
+    private void OnRatingFilterChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int rating) && rating >= 1 && rating <= 5)
+        {
+            filterRating = rating;
+        }
+        else
+        {
+            filterRating = null;
+        }
+        ApplyFilters();
+    }
+
+    private void OnSortChanged(ChangeEventArgs e)
+    {
+        sortBy = e.Value?.ToString() ?? "date-desc";
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        filterRating = null;
+        sortBy = "date-desc";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = pendingReviews.AsEnumerable();
+
+        // Фильтр по рейтингу
+        if (filterRating.HasValue)
+        {
+            filtered = filtered.Where(r => r.Rating == filterRating.Value);
+        }
+
+        // Сортировка
+        filtered = sortBy switch
+        {
+            "date-asc" => filtered.OrderBy(r => r.CreatedAt),
+            "date-desc" => filtered.OrderByDescending(r => r.CreatedAt),
+            "rating-asc" => filtered.OrderBy(r => r.Rating),
+            "rating-desc" => filtered.OrderByDescending(r => r.Rating),
+            _ => filtered.OrderByDescending(r => r.CreatedAt)
+        };
+
+        filteredReviews = filtered.ToList();
+        StateHasChanged();
+    }
+
     private async Task ApproveReview(int reviewId)
     {
         try
         {
-            var response = await ApiService.PostAsync<object>($"api/reviews/{reviewId}/approve", null);
-            if (response)
+            var success = await ApiService.ApproveReviewAsync(reviewId);
+            if (success)
             {
                 pendingReviews.RemoveAll(r => r.Id == reviewId);
+                ApplyFilters();
                 await JS.InvokeVoidAsync("alert", "Отзыв одобрен!");
+                await InvokeAsync(StateHasChanged);
             }
             else
             {
@@ -186,11 +562,13 @@ else
         {
             try
             {
-                var response = await ApiService.PostAsync<object>($"api/reviews/{reviewId}/reject", null);
-                if (response)
+                var success = await ApiService.RejectReviewAsync(reviewId);
+                if (success)
                 {
                     pendingReviews.RemoveAll(r => r.Id == reviewId);
+                    ApplyFilters();
                     await JS.InvokeVoidAsync("alert", "Отзыв отклонен!");
+                    await InvokeAsync(StateHasChanged);
                 }
                 else
                 {
@@ -204,19 +582,5 @@ else
             }
         }
     }
-}
-
-// Временный DTO (нужно добавить в Models)
-public class ReviewDto
-{
-    public int Id { get; set; }
-    public int DealId { get; set; }
-    public string? AuthorId { get; set; }
-    public int Rating { get; set; }
-    public string? Comment { get; set; }
-    public bool IsApproved { get; set; }
-    public string? ModeratedBy { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
 }
 

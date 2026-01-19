@@ -70,6 +70,21 @@ else if (user != null)
                             <input type="text" class="form-control" value="@user.City" readonly />
                         </div>
                     }
+
+                    @if (user.Roles != null && user.Roles.Any())
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Роли</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var role in user.Roles)
+                                {
+                                    <span class="badge @GetRoleBadgeClass(role)">
+                                        @GetRoleText(role)
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -94,6 +109,32 @@ else
         {
             user = AuthService.CurrentUser;
         }
+    }
+
+    private string GetRoleBadgeClass(string role)
+    {
+        return role switch
+        {
+            "Admin" or "Administrator" => "bg-danger",
+            "Manager" => "bg-primary",
+            "Dealer" => "bg-success",
+            "Seller" => "bg-success", // Для обратной совместимости
+            "User" => "bg-secondary",
+            _ => "bg-info"
+        };
+    }
+
+    private string GetRoleText(string role)
+    {
+        return role switch
+        {
+            "Admin" or "Administrator" => "Администратор",
+            "Manager" => "Менеджер",
+            "Dealer" => "Дилер",
+            "Seller" => "Продавец", // Для обратной совместимости
+            "User" => "Пользователь",
+            _ => role
+        };
     }
 }
 

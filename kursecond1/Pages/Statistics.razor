@@ -23,25 +23,6 @@
 }
 else if (statistics != null)
 {
-    <div class="filters-panel mb-4">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Период с:</label>
-                <input type="date" class="form-control" value="@dateFrom?.ToString("yyyy-MM-dd")" @onchange="OnDateFromChanged" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Период до:</label>
-                <input type="date" class="form-control" value="@dateTo?.ToString("yyyy-MM-dd")" @onchange="OnDateToChanged" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">&nbsp;</label>
-                <button class="btn btn-secondary w-100" @onclick="ResetPeriod">
-                    <span class="bi bi-arrow-clockwise"></span> Сбросить
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Общая статистика -->
     <div class="stats-overview">
         <div class="row g-3 mb-4">
@@ -86,32 +67,22 @@ else if (statistics != null)
         </div>
     </div>
 
-    <!-- Графики -->
-    <div class="row mb-4">
-        <div class="col-lg-6">
-            <div class="chart-card">
-                <h4><span class="bi bi-pie-chart-fill"></span> Топ-5 брендов</h4>
-                <canvas id="brandsChart" width="400" height="300"></canvas>
+    <!-- График сделок по месяцам -->
+    @if (statistics.DealsByMonth?.Any() == true)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-card">
+                    <h4><span class="bi bi-graph-up"></span> Сделки по месяцам</h4>
+                    <div style="position: relative; height: 400px;">
+                        <canvas id="dealsChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="chart-card">
-                <h4><span class="bi bi-bar-chart-fill"></span> Распределение по ценам</h4>
-                <canvas id="priceRangeChart" width="400" height="300"></canvas>
-            </div>
-        </div>
-    </div>
+    }
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="chart-card">
-                <h4><span class="bi bi-graph-up"></span> Сделки по месяцам</h4>
-                <canvas id="dealsChart" width="800" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Сводные таблицы -->
+    <!-- Простая аналитика -->
     <div class="row">
         <div class="col-lg-6">
             <div class="table-card">
@@ -124,11 +95,20 @@ else if (statistics != null)
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var brand in statistics.TopBrands.Take(10))
+                        @if (statistics.TopBrands?.Any() == true)
+                        {
+                            @foreach (var brand in statistics.TopBrands.Take(10))
+                            {
+                                <tr>
+                                    <td>@brand.BrandName</td>
+                                    <td class="text-end"><strong>@brand.Count</strong></td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td>@brand.BrandName</td>
-                                <td class="text-end"><strong>@brand.Count</strong></td>
+                                <td colspan="2" class="text-center text-muted">Нет данных</td>
                             </tr>
                         }
                     </tbody>
@@ -147,12 +127,54 @@ else if (statistics != null)
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var month in statistics.DealsByMonth.Take(12))
+                        @if (statistics.DealsByMonth?.Any() == true)
+                        {
+                            @foreach (var month in statistics.DealsByMonth.Take(12))
+                            {
+                                <tr>
+                                    <td>@FormatMonthLabel(month.MonthFormatted)</td>
+                                    <td class="text-end"><strong>@month.Count</strong></td>
+                                    <td class="text-end">@SettingsService.FormatPrice(month.Revenue)</td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td>@month.Month</td>
-                                <td class="text-end"><strong>@month.Count</strong></td>
-                                <td class="text-end">@SettingsService.FormatPrice(month.Revenue)</td>
+                                <td colspan="3" class="text-center text-muted">Нет данных</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-lg-6">
+            <div class="table-card">
+                <h4><span class="bi bi-bar-chart-steps"></span> Авто по ценам</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Диапазон</th>
+                            <th class="text-end">Количество</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (statistics.CarsByPriceRange?.Any() == true)
+                        {
+                            @foreach (var range in statistics.CarsByPriceRange)
+                            {
+                                <tr>
+                                    <td>@range.Range</td>
+                                    <td class="text-end"><strong>@range.Count</strong></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">Нет данных</td>
                             </tr>
                         }
                     </tbody>
@@ -164,15 +186,15 @@ else if (statistics != null)
 else
 {
     <div class="alert alert-warning">
-        <span class="bi bi-exclamation-triangle"></span> Не удалось загрузить статистику.
+        <span class="bi bi-exclamation-triangle"></span> @(loadError ?? "Не удалось загрузить статистику.")
     </div>
 }
 
 @code {
     private StatisticsDto? statistics;
     private bool isLoading = true;
-    private DateTime? dateFrom;
-    private DateTime? dateTo;
+    private string? loadError;
+    private bool shouldRenderChart = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -181,86 +203,205 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && statistics != null)
+        if (shouldRenderChart && statistics?.DealsByMonth?.Any() == true)
         {
-            await RenderCharts();
+            shouldRenderChart = false;
+            // Небольшая задержка для гарантированного рендеринга DOM
+            await Task.Delay(50);
+            await RenderDealsChart();
+            await InvokeAsync(StateHasChanged);
         }
-    }
-
-    private void OnDateFromChanged(ChangeEventArgs e)
-    {
-        if (DateTime.TryParse(e.Value?.ToString(), out var date))
-        {
-            dateFrom = date;
-        }
-        else
-        {
-            dateFrom = null;
-        }
-        _ = LoadStatistics();
-    }
-
-    private void OnDateToChanged(ChangeEventArgs e)
-    {
-        if (DateTime.TryParse(e.Value?.ToString(), out var date))
-        {
-            dateTo = date;
-        }
-        else
-        {
-            dateTo = null;
-        }
-        _ = LoadStatistics();
     }
 
     private async Task LoadStatistics()
     {
         isLoading = true;
+        loadError = null;
         statistics = await ApiService.GetStatisticsAsync();
+        if (statistics == null)
+        {
+            statistics = await BuildStatisticsFromDataAsync();
+            if (statistics == null)
+            {
+                loadError = "Не удалось загрузить статистику. Проверь доступ и работу API.";
+            }
+        }
         isLoading = false;
         
-        if (statistics != null)
+        if (statistics?.DealsByMonth?.Any() == true)
         {
-            await RenderCharts();
+            shouldRenderChart = true;
         }
     }
 
-    private async Task RenderCharts()
+    private async Task RenderDealsChart()
     {
-        if (statistics == null) return;
+        if (statistics?.DealsByMonth == null) 
+        {
+            Console.WriteLine("RenderDealsChart: statistics or DealsByMonth is null");
+            return;
+        }
 
         try
         {
-            // Brands Chart (Pie)
-            var brandsLabels = statistics.TopBrands.Take(5).Select(b => b.BrandName).ToArray();
-            var brandsData = statistics.TopBrands.Take(5).Select(b => b.Count).ToArray();
-            await JS.InvokeVoidAsync("renderPieChart", "brandsChart", brandsLabels, brandsData, "Топ-5 брендов");
+            var dealsByMonth = statistics.DealsByMonth.Take(12).ToList();
+            if (!dealsByMonth.Any())
+            {
+                Console.WriteLine("RenderDealsChart: No deals by month data");
+                return;
+            }
 
-            // Price Range Chart (Bar)
-            var priceLabels = statistics.CarsByPriceRange.Select(p => p.Range).ToArray();
-            var priceData = statistics.CarsByPriceRange.Select(p => p.Count).ToArray();
-            await JS.InvokeVoidAsync("renderBarChart", "priceRangeChart", priceLabels, priceData, "Распределение по ценам");
-
-            // Deals by Month Chart (Line)
-            var monthLabels = statistics.DealsByMonth.Take(12).Select(d => d.Month).ToArray();
-            var monthData = statistics.DealsByMonth.Take(12).Select(d => d.Count).ToArray();
-            await JS.InvokeVoidAsync("renderLineChart", "dealsChart", monthLabels, monthData, "Сделки по месяцам");
+            var monthLabels = dealsByMonth.Select(d => FormatMonthLabel(d.MonthFormatted)).ToArray();
+            var dealsCount = dealsByMonth.Select(d => d.Count).ToArray();
+            var revenue = dealsByMonth.Select(d => (double)d.Revenue).ToArray();
+            
+            Console.WriteLine($"RenderDealsChart: Labels count={monthLabels.Length}, Deals count={dealsCount.Length}, Revenue count={revenue.Length}");
+            
+            if (monthLabels.Length > 0 && dealsCount.Length > 0)
+            {
+                // Проверяем, что функция существует, и ждём если её нет
+                for (int i = 0; i < 10; i++)
+                {
+                    try
+                    {
+                        var funcExists = await JS.InvokeAsync<bool>("eval", "typeof window.renderDealsChart !== 'undefined'");
+                        if (funcExists)
+                        {
+                            await Task.Delay(50); // Небольшая задержка для рендеринга DOM
+                            await JS.InvokeVoidAsync("renderDealsChart", "dealsChart", monthLabels, dealsCount, revenue);
+                            Console.WriteLine("RenderDealsChart: Chart rendered successfully");
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // Игнорируем ошибки проверки
+                    }
+                    await Task.Delay(100);
+                }
+                
+                // Если функция так и не появилась, пытаемся вызвать напрямую
+                try
+                {
+                    await JS.InvokeVoidAsync("window.renderDealsChart", "dealsChart", monthLabels, dealsCount, revenue);
+                    Console.WriteLine("RenderDealsChart: Chart rendered via window.renderDealsChart");
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine($"RenderDealsChart: Failed to call function - {ex2.Message}");
+                }
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error rendering charts: {ex.Message}");
+            Console.WriteLine($"Error rendering deals chart: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
         }
     }
 
-    private void ResetPeriod()
+    private string FormatMonthLabel(string monthStr)
     {
-        dateFrom = null;
-        dateTo = null;
+        // Преобразуем "2025-06" в "Июнь 2025"
+        if (monthStr.Length >= 7 && monthStr.Contains('-'))
+        {
+            var parts = monthStr.Split('-');
+            if (parts.Length == 2 && int.TryParse(parts[1], out int month))
+            {
+                var monthNames = new[] { "", "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" };
+                if (month >= 1 && month <= 12)
+                {
+                    return $"{monthNames[month]} {parts[0]}";
+                }
+            }
+        }
+        return monthStr;
     }
 
-    private async Task ExportReport()
+    private async Task<StatisticsDto?> BuildStatisticsFromDataAsync()
+    {
+        try
+        {
+            var cars = await ApiService.GetCarsAsync();
+            var deals = await ApiService.GetDealsAsync();
+
+            var completedDeals = deals
+                .Where(d => string.Equals(d.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var totalCars = cars.Count;
+            var activeCars = cars.Count(c => string.Equals(c.Status, "Active", StringComparison.OrdinalIgnoreCase));
+
+            var totalDeals = deals.Count;
+            var completedDealsCount = completedDeals.Count;
+            var totalRevenue = completedDeals.Sum(d => d.Price);
+            var averageCarPrice = totalCars > 0 ? cars.Average(c => c.Price) : 0;
+
+            var topBrands = cars
+                .GroupBy(c => string.IsNullOrWhiteSpace(c.BrandName) ? "Неизвестно" : c.BrandName!)
+                .Select(g => new BrandStatDto
+                {
+                    BrandName = g.Key,
+                    Count = g.Count()
+                })
+                .OrderByDescending(x => x.Count)
+                .Take(10)
+                .ToList();
+
+            var dealsByMonth = completedDeals
+                .Select(d => d.CompletedAt ?? d.CreatedAt)
+                .GroupBy(d => new { d.Year, d.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .Select(g => new DealByMonthDto
+                {
+                    Year = g.Key.Year,
+                    MonthNumber = g.Key.Month,
+                    Month = $"{g.Key.Year}-{g.Key.Month:00}",
+                    Count = g.Count(),
+                    Revenue = completedDeals
+                        .Where(d => (d.CompletedAt ?? d.CreatedAt).Year == g.Key.Year
+                                 && (d.CompletedAt ?? d.CreatedAt).Month == g.Key.Month)
+                        .Sum(d => d.Price)
+                })
+                .ToList();
+
+            var carsByPriceRange = cars
+                .GroupBy(c => c.Price < 1000000 ? "<1м" :
+                              c.Price < 2000000 ? "1-2м" :
+                              c.Price < 3000000 ? "2-3м" :
+                              c.Price < 5000000 ? "3-5м" : "5м+")
+                .Select(g => new PriceRangeDto
+                {
+                    Range = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Range)
+                .ToList();
+
+            return new StatisticsDto
+            {
+                TotalCars = totalCars,
+                ActiveCars = activeCars,
+                TotalDeals = totalDeals,
+                CompletedDeals = completedDealsCount,
+                TotalRevenue = totalRevenue,
+                AverageCarPrice = averageCarPrice,
+                TopBrands = topBrands,
+                DealsByMonth = dealsByMonth,
+                CarsByPriceRange = carsByPriceRange
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error building statistics from data: {ex.Message}");
+            return null;
+        }
+    }
+
+    private Task ExportReport()
     {
         Console.WriteLine("Exporting report...");
+        return Task.CompletedTask;
     }
 }
 

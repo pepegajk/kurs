@@ -1,0 +1,406 @@
+@page "/my-cars"
+@inject ApiService ApiService
+@inject AuthService AuthService
+@inject UserSettingsService SettingsService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Мои автомобили - AutoMarket</PageTitle>
+
+@if (!AuthService.IsSeller)
+{
+    <div class="alert alert-danger" role="alert">
+        <span class="bi bi-exclamation-triangle"></span> У вас нет доступа к этой странице. Требуются права продавца.
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <h1><span class="bi bi-car-front"></span> Мои автомобили</h1>
+        <button class="btn btn-primary" @onclick="ShowAddCarModal">
+            <span class="bi bi-plus-circle"></span> Добавить автомобиль
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">Загрузка автомобилей...</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Модель</th>
+                        <th>Год</th>
+                        <th>Цена</th>
+                        <th>Пробег</th>
+                        <th>Статус</th>
+                        <th>Просмотры</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var car in myCars)
+                    {
+                        <tr>
+                            <td>@car.Id</td>
+                            <td>
+                                <a href="/cars/@car.Id" class="text-decoration-none" target="_blank">
+                                    @GetCarName(car)
+                                    <span class="bi bi-box-arrow-up-right ms-1"></span>
+                                </a>
+                            </td>
+                            <td>@car.Year</td>
+                            <td>@SettingsService.FormatPrice(car.Price)</td>
+                            <td>@car.Mileage.ToString("N0") км</td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(car.Status)">
+                                    @GetStatusText(car.Status)
+                                </span>
+                            </td>
+                            <td>@car.ViewsCount</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowEditCarModal(car))">
+                                    <span class="bi bi-pencil"></span> Редактировать
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (myCars.Count == 0)
+        {
+            <div class="alert alert-info text-center my-4">
+                <span class="bi bi-info-circle"></span> У вас пока нет автомобилей. Добавьте первый автомобиль!
+            </div>
+        }
+
+        <div class="stats-bar mt-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Всего:</strong> @myCars.Count
+                </div>
+                <div class="col-md-3">
+                    <strong>Активных:</strong> @myCars.Count(c => c.Status == "Active")
+                </div>
+                <div class="col-md-3">
+                    <strong>Проданных:</strong> @myCars.Count(c => c.Status == "Sold")
+                </div>
+                <div class="col-md-3">
+                    <strong>Общая стоимость:</strong> @SettingsService.FormatPrice(myCars.Sum(c => c.Price))
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Модальное окно для добавления/редактирования автомобиля -->
+    @if (showCarModal)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(editingCar?.Id > 0 ? "Редактировать автомобиль" : "Добавить автомобиль")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseCarModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (editingCar != null)
+                        {
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Модель *</label>
+                                        <select class="form-select" @bind="editingCar.ModelId">
+                                            <option value="0">Выберите модель</option>
+                                            @foreach (var model in models)
+                                            {
+                                                <option value="@model.Id">@model.BrandName @model.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Год *</label>
+                                        <input type="number" class="form-control" @bind="editingCar.Year" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Цена *</label>
+                                        <input type="number" class="form-control" @bind="editingCar.Price" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Пробег *</label>
+                                        <input type="number" class="form-control" @bind="editingCar.Mileage" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Тип кузова</label>
+                                        <input type="text" class="form-control" @bind="editingCar.BodyType" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Тип топлива</label>
+                                        <input type="text" class="form-control" @bind="editingCar.FuelType" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Коробка передач</label>
+                                        <input type="text" class="form-control" @bind="editingCar.Transmission" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Местоположение</label>
+                                <input type="text" class="form-control" @bind="editingCar.Location" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Описание</label>
+                                <textarea class="form-control" @bind="editingCar.Description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Статус</label>
+                                <select class="form-select" @bind="editingCar.Status">
+                                    <option value="Active">Активен</option>
+                                    <option value="Sold">Продан</option>
+                                    <option value="Inactive">Неактивен</option>
+                                </select>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseCarModal">Отмена</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveCar" disabled="@isSaving">
+                            @if (isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            Сохранить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<CarDto> myCars = new();
+    private List<ModelDto> models = new();
+    private List<BrandDto> brands = new();
+    private bool isLoading = true;
+    private bool showCarModal = false;
+    private bool isSaving = false;
+    private CarDto? editingCar;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.IsSeller)
+        {
+            await LoadData();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            var currentUserId = AuthService.CurrentUser?.UserId ?? "";
+            
+            // Используем специальный метод для получения автомобилей продавца
+            myCars = await ApiService.GetCarsBySellerAsync(currentUserId);
+            
+            brands = await ApiService.GetBrandsAsync();
+            models = await ApiService.GetModelsAsync();
+            
+            // Заполняем BrandName и ModelName для каждого автомобиля
+            foreach (var car in myCars)
+            {
+                var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+                if (model != null)
+                {
+                    car.ModelName = model.Name;
+                    var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+                    if (brand != null)
+                    {
+                        car.BrandName = brand.Name;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading cars: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"Ошибка при загрузке автомобилей: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetCarName(CarDto car)
+    {
+        return $"{car.BrandName} {car.ModelName}";
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Active" => "bg-success",
+            "Sold" => "bg-secondary",
+            "Inactive" => "bg-warning",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Active" => "Активен",
+            "Sold" => "Продан",
+            "Inactive" => "Неактивен",
+            _ => status
+        };
+    }
+
+    private void ShowAddCarModal()
+    {
+        editingCar = new CarDto
+        {
+            SellerId = AuthService.CurrentUser?.UserId ?? string.Empty,
+            Status = "Active",
+            Year = DateTime.Now.Year
+        };
+        showCarModal = true;
+    }
+
+    private void ShowEditCarModal(CarDto car)
+    {
+        editingCar = new CarDto
+        {
+            Id = car.Id,
+            ModelId = car.ModelId,
+            SellerId = car.SellerId,
+            Year = car.Year,
+            Price = car.Price,
+            Mileage = car.Mileage,
+            Color = car.Color,
+            BodyType = car.BodyType,
+            FuelType = car.FuelType,
+            Transmission = car.Transmission,
+            DriveType = car.DriveType,
+            EngineVolume = car.EngineVolume,
+            EnginePower = car.EnginePower,
+            VIN = car.VIN,
+            RegistrationNumber = car.RegistrationNumber,
+            Description = car.Description,
+            Location = car.Location,
+            Condition = car.Condition,
+            Status = car.Status,
+            IsFeatured = car.IsFeatured,
+            BrandName = car.BrandName,
+            ModelName = car.ModelName
+        };
+        showCarModal = true;
+    }
+
+    private void CloseCarModal()
+    {
+        showCarModal = false;
+        editingCar = null;
+    }
+
+    private async Task SaveCar()
+    {
+        if (editingCar == null) return;
+
+        isSaving = true;
+        try
+        {
+            bool success;
+            if (editingCar.Id > 0)
+            {
+                // Обновление существующего автомобиля
+                success = await ApiService.UpdateCarAsync(editingCar.Id, editingCar);
+            }
+            else
+            {
+                // Создание нового автомобиля
+                // Устанавливаем статус "Pending" для модерации
+                editingCar.Status = "Pending";
+                editingCar.SellerId = AuthService.CurrentUser?.UserId ?? string.Empty;
+                success = await ApiService.CreateCarAsync(editingCar);
+            }
+
+            if (success)
+            {
+                await LoadData();
+                CloseCarModal();
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Не удалось сохранить автомобиль.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving car: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"Ошибка при сохранении: {ex.Message}");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task DeleteCar(int carId)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", 
+            $"Вы уверены, что хотите удалить автомобиль ID {carId}?");
+        
+        if (!confirmed)
+            return;
+
+        try
+        {
+            var success = await ApiService.DeleteCarAsync(carId);
+            if (success)
+            {
+                await LoadData();
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Не удалось удалить автомобиль.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting car: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"Ошибка при удалении: {ex.Message}");
+        }
+    }
+}

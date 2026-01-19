@@ -1,4 +1,5 @@
 @page "/cars"
+@page "/cars/model/{ModelId:int}"
 
 @inject ApiService ApiService
 @inject UserSettingsService SettingsService
@@ -9,7 +10,24 @@
 <PageTitle>Автомобили - AutoMarket</PageTitle>
 
 <div class="page-header">
-    <h1><span class="bi bi-car-front-fill"></span> Автомобили</h1>
+    <h1>
+        <span class="bi bi-car-front-fill"></span> Автомобили
+        @if (ModelId.HasValue || filterModelId.HasValue)
+        {
+            var modelIdToFilter = ModelId ?? filterModelId;
+            var modelName = models.FirstOrDefault(m => m.Id == modelIdToFilter.Value)?.Name;
+            if (!string.IsNullOrEmpty(modelName))
+            {
+                <span class="text-muted">- @modelName</span>
+            }
+        }
+    </h1>
+    @if (ModelId.HasValue || filterModelId.HasValue)
+    {
+        <button class="btn btn-secondary me-2" @onclick="@(() => Navigation.NavigateTo("/cars"))">
+            <span class="bi bi-x-lg"></span> Сбросить фильтр
+        </button>
+    }
     <button class="btn btn-primary" @onclick="ExportToCSV">
         <span class="bi bi-download"></span> Экспорт CSV
     </button>
@@ -29,7 +47,7 @@ else
     <div class="filters-panel">
         <div class="row g-3">
             <div class="col-md-3">
-                <input type="text" class="form-control" placeholder="🔍 Поиск по VIN..." 
+                <input type="text" class="form-control" placeholder="🔍 Поиск по названию, модели, производителю, описанию..." 
                        @bind="searchQuery" @bind:event="oninput" @onkeyup="FilterCars" />
             </div>
             <div class="col-md-2">
@@ -37,6 +55,17 @@ else
                     <option value="">Все статусы</option>
                     <option value="Active" selected="@(filterStatus == "Active")">Активные</option>
                     <option value="Sold" selected="@(filterStatus == "Sold")">Проданные</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Сортировка:</label>
+                <select class="form-select" @onchange="OnSortChanged">
+                    <option value="default" selected="@(sortBy == "default")">По умолчанию</option>
+                    <option value="rating-desc" selected="@(sortBy == "rating-desc")">По рейтингу (высокий)</option>
+                    <option value="rating-asc" selected="@(sortBy == "rating-asc")">По рейтингу (низкий)</option>
+                    <option value="reviews-desc" selected="@(sortBy == "reviews-desc")">По количеству отзывов</option>
+                    <option value="price-asc" selected="@(sortBy == "price-asc")">По цене (возрастание)</option>
+                    <option value="price-desc" selected="@(sortBy == "price-desc")">По цене (убывание)</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -69,7 +98,11 @@ else
                     @if (carImage != null)
                     {
                         <img src="@ApiService.GetImageUrl(carImage.ImageUrl)" alt="@($"{car.BrandName} {car.ModelName}")" 
-                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'250\'%3E%3Crect fill=\'%23e5e7eb\' width=\'400\' height=\'250\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%239ca3af\' font-size=\'18\'%3EНет фото%3C/text%3E%3C/svg%3E'" />
+                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="car-image-placeholder" style="display: none;">
+                            <span class="bi bi-image"></span>
+                            <span>Нет фото</span>
+                        </div>
                     }
                     else
                     {
@@ -166,6 +199,23 @@ else
                     <div class="car-footer">
                         <div class="car-stats">
                             <span class="bi bi-eye"></span> @car.ViewsCount просмотров
+                            @{
+                                var (avgRating, reviewCount) = GetCarRating(car.Id);
+                            }
+                            @if (reviewCount > 0)
+                            {
+                                <span class="ms-2">
+                                    <span class="bi bi-star-fill text-warning"></span>
+                                    <strong>@avgRating.ToString("F1")</strong>
+                                    <span class="text-muted">(@reviewCount)</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="ms-2 text-muted small">
+                                    <span class="bi bi-star"></span> Нет отзывов
+                                </span>
+                            }
                         </div>
                         @if (car.Condition == "New")
                         {
@@ -209,6 +259,9 @@ else
 }
 
 @code {
+    [Parameter]
+    public int? ModelId { get; set; }
+    
     private List<CarDto> cars = new();
     private List<CarDto> filteredCars = new();
     private List<BrandDto> brands = new();
@@ -218,14 +271,34 @@ else
     private string searchQuery = "";
     private string filterStatus = "";
     private string filterFuelType = "";
+    private string sortBy = "default";
+    private int? filterModelId = null;
     
     private int currentPage = 1;
     private int pageSize => SettingsService.GetSettings().PageSize;
     private int totalPages => (int)Math.Ceiling((double)filteredCars.Count / pageSize);
+    
+    // Словарь для хранения рейтингов по автомобилям (carId -> (averageRating, reviewCount))
+    private Dictionary<int, (double averageRating, int reviewCount)> carRatings = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadCars();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ModelId.HasValue)
+        {
+            filterModelId = ModelId.Value;
+        }
+        else
+        {
+            filterModelId = null;
+        }
+        await LoadCars();
+        // Загружаем изображения для текущей страницы
+        await LoadImagesForCurrentPageAsync();
     }
 
     private Dictionary<int, CarImageDto> carImagesDict = new();
@@ -258,27 +331,56 @@ else
             }
         }
         
-        filteredCars = cars;
+        // Применяем фильтр по модели, если указан
+        ApplyFilters();
         
-        // Загружаем изображения для всех автомобилей
-        carImagesDict.Clear();
-        foreach (var car in cars)
+        // Загружаем рейтинги для всех автомобилей
+        await LoadCarRatings();
+        
+        // Загружаем изображения для текущей страницы
+        await LoadImagesForCurrentPageAsync();
+        
+        isLoading = false;
+    }
+
+    private async Task LoadCarRatings()
+    {
+        carRatings.Clear();
+        
+        // Загружаем рейтинги параллельно для всех автомобилей
+        var tasks = cars.Select(async car =>
         {
             try
             {
-                var mainImage = await ApiService.GetMainCarImageAsync(car.Id);
-                if (mainImage != null)
+                var reviews = await ApiService.GetReviewsByCarAsync(car.Id);
+                if (reviews.Any())
                 {
-                    carImagesDict[car.Id] = mainImage;
+                    var averageRating = reviews.Average(r => r.Rating);
+                    var reviewCount = reviews.Count;
+                    return (car.Id, averageRating, reviewCount);
+                }
+                else
+                {
+                    return (car.Id, 0.0, 0);
                 }
             }
             catch
             {
-                // Игнорируем ошибки загрузки изображений
+                // Игнорируем ошибки загрузки отзывов
+                return (car.Id, 0.0, 0);
             }
-        }
+        });
         
-        isLoading = false;
+        var results = await Task.WhenAll(tasks);
+        foreach (var (carId, averageRating, reviewCount) in results)
+        {
+            carRatings[carId] = (averageRating, reviewCount);
+        }
+    }
+
+    private (double averageRating, int reviewCount) GetCarRating(int carId)
+    {
+        return carRatings.ContainsKey(carId) ? carRatings[carId] : (0, 0);
     }
 
     private string GetCarFullName(CarDto car)
@@ -303,6 +405,18 @@ else
         return $"Автомобиль #{car.Id}";
     }
 
+    private void ApplyFilters()
+    {
+        // Применяем фильтр по модели, если указан через URL параметр
+        if (ModelId.HasValue)
+        {
+            filterModelId = ModelId.Value;
+        }
+        
+        // Применяем все фильтры
+        FilterCars();
+    }
+
     private void OnFilterStatusChanged(ChangeEventArgs e)
     {
         filterStatus = e.Value?.ToString() ?? "";
@@ -315,18 +429,114 @@ else
         FilterCars();
     }
 
+    private void OnSortChanged(ChangeEventArgs e)
+    {
+        sortBy = e.Value?.ToString() ?? "default";
+        FilterCars();
+    }
+
     private void FilterCars()
     {
-        filteredCars = cars.Where(c =>
-            (string.IsNullOrEmpty(searchQuery) || 
-             c.VIN.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
-             c.BrandName?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) == true ||
-             c.ModelName?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) == true) &&
-            (string.IsNullOrEmpty(filterStatus) || c.Status == filterStatus) &&
-            (string.IsNullOrEmpty(filterFuelType) || c.FuelType == filterFuelType)
-        ).ToList();
+        // Начинаем с фильтра по модели, если указан
+        var filtered = cars.AsEnumerable();
+        
+        if (ModelId.HasValue || filterModelId.HasValue)
+        {
+            var modelIdToFilter = ModelId ?? filterModelId;
+            filtered = filtered.Where(c => c.ModelId == modelIdToFilter.Value);
+        }
+        
+        // Применяем остальные фильтры
+        filtered = filtered.Where(c =>
+        {
+            // Фильтр по поисковому запросу
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var query = searchQuery.Trim();
+                var found = false;
+                
+                // Поиск по VIN
+                if (!string.IsNullOrEmpty(c.VIN) && c.VIN.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по бренду (производителю)
+                if (!found && !string.IsNullOrEmpty(c.BrandName) && c.BrandName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по модели
+                if (!found && !string.IsNullOrEmpty(c.ModelName) && c.ModelName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по полному названию (бренд + модель)
+                if (!found && !string.IsNullOrEmpty(c.BrandName) && !string.IsNullOrEmpty(c.ModelName))
+                {
+                    var fullName = $"{c.BrandName} {c.ModelName}";
+                    if (fullName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                        found = true;
+                }
+                
+                // Поиск по описанию
+                if (!found && !string.IsNullOrEmpty(c.Description) && c.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по цвету
+                if (!found && !string.IsNullOrEmpty(c.Color) && c.Color.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по типу кузова
+                if (!found && !string.IsNullOrEmpty(c.BodyType) && c.BodyType.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по типу топлива
+                if (!found && !string.IsNullOrEmpty(c.FuelType) && c.FuelType.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по типу коробки передач
+                if (!found && !string.IsNullOrEmpty(c.Transmission) && c.Transmission.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по приводу
+                if (!found && !string.IsNullOrEmpty(c.DriveType) && c.DriveType.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по локации
+                if (!found && !string.IsNullOrEmpty(c.Location) && c.Location.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                // Поиск по регистрационному номеру
+                if (!found && !string.IsNullOrEmpty(c.RegistrationNumber) && c.RegistrationNumber.Contains(query, StringComparison.OrdinalIgnoreCase))
+                    found = true;
+                
+                if (!found)
+                    return false;
+            }
+            
+            // Фильтр по статусу
+            if (!string.IsNullOrEmpty(filterStatus) && c.Status != filterStatus)
+                return false;
+            
+            // Фильтр по типу топлива
+            if (!string.IsNullOrEmpty(filterFuelType) && c.FuelType != filterFuelType)
+                return false;
+            
+            return true;
+        });
+
+        // Применяем сортировку
+        filteredCars = sortBy switch
+        {
+            "rating-desc" => filtered.OrderByDescending(c => GetCarRating(c.Id).averageRating).ToList(),
+            "rating-asc" => filtered.OrderBy(c => GetCarRating(c.Id).averageRating).ToList(),
+            "reviews-desc" => filtered.OrderByDescending(c => GetCarRating(c.Id).reviewCount).ToList(),
+            "price-asc" => filtered.OrderBy(c => c.Price).ToList(),
+            "price-desc" => filtered.OrderByDescending(c => c.Price).ToList(),
+            _ => filtered.ToList()
+        };
         
         currentPage = 1;
+        
+        // Загружаем изображения для автомобилей на текущей странице после фильтрации
+        _ = LoadImagesForCurrentPageAsync();
     }
 
     private void ClearFilters()
@@ -350,6 +560,38 @@ else
         if (page >= 1 && page <= totalPages)
         {
             currentPage = page;
+            // Загружаем изображения для автомобилей на новой странице
+            _ = LoadImagesForCurrentPageAsync();
+        }
+    }
+
+    private async Task LoadImagesForCurrentPageAsync()
+    {
+        var carsOnPage = GetPagedCars();
+        foreach (var car in carsOnPage)
+        {
+            if (!carImagesDict.ContainsKey(car.Id))
+            {
+                await LoadCarImageAsync(car.Id);
+            }
+        }
+        StateHasChanged(); // Обновляем UI после загрузки изображений
+    }
+
+    private async Task LoadCarImageAsync(int carId)
+    {
+        try
+        {
+            var mainImage = await ApiService.GetMainCarImageAsync(carId);
+            if (mainImage != null)
+            {
+                carImagesDict[carId] = mainImage;
+                StateHasChanged(); // Обновляем UI
+            }
+        }
+        catch
+        {
+            // Игнорируем ошибки загрузки изображений (404 - изображения нет)
         }
     }
 

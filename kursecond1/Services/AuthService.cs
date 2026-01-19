@@ -26,7 +26,8 @@ public class AuthService
     public bool IsAdmin => (_currentUser?.Roles.Contains("Admin") ?? false) || 
                            (_currentUser?.Roles.Contains("Administrator") ?? false);
     public bool IsManager => (_currentUser?.Roles.Contains("Manager") ?? false) || IsAdmin;
-    public bool IsUser => (_currentUser?.Roles.Contains("User") ?? false) || IsManager;
+    public bool IsSeller => (_currentUser?.Roles.Contains("Dealer") ?? false) || IsManager || IsAdmin;
+    public bool IsUser => (_currentUser?.Roles.Contains("User") ?? false) || IsManager || IsSeller;
 
     public async Task<(bool Success, string? ErrorMessage)> LoginAsync(LoginDto loginDto)
     {

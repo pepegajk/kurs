@@ -733,7 +733,8 @@ kbd {
 }
 
 .chart-card canvas {
-    max-height: 300px;
+    max-height: 450px;
+    min-height: 350px;
 }
 
 /* Settings Page */

@@ -66,8 +66,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>xjwnmqp6s4</Fingerprint>
-      <Integrity>c218rIOTa2rlpLuH4ReI1xFb3xPEIKI2lLoyZdagsWw=</Integrity>
+      <Fingerprint>b8hmh4gz3e</Fingerprint>
+      <Integrity>uwEdZ+e9txUqNq2BVQp9KepM7gUWBq3iKKZZjVxjpl0=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\brand.css'))</OriginalItemSpec>
@@ -120,8 +120,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>kce5fyidgk</Fingerprint>
-      <Integrity>5G52nA7t2hkALNucHSD0IN0ea4kJSpr7LmAocFqOm84=</Integrity>
+      <Fingerprint>6sf7ujm356</Fingerprint>
+      <Integrity>pnUTcIzZTuQ/122ZPOLY6GNuF43AXS//ZYINE4Cv+uc=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\index.html'))</OriginalItemSpec>
@@ -138,11 +138,29 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>q1q90rish4</Fingerprint>
-      <Integrity>4qd6oFh4r1e6d1inqx0f7OJAPhRcngggPx0tOSnTJlU=</Integrity>
+      <Fingerprint>4uppoxmrsp</Fingerprint>
+      <Integrity>9FTryEw4o0uOmGXfYOHyh+E62sq5cVUUzHfvHyJsd0A=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\charts.js'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\check-token.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>kursecond1</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>/</BasePath>
+      <RelativePath>js/check-token.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>um4agt3xq1</Fingerprint>
+      <Integrity>9kknWA+spE9Oj7RXS3RbKXbzgnWGUuAH5ZytDVi19qw=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\check-token.js'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\export.js'))">
       <SourceType>Package</SourceType>

@@ -2,6 +2,7 @@
 @inject ApiService ApiService
 @inject AuthService AuthService
 @inject UserSettingsService SettingsService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Сделки - AutoMarket</PageTitle>
 
@@ -110,9 +111,17 @@ else
                         @if (AuthService.IsAdmin || AuthService.IsManager)
                         {
                             <td>
-                                <button class="btn btn-sm btn-outline-primary" @onclick="@(() => OpenEditDeal(deal.Id))">
-                                    <span class="bi bi-pencil"></span> Редактировать
-                                </button>
+                                <div class="btn-group" role="group">
+                                    @if (deal.Status == "Created" || deal.Status == "UnderReview")
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="@(() => ApproveDeal(deal.Id))" title="Утвердить сделку">
+                                            <span class="bi bi-check-circle"></span> Утвердить
+                                        </button>
+                                    }
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="@(() => OpenEditDeal(deal.Id))">
+                                        <span class="bi bi-pencil"></span> Редактировать
+                                    </button>
+                                </div>
                             </td>
                         }
                     </tr>
@@ -532,6 +541,65 @@ else
     private string[] GetAllAvailableStatuses()
     {
         return new[] { "Pending", "Created", "UnderReview", "InProgress", "Completed", "Cancelled" };
+    }
+
+    private async Task ApproveDeal(int dealId)
+    {
+        var deal = deals.FirstOrDefault(d => d.Id == dealId);
+        if (deal == null)
+            return;
+
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Утвердить сделку №{dealId}? Статус будет изменен на 'В работе'.");
+        
+        if (!confirmed)
+            return;
+
+        try
+        {
+            // Используем специальный метод для утверждения сделки
+            var success = await ApiService.ApproveDealAsync(dealId);
+            if (success)
+            {
+                await LoadDeals();
+                StateHasChanged();
+            }
+            else
+            {
+                // Если специального метода нет, используем обновление
+                var updatedDeal = new DealDto
+                {
+                    Id = deal.Id,
+                    CarId = deal.CarId,
+                    SellerId = deal.SellerId,
+                    BuyerId = deal.BuyerId,
+                    Price = deal.Price,
+                    CommissionAmount = deal.CommissionAmount,
+                    CommissionPercent = deal.CommissionPercent,
+                    Status = "InProgress", // Утвержденная сделка переходит в работу
+                    Notes = deal.Notes,
+                    CreatedAt = deal.CreatedAt,
+                    CompletedAt = deal.CompletedAt,
+                    ApprovedBy = AuthService.CurrentUser?.UserId
+                };
+
+                success = await ApiService.UpdateDealAsync(dealId, updatedDeal);
+                if (success)
+                {
+                    await LoadDeals();
+                    StateHasChanged();
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Не удалось утвердить сделку.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error approving deal: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка: {ex.Message}");
+        }
     }
 }
 

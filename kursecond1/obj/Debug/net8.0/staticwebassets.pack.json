@@ -41,6 +41,10 @@
       "PackagePath": "staticwebassets\\js\\charts.js"
     },
     {
+      "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\check-token.js",
+      "PackagePath": "staticwebassets\\js\\check-token.js"
+    },
+    {
       "Id": "C:\\Users\\Вера\\Desktop\\C#\\kursecond1\\kursecond1\\wwwroot\\js\\export.js",
       "PackagePath": "staticwebassets\\js\\export.js"
     },

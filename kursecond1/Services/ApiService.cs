@@ -419,11 +419,23 @@ public class ApiService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<StatisticsDto>("api/statistics");
+            await EnsureTokenAsync();
+            var response = await _httpClient.GetAsync("api/statistics");
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Error fetching statistics: {response.StatusCode}");
+                return null;
+            }
+            
+            var jsonString = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Statistics JSON received: {jsonString.Substring(0, Math.Min(500, jsonString.Length))}...");
+            
+            return JsonSerializer.Deserialize<StatisticsDto>(jsonString, _jsonOptions);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching statistics: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             return null;
         }
     }
@@ -585,6 +597,7 @@ public class ApiService
     {
         try
         {
+            await EnsureTokenAsync();
             var response = await _httpClient.PostAsJsonAsync("api/cars", car);
             return response.IsSuccessStatusCode;
         }
@@ -614,6 +627,7 @@ public class ApiService
     {
         try
         {
+            await EnsureTokenAsync();
             var response = await _httpClient.PutAsJsonAsync($"api/deals/{id}", deal);
             return response.IsSuccessStatusCode;
         }
@@ -628,7 +642,62 @@ public class ApiService
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/cars/{id}", car);
+            await EnsureTokenAsync();
+            
+            // Создаем объект только с полями, которые можно обновлять
+            // Исключаем навигационные свойства и поля, которые не должны изменяться
+            var updateData = new Dictionary<string, object>
+            {
+                ["modelId"] = car.ModelId,
+                ["year"] = car.Year,
+                ["price"] = car.Price,
+                ["mileage"] = car.Mileage,
+                ["color"] = car.Color ?? string.Empty,
+                ["bodyType"] = car.BodyType ?? string.Empty,
+                ["fuelType"] = car.FuelType ?? string.Empty,
+                ["transmission"] = car.Transmission ?? string.Empty,
+                ["driveType"] = car.DriveType ?? string.Empty,
+                ["location"] = car.Location ?? string.Empty,
+                ["condition"] = car.Condition ?? "Used",
+                ["status"] = car.Status ?? "Active",
+                ["isFeatured"] = car.IsFeatured
+            };
+            
+            // Добавляем опциональные поля только если они не пустые
+            if (car.EngineVolume.HasValue)
+            {
+                updateData["engineVolume"] = car.EngineVolume.Value;
+            }
+            
+            if (car.EnginePower.HasValue)
+            {
+                updateData["enginePower"] = car.EnginePower.Value;
+            }
+            
+            // VIN добавляем только если он не пустой
+            if (!string.IsNullOrWhiteSpace(car.VIN))
+            {
+                updateData["vin"] = car.VIN.Trim();
+            }
+            
+            if (!string.IsNullOrWhiteSpace(car.RegistrationNumber))
+            {
+                updateData["registrationNumber"] = car.RegistrationNumber;
+            }
+            
+            if (!string.IsNullOrWhiteSpace(car.Description))
+            {
+                updateData["description"] = car.Description;
+            }
+            
+            var response = await _httpClient.PutAsJsonAsync($"api/cars/{id}", updateData);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error updating car: {response.StatusCode} - {errorContent}");
+            }
+            
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -642,12 +711,128 @@ public class ApiService
     {
         try
         {
+            await EnsureTokenAsync();
             var response = await _httpClient.DeleteAsync($"api/cars/{id}");
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error deleting car: {ex.Message}");
+            return false;
+        }
+    }
+
+    // Dealer methods - Cars
+    public async Task<List<CarDto>> GetCarsBySellerAsync(string sellerId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.GetAsync($"api/cars/seller/{sellerId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var cars = JsonSerializer.Deserialize<List<CarDto>>(jsonString, _jsonOptions) ?? new List<CarDto>();
+                return cars;
+            }
+            Console.WriteLine($"Error fetching cars by seller: {response.StatusCode}");
+            return new List<CarDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching cars by seller: {ex.Message}");
+            return new List<CarDto>();
+        }
+    }
+
+    // Dealer methods - Deals
+    public async Task<List<DealDto>> GetDealsBySellerAsync(string sellerId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.GetAsync($"api/deals/seller/{sellerId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var deals = JsonSerializer.Deserialize<List<DealDto>>(jsonString, _jsonOptions) ?? new List<DealDto>();
+                return deals;
+            }
+            Console.WriteLine($"Error fetching deals by seller: {response.StatusCode}");
+            return new List<DealDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching deals by seller: {ex.Message}");
+            return new List<DealDto>();
+        }
+    }
+
+    // Manager methods - Car moderation
+    public async Task<List<CarDto>> GetPendingCarsAsync()
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.GetAsync("api/cars/pending");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var cars = JsonSerializer.Deserialize<List<CarDto>>(jsonString, _jsonOptions) ?? new List<CarDto>();
+                return cars;
+            }
+            Console.WriteLine($"Error fetching pending cars: {response.StatusCode}");
+            return new List<CarDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching pending cars: {ex.Message}");
+            return new List<CarDto>();
+        }
+    }
+
+    public async Task<bool> ApproveCarAsync(int carId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.PostAsync($"api/cars/{carId}/approve", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error approving car: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> RejectCarAsync(int carId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.PostAsync($"api/cars/{carId}/reject", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error rejecting car: {ex.Message}");
+            return false;
+        }
+    }
+
+    // Manager methods - Deal approval
+    public async Task<bool> ApproveDealAsync(int dealId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.PostAsync($"api/deals/{dealId}/approve", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error approving deal: {ex.Message}");
             return false;
         }
     }
@@ -774,6 +959,223 @@ public class ApiService
         catch (Exception ex)
         {
             Console.WriteLine($"Error uploading car image file: {ex.Message}");
+            return false;
+        }
+    }
+
+    // Reviews
+    public async Task<List<ReviewDto>> GetReviewsByCarAsync(int carId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.GetAsync($"api/reviews/car/{carId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var reviews = JsonSerializer.Deserialize<List<ReviewDto>>(jsonString, _jsonOptions) ?? new List<ReviewDto>();
+                return reviews;
+            }
+            return new List<ReviewDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching reviews by car: {ex.Message}");
+            return new List<ReviewDto>();
+        }
+    }
+
+    public async Task<List<ReviewDto>> GetReviewsByDealAsync(int dealId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            // Получаем одобренные отзывы для всех
+            var response = await _httpClient.GetAsync($"api/reviews/deal/{dealId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var approvedReviews = JsonSerializer.Deserialize<List<ReviewDto>>(jsonString, _jsonOptions) ?? new List<ReviewDto>();
+                
+                // Проверяем, есть ли неодобренный отзыв от текущего пользователя
+                var currentUserId = _authService.CurrentUser?.UserId;
+                if (!string.IsNullOrEmpty(currentUserId))
+                {
+                    // Пробуем получить все отзывы (включая неодобренные) через другой метод
+                    // Пока просто возвращаем одобренные - неодобренные будем проверять отдельно
+                    // TODO: Добавить метод для получения своих отзывов (одобренных и неодобренных)
+                }
+                
+                return approvedReviews;
+            }
+            return new List<ReviewDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching reviews by deal: {ex.Message}");
+            return new List<ReviewDto>();
+        }
+    }
+
+    public async Task<List<ReviewDto>> GetMyReviewsAsync()
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            // Получаем все свои отзывы (и одобренные, и неодобренные)
+            var response = await _httpClient.GetAsync("api/reviews/my");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var reviews = JsonSerializer.Deserialize<List<ReviewDto>>(jsonString, _jsonOptions) ?? new List<ReviewDto>();
+                return reviews;
+            }
+            return new List<ReviewDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching my reviews: {ex.Message}");
+            return new List<ReviewDto>();
+        }
+    }
+
+    public async Task<bool> CreateReviewAsync(int dealId, int rating, string comment)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            
+            var review = new
+            {
+                DealId = dealId,
+                Rating = rating,
+                Comment = comment,
+                AuthorId = (string?)null // API установит автоматически из токена
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("api/reviews", review, _jsonOptions);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Review created successfully for deal {dealId}");
+                return true;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error creating review: {response.StatusCode} - {errorContent}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating review: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> CanUserReviewDealAsync(int dealId)
+    {
+        try
+        {
+            // Проверяем, есть ли уже отзыв по этой сделке
+            var existingReviews = await GetReviewsByDealAsync(dealId);
+            if (existingReviews.Any())
+            {
+                // Проверяем, есть ли отзыв от текущего пользователя
+                var currentUserId = _authService.CurrentUser?.UserId;
+                if (!string.IsNullOrEmpty(currentUserId) && existingReviews.Any(r => r.AuthorId == currentUserId))
+                {
+                    return false; // Отзыв уже оставлен
+                }
+            }
+            
+            // Проверяем, что сделка завершена (нужно получить информацию о сделке)
+            var deal = await GetDealByIdAsync(dealId);
+            if (deal == null)
+            {
+                return false;
+            }
+            
+            return deal.Status == "Completed";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking if user can review deal: {ex.Message}");
+            return false;
+        }
+    }
+
+    // Модерация отзывов (для админа)
+    public async Task<List<ReviewDto>> GetPendingReviewsAsync()
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.GetAsync("api/reviews/pending");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var reviews = JsonSerializer.Deserialize<List<ReviewDto>>(jsonString, _jsonOptions) ?? new List<ReviewDto>();
+                return reviews;
+            }
+            return new List<ReviewDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching pending reviews: {ex.Message}");
+            return new List<ReviewDto>();
+        }
+    }
+
+    public async Task<bool> ApproveReviewAsync(int reviewId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.PostAsync($"api/reviews/{reviewId}/approve", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Review {reviewId} approved successfully");
+                return true;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error approving review: {response.StatusCode} - {errorContent}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error approving review: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> RejectReviewAsync(int reviewId)
+    {
+        try
+        {
+            await EnsureTokenAsync();
+            var response = await _httpClient.PostAsync($"api/reviews/{reviewId}/reject", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Review {reviewId} rejected successfully");
+                return true;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error rejecting review: {response.StatusCode} - {errorContent}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error rejecting review: {ex.Message}");
             return false;
         }
     }

@@ -1,0 +1,298 @@
+@page "/my-sales"
+@inject ApiService ApiService
+@inject AuthService AuthService
+@inject UserSettingsService SettingsService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Мои продажи - AutoMarket</PageTitle>
+
+@if (!AuthService.IsSeller)
+{
+    <div class="alert alert-danger" role="alert">
+        <span class="bi bi-exclamation-triangle"></span> У вас нет доступа к этой странице. Требуются права продавца.
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <h1><span class="bi bi-cash-stack"></span> Мои продажи</h1>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">Загрузка сделок...</p>
+        </div>
+    }
+    else
+    {
+        <div class="filters-panel mb-3">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select class="form-select" @onchange="OnFilterStatusChanged">
+                        <option value="">Все статусы</option>
+                        <option value="Created" selected="@(filterStatus == "Created")">Сделка создана</option>
+                        <option value="UnderReview" selected="@(filterStatus == "UnderReview")">На рассмотрении</option>
+                        <option value="InProgress" selected="@(filterStatus == "InProgress")">В работе</option>
+                        <option value="Completed" selected="@(filterStatus == "Completed")">Завершен</option>
+                        <option value="Cancelled" selected="@(filterStatus == "Cancelled")">Отменен</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100" @onclick="ClearFilters">
+                        Сбросить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Автомобиль</th>
+                        <th>Покупатель</th>
+                        <th>Цена</th>
+                        <th>Комиссия</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Дата завершения</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var deal in filteredDeals)
+                    {
+                        <tr>
+                            <td>@deal.Id</td>
+                            <td>
+                                <a href="/cars/@deal.CarId" class="text-decoration-none" target="_blank">
+                                    @GetCarDisplay(deal)
+                                    <span class="bi bi-box-arrow-up-right ms-1"></span>
+                                </a>
+                            </td>
+                            <td>@GetUserDisplay(deal.BuyerId, deal.BuyerName)</td>
+                            <td>@SettingsService.FormatPrice(deal.Price)</td>
+                            <td>
+                                @if (deal.CommissionAmount.HasValue)
+                                {
+                                    @SettingsService.FormatPrice(deal.CommissionAmount.Value)
+                                    @if (deal.CommissionPercent.HasValue)
+                                    {
+                                        <small>(@deal.CommissionPercent.Value%)</small>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(deal.Status)">
+                                    @GetStatusText(deal.Status)
+                                </span>
+                            </td>
+                            <td>@SettingsService.FormatDate(deal.CreatedAt)</td>
+                            <td>
+                                @if (deal.CompletedAt.HasValue)
+                                {
+                                    @SettingsService.FormatDate(deal.CompletedAt.Value)
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (filteredDeals.Count == 0)
+        {
+            <div class="alert alert-info text-center my-4">
+                <span class="bi bi-info-circle"></span> Сделки не найдены.
+            </div>
+        }
+
+        <div class="stats-bar mt-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Найдено:</strong> @filteredDeals.Count из @mySales.Count
+                </div>
+                <div class="col-md-3">
+                    <strong>Завершено:</strong> @filteredDeals.Count(d => d.Status == "Completed")
+                </div>
+                <div class="col-md-3">
+                    <strong>В работе:</strong> @filteredDeals.Count(d => d.Status == "InProgress" || d.Status == "UnderReview")
+                </div>
+                <div class="col-md-3">
+                    <strong>Общая сумма:</strong> @SettingsService.FormatPrice(filteredDeals.Sum(d => d.Price))
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<DealDto> mySales = new();
+    private List<DealDto> filteredDeals = new();
+    private List<CarDto> cars = new();
+    private List<BrandDto> brands = new();
+    private List<ModelDto> models = new();
+    private List<AdminUserDto> users = new();
+    private bool isLoading = true;
+    private string filterStatus = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.IsSeller)
+        {
+            await LoadData();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            var currentUserId = AuthService.CurrentUser?.UserId ?? "";
+            
+            // Используем специальный метод для получения сделок продавца
+            mySales = await ApiService.GetDealsBySellerAsync(currentUserId);
+            
+            // Загружаем дополнительные данные для отображения
+            cars = await ApiService.GetCarsAsync();
+            brands = await ApiService.GetBrandsAsync();
+            models = await ApiService.GetModelsAsync();
+            users = await ApiService.GetUsersAsync();
+            
+            // Заполняем CarInfo, SellerName, BuyerName для каждой сделки
+            foreach (var deal in mySales)
+            {
+                deal.CarInfo = GetCarFullName(deal.CarId);
+                deal.SellerName = GetUserDisplay(deal.SellerId, null);
+                deal.BuyerName = GetUserDisplay(deal.BuyerId, null);
+            }
+            
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading sales: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"Ошибка при загрузке продаж: {ex.Message}");
+            mySales = new List<DealDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredDeals = mySales.ToList();
+        
+        if (!string.IsNullOrEmpty(filterStatus))
+        {
+            filteredDeals = filteredDeals.Where(d => d.Status == filterStatus).ToList();
+        }
+    }
+
+    private void OnFilterStatusChanged(ChangeEventArgs e)
+    {
+        filterStatus = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        filterStatus = "";
+        ApplyFilters();
+    }
+
+    private string GetCarFullName(int carId)
+    {
+        var car = cars.FirstOrDefault(c => c.Id == carId);
+        if (car == null)
+        {
+            return $"Автомобиль ID: {carId}";
+        }
+
+        if (!string.IsNullOrEmpty(car.BrandName) && !string.IsNullOrEmpty(car.ModelName))
+        {
+            return $"{car.BrandName} {car.ModelName} {car.Year}";
+        }
+
+        var model = models.FirstOrDefault(m => m.Id == car.ModelId);
+        if (model != null)
+        {
+            var brand = brands.FirstOrDefault(b => b.Id == model.BrandId);
+            if (brand != null)
+            {
+                return $"{brand.Name} {model.Name} {car.Year}";
+            }
+            return $"{model.Name} {car.Year}";
+        }
+
+        return $"Автомобиль ID: {carId}";
+    }
+
+    private string GetCarDisplay(DealDto deal)
+    {
+        if (!string.IsNullOrEmpty(deal.CarInfo))
+        {
+            return deal.CarInfo;
+        }
+        
+        return GetCarFullName(deal.CarId);
+    }
+
+    private string GetUserDisplay(string userId, string? userName)
+    {
+        if (!string.IsNullOrEmpty(userName))
+        {
+            return userName;
+        }
+        
+        var user = users.FirstOrDefault(u => u.Id == userId);
+        if (user != null)
+        {
+            return $"{user.FirstName} {user.LastName}".Trim();
+        }
+        
+        return userId;
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Created" => "bg-info",
+            "UnderReview" => "bg-warning",
+            "InProgress" => "bg-primary",
+            "Completed" => "bg-success",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Created" => "Сделка создана",
+            "UnderReview" => "На рассмотрении",
+            "InProgress" => "В работе",
+            "Completed" => "Завершен",
+            "Cancelled" => "Отменен",
+            _ => status
+        };
+    }
+}

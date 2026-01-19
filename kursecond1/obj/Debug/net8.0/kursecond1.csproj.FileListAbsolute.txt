@@ -1033,8 +1033,7 @@ C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\kursecond1.d
 C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\refint\kursecond1.dll
 C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\kursecond1.pdb
 C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\ref\kursecond1.dll
-C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\kursecond1.sourcelink.json
-C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\compressed\7185doybs4-tc4ae4s4dq.gz
-C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\compressed\8z3wo9wmys-fo5athpl1i.gz
-C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\compressed\tn2iunlpth-3tczwcy2bn.gz
+C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\compressed\7185doybs4-z12di7v62s.gz
+C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\compressed\8z3wo9wmys-hoplnji2kp.gz
+C:\Users\Вера\Desktop\C#\kursecond1\kursecond1\obj\Debug\net8.0\compressed\tn2iunlpth-urqvt96ym5.gz

@@ -103,11 +103,135 @@ else
                                     <strong>Примечание:</strong> @order.Notes
                                 </div>
                             }
+                            
+                            @if (order.Status == "Completed")
+                            {
+                                var hasReview = HasReviewForDeal(order.Id);
+                                var review = hasReview ? GetReviewForDeal(order.Id) : null;
+                                
+                                <hr />
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        @if (hasReview && review != null)
+                                        {
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="text-success">
+                                                    <span class="bi bi-check-circle"></span> Отзыв оставлен
+                                                </span>
+                                                <div class="review-rating-small">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <span class="bi @(i <= review.Rating ? "bi-star-fill text-warning" : "bi-star text-muted")" style="font-size: 0.9rem;"></span>
+                                                    }
+                                                </div>
+                                                @if (review.IsApproved)
+                                                {
+                                                    <span class="badge bg-success">Одобрен</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">На модерации</span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <span class="bi bi-star"></span> Оставьте отзыв о покупке
+                                            </span>
+                                        }
+                                    </div>
+                                    @if (!hasReview)
+                                    {
+                                        <button class="btn btn-primary btn-sm" @onclick="() => ShowReviewModal(order.Id)">
+                                            <span class="bi bi-star-fill"></span> Оставить отзыв
+                                        </button>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             }
         </div>
+    }
+
+    <!-- Модальное окно для создания отзыва -->
+    @if (isReviewModalVisible)
+    {
+        <div class="modal show" style="display: block; background: rgba(0,0,0,0.5);" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content review-modal-content">
+                    <div class="modal-header review-modal-header">
+                        <h5 class="modal-title">
+                            <span class="bi bi-star-fill text-warning me-2"></span> Оставить отзыв
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseReviewModal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body review-modal-body">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                Рейтинг <span class="text-danger">*</span>
+                            </label>
+                            <div class="rating-selector mt-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var starRating = i;
+                                    <span class="star-rating-btn @(starRating <= reviewRating ? "active" : "")" 
+                                          @onclick="() => { reviewRating = starRating; StateHasChanged(); }"
+                                          @onmouseover="() => hoverRating = starRating"
+                                          @onmouseout="() => hoverRating = 0"
+                                          role="button"
+                                          tabindex="0"
+                                          @onkeypress="@((KeyboardEventArgs e) => { if (e.Key == "Enter") { reviewRating = starRating; StateHasChanged(); } })">
+                                        <span class="bi @((hoverRating > 0 ? starRating <= hoverRating : starRating <= reviewRating) ? "bi-star-fill text-warning" : "bi-star text-muted")" 
+                                              style="font-size: 2.5rem; transition: all 0.2s;"></span>
+                                    </span>
+                                }
+                                <span class="ms-3 align-middle rating-text">
+                                    <strong>@reviewRating</strong> из 5
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Комментарий</label>
+                            <textarea class="form-control review-textarea" rows="5" 
+                                      @bind="reviewComment" 
+                                      @bind:event="oninput"
+                                      maxlength="1000"
+                                      placeholder="Расскажите о вашем опыте покупки... Поделитесь своими впечатлениями."></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <span class="bi bi-info-circle"></span> Поле необязательное, но мы будем рады вашим отзывам
+                                </small>
+                                <small class="text-muted @(reviewComment.Length > 900 ? "text-warning" : "")">
+                                    <span class="@(reviewComment.Length > 1000 ? "text-danger" : "")">@reviewComment.Length</span> / 1000 символов
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer review-modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="CloseReviewModal" disabled="@isSubmittingReview">
+                            <span class="bi bi-x-lg"></span> Отмена
+                        </button>
+                        <button type="button" class="btn btn-primary btn-lg" @onclick="SubmitReview" disabled="@isSubmittingReview">
+                            @if (isSubmittingReview)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Отправка...</span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-send me-2"></span>
+                                <span>Отправить</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop show" style="opacity: 0.5;"></div>
     }
 }
 
@@ -193,6 +317,105 @@ else
             font-size: 0.875rem;
         }
     }
+
+    .review-rating-small {
+        display: inline-flex;
+        gap: 0.1rem;
+    }
+
+    .review-modal-content {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .review-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+        border-bottom: none;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .review-modal-header .modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .review-modal-body {
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+
+    .review-modal-footer {
+        border-top: 1px solid #dee2e6;
+        padding: 1.25rem 1.5rem;
+        background: white;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .rating-selector {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .star-rating-btn {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0.25rem;
+        border-radius: 4px;
+    }
+
+    .star-rating-btn:hover {
+        transform: scale(1.15);
+        background: rgba(255, 193, 7, 0.1);
+    }
+
+    .star-rating-btn.active {
+        background: rgba(255, 193, 7, 0.15);
+    }
+
+    .rating-text {
+        font-size: 1.1rem;
+        color: #495057;
+    }
+
+    .review-textarea {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .review-textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+
+    .modal.show {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show .modal-dialog {
+        margin: 0;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
 </style>
 
 @code {
@@ -200,13 +423,23 @@ else
     private List<CarDto> cars = new();
     private List<BrandDto> brands = new();
     private List<ModelDto> models = new();
+    private List<ReviewDto> reviews = new();
     private bool isLoading = true;
+    
+    // Модальное окно для создания отзыва
+    private bool isReviewModalVisible = false;
+    private int selectedDealId = 0;
+    private int reviewRating = 5;
+    private int hoverRating = 0;
+    private string reviewComment = "";
+    private bool isSubmittingReview = false;
 
     protected override async Task OnInitializedAsync()
     {
         if (AuthService.IsAuthenticated)
         {
             await LoadOrders();
+            await LoadReviews();
         }
         else
         {
@@ -247,6 +480,91 @@ else
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task LoadReviews()
+    {
+        try
+        {
+            // Загружаем свои отзывы (включая неодобренные)
+            reviews = await ApiService.GetMyReviewsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading reviews: {ex.Message}");
+        }
+    }
+
+    private bool HasReviewForDeal(int dealId)
+    {
+        if (!reviews.Any()) return false;
+        
+        var currentUserId = AuthService.CurrentUser?.UserId;
+        if (string.IsNullOrEmpty(currentUserId)) return false;
+        
+        return reviews.Any(r => r.DealId == dealId && r.AuthorId == currentUserId);
+    }
+
+    private ReviewDto? GetReviewForDeal(int dealId)
+    {
+        var currentUserId = AuthService.CurrentUser?.UserId;
+        if (string.IsNullOrEmpty(currentUserId)) return null;
+        
+        return reviews.FirstOrDefault(r => r.DealId == dealId && r.AuthorId == currentUserId);
+    }
+
+    private void ShowReviewModal(int dealId)
+    {
+        selectedDealId = dealId;
+        reviewRating = 5;
+        reviewComment = "";
+        isReviewModalVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseReviewModal()
+    {
+        isReviewModalVisible = false;
+        selectedDealId = 0;
+        reviewRating = 5;
+        reviewComment = "";
+        StateHasChanged();
+    }
+
+    private async Task SubmitReview()
+    {
+        if (selectedDealId == 0 || reviewRating < 1 || reviewRating > 5)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Пожалуйста, выберите рейтинг от 1 до 5");
+            return;
+        }
+
+        isSubmittingReview = true;
+        try
+        {
+            var success = await ApiService.CreateReviewAsync(selectedDealId, reviewRating, reviewComment);
+            
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Отзыв успешно отправлен на модерацию!");
+                CloseReviewModal();
+                await LoadReviews(); // Обновляем список отзывов
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Ошибка при создании отзыва. Проверьте, что сделка завершена и вы ещё не оставляли отзыв.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error submitting review: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Ошибка при создании отзыва: {ex.Message}");
+        }
+        finally
+        {
+            isSubmittingReview = false;
         }
     }
     
